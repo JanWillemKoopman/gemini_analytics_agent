@@ -13,16 +13,15 @@ rekening te houden met mobiel of tablet:
 
 - Geen mobiel navigatiepatroon, geen hamburger-menu, geen responsive breakpoints voor
   kleinere schermen nodig. Ga uit van een breed beeldscherm (laptop/monitor).
-- De sidebar mag altijd zichtbaar en vast blijven staan; hoeft niet weg te schuiven of
-  in te klappen op smalle viewports.
+- De sidebar is standaard een smalle icoon-rail en klapt op hover uit (zie
+  "Structuur van het scherm" hieronder) — dit is een bewuste, permanente desktop-
+  interactie, geen responsive/mobiel gedrag en niet iets om terug te draaien naar altijd
+  vast-en-breed zonder dat daarom gevraagd wordt.
 - De campagnetabel mag zo breed zijn als hij moet zijn; horizontaal scrollen binnen de
   tabel (met sticky eerste kolom) is de oplossing voor veel campagnes, niet het
   verkleinen van de layout voor een smaller scherm.
 - Test en itereer visueel op desktop-breedtes (1400–1920px). Besteed geen tijd aan
   mobiele/tablet-varianten tenzij daar expliciet om gevraagd wordt.
-
-Een eerdere iteratie bevatte wel een inklapbare sidebar/mobiel menu; die complexiteit
-mag eruit zodra hij in de weg zit — dit is geen eis om te behouden.
 
 ## Designvisie van het campagnedashboard
 
@@ -34,8 +33,13 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
 
 ### Structuur van het scherm
 
-- **Sidebar** (donkere, rustige navigatieschil): merknaam "UDENHOUT" + klein "AI"-label,
-  hoofdnavigatie (Campagnes, Vraag het je data, Kennisbank, Kosten), onderaan
+- **Sidebar** (donkere, rustige navigatieschil): staat standaard ingeklapt als een
+  smalle icoon-rail (72px, `components/Sidebar.tsx`) met alleen het `LogoMark`
+  ("AI"-beeldmerk) en de navigatie-iconen; op hover klapt hij uit tot 240px (labels,
+  wordmark "Udenhout" en profielnaam faden/schuiven mee in, via Tailwind
+  `group`/`group-hover` — geen JS-state nodig) en overlayt hij de content in plaats van
+  hem te verschuiven (de aside is absoluut gepositioneerd binnen een vaste 72px-kolom in
+  `AppShell.tsx`). Navigatie: Campagnes, Vraag het je data, Kennisbank, Kosten, onderaan
   Instellingen en het gebruikersprofiel. Eén actieve state, subtiel gemarkeerd — geen
   felle kleuren.
 - **Geen dubbele navigatie**: de tabbladtitels staan alleen in de sidebar, nooit ook nog

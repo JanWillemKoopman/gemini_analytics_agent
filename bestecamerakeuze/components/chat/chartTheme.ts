@@ -1,41 +1,29 @@
 /**
- * Grafiekthema voor de chatantwoorden.
+ * Grafiekthema voor de chatantwoorden en de kostengrafiek.
  *
  * De huisstijlkleuren zijn ontworpen voor tekst en vlakken, niet voor datavisualisatie.
  * Het merkblauw #003da5 is te donker voor een grafiekmark (het valt buiten de
  * lichtheidsband waarin marks naast elkaar leesbaar blijven), en het zand #e2ddd1 heeft
- * te weinig contrast met het witte vlak. Onderstaande reeks is daarom afgeleid van de
+ * te weinig contrast met het witte vlak. De reeks per theme is daarom afgeleid van de
  * huisstijl maar doorgerekend op leesbaarheid: lichtheidsband, chroma-ondergrens,
- * onderscheid bij kleurenblindheid (protan/deutan/tritan) en contrast met de achtergrond.
+ * onderscheid bij kleurenblindheid (protan/deutan/tritan) en contrast met de
+ * achtergrond van dat theme (bij Audi en CUPRA dus een donkere achtergrond).
  *
- * Alle zes de controles zijn gehaald; de zwaarste combinatie is teal↔oranje met een
- * ΔE van 9,4 bij protanopie — ruim boven de ondergrens van 8.
+ * Alle zes de controles zijn gehaald voor het standaardtheme; de zwaarste combinatie is
+ * teal↔oranje met een ΔE van 9,4 bij protanopie — ruim boven de ondergrens van 8.
  *
  * Belangrijk bij gebruik: een staafdiagram van categorieën is ÉÉN serie en krijgt dus
- * één kleur voor alle staven. De reeks hieronder is uitsluitend voor échte identiteit —
+ * één kleur voor alle staven. De categoriereeks is uitsluitend voor échte identiteit —
  * donutsegmenten en meerdere lijnen — en wordt op volgorde toegekend, nooit herhaald.
+ *
+ * De kleuren zelf staan per theme in `lib/themes.ts`: Recharts zet ze als
+ * SVG-attribuut (`fill`, `stroke`) en die lezen geen CSS-variabelen, dus ze kunnen niet
+ * uit de tokens in globals.css komen. Componenten halen ze op met `useGrafiekKleuren()`
+ * uit `components/ThemeProvider`.
  */
 
-/** Vaste vololgorde. Kleur volgt de categorie, niet zijn positie in de ranglijst. */
-export const CATEGORIE_KLEUREN = [
-  "#2563c9", // blauw — afgeleid van het huisstijl-helderblauw, opgelicht voor grafiekgebruik
-  "#ed6935", // oranje — huisstijlkleur, ongewijzigd
-  "#0d8f7f", // teal
-  "#b3312c", // rood
-  "#8258c4", // paars
-  "#a97400", // oker
-] as const;
-
-/** Eén serie = één kleur. Dit is de standaard voor staaf- en lijngrafieken. */
-export const SERIE_KLEUR = CATEGORIE_KLEUREN[0];
-
-/** Voor "één ding is het punt, de rest is context". */
-export const CONTEXT_GRIJS = "#b6b3ad";
-
-export const AS_STIJL = { fontSize: 12, fill: "#5b6472" } as const;
-/** Hairline, effen — nooit gestippeld: dat leest als drempel of prognose. */
-export const RASTER_KLEUR = "rgba(25, 36, 59, 0.10)";
-export const VLAK_KLEUR = "#ffffff";
+/** Astekst; de grootte is voor elk theme gelijk, alleen de kleur volgt het theme. */
+export const AS_GROOTTE = 12;
 
 export type Eenheid = "geen" | "euro" | "aantal" | "procent";
 

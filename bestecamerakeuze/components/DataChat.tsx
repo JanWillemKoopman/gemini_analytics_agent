@@ -456,7 +456,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
         </p>
         <a
           href="/login"
-          className="mt-5 inline-block rounded-pill bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          className="mt-5 inline-block rounded-button bg-primary px-5 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
         >
           Inloggen
         </a>
@@ -511,7 +511,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
                 <div key={i}>
                   {bericht.rol === "gebruiker" ? (
                     <div className="flex justify-end">
-                      <p className="max-w-[85%] rounded-panel bg-primary px-4 py-2.5 whitespace-pre-wrap text-white">
+                      <p className="max-w-[85%] rounded-panel bg-primary px-4 py-2.5 whitespace-pre-wrap text-on-primary">
                         {bericht.tekst}
                       </p>
                     </div>
@@ -579,7 +579,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
                       key={v}
                       type="button"
                       onClick={() => void verstuur(v)}
-                      className="rounded-pill border border-line bg-card px-3.5 py-1.5 text-sm text-ink transition-colors hover:border-primary"
+                      className="rounded-button border border-line bg-card px-3.5 py-1.5 text-sm text-ink transition-colors hover:border-primary"
                     >
                       {v}
                     </button>
@@ -624,7 +624,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
               <button
                 type="button"
                 onClick={stop}
-                className="rounded-pill border border-line bg-card px-5 py-2.5 font-medium text-ink transition-colors hover:border-primary"
+                className="rounded-button border border-line bg-card px-5 py-2.5 font-medium text-ink transition-colors hover:border-primary"
               >
                 Stop
               </button>
@@ -632,7 +632,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
               <button
                 type="submit"
                 disabled={!invoer.trim()}
-                className="rounded-pill bg-primary px-5 py-2.5 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-40"
+                className="rounded-button bg-primary px-5 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-40"
               >
                 Vraag
               </button>

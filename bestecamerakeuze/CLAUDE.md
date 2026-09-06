@@ -114,14 +114,56 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
 - Borders zijn extreem subtiel (`--color-line`, `--color-line-soft`) — gebruikt om
   structuur te geven (tabelgroepen, cards, controls), niet om elke cel zwaar te
   omlijnen.
-- Radius-systeem: `--radius-control` (8–10px) voor knoppen/inputs, `--radius-card`
-  (16px) voor cards, `--radius-panel` (20px) voor grotere panelen, `--radius-pill` waar
-  semantisch een pil-vorm past (zoals de inlogknop) — niet overal pillvormig maken.
+- Radius-systeem: `--radius-control` (8–10px) voor kleine controls, `--radius-button`
+  voor knoppen en invoervelden (de vorm die per merk het sterkst verschilt: pil bij
+  Udenhout/Volkswagen, 4px bij Porsche, 0 bij CUPRA), `--radius-card` (16px) voor
+  cards, `--radius-panel` (20px) voor grotere panelen, `--radius-pill` alleen waar een
+  vorm echt altijd een pil is (de progress bar) — niet overal pillvormig maken.
   Shadows zijn subtiel (`--shadow-card`, `--shadow-dropdown`), nooit een zware
   drop-shadow.
 - Typografie: `TheSansB` (huisstijl) met Inter als geladen fallback via
   `next/font/google`. Sectiekoppen (zoals "PLANNING") zijn klein, uppercase, met iets
-  verhoogde letter-spacing en gedempt — ondersteunend, niet dominant.
+  verhoogde letter-spacing en gedempt — ondersteunend, niet dominant. Lettergroottes
+  lopen via tokens (`--text-xs/sm/base` plus `--text-label`, `--text-cell`,
+  `--text-title`), niet via arbitrary waardes als `text-[15px]` — anders kan een theme
+  ze niet verzetten.
+- Tekst bovenop een gekleurd vlak: `text-on-primary` (niet `text-white`) en
+  `text-on-logo` voor het "AI"-beeldmerk. Niet elk merk heeft een donkere primaire
+  kleur: op Škoda's Electric Green en CUPRA's koper hoort juist donkere tekst.
+
+### Themes (het oogje rechtsboven)
+
+Rechtsboven in het scherm staat een oog-icoon (`components/ThemeSwitcher.tsx`) waarmee
+je de vormgeving van het hele dashboard omzet: de huisstijl van Udenhout zelf, of die
+van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
+
+- **Hoe het werkt.** `components/ThemeProvider.tsx` zet `data-theme="…"` op `<html>` en
+  bewaart de keuze in localStorage; een klein inline script in `app/layout.tsx` zet dat
+  attribuut al vóór de eerste paint, zodat je geen flits van het standaardtheme ziet.
+  Per theme staat er in `app/globals.css` een `[data-theme="…"]`-blok dat de tokens
+  overschrijft. Die blokken staan bewust **buiten** `@layer`: Tailwind zet zijn eigen
+  tokens in `@layer theme`, en ongelaagde CSS wint altijd van gelaagde CSS.
+- **Waarom het overal werkt.** Elk component gebruikt uitsluitend de semantische tokens
+  (`bg-card`, `text-ink`, `border-line`, `rounded-button`, `font-sans-w7`, …). Zolang
+  dat zo blijft, hoeft nieuwe UI niets van themes te weten en verandert hij vanzelf
+  mee. Een hardgecodeerde `bg-[#ffffff]` of `text-white` breekt precies dat.
+- **Een theme is meer dan kleur.** Font, lettergrootte, letterspatiëring, kapitalen,
+  hoekradius en schaduw horen er net zo goed bij; een theme dat alleen kleuren verzet
+  ziet er niet uit als dat merk. De typografische eigenschappen die geen Tailwind-
+  utility hebben (`--theme-title-*`, `--theme-label-*`, `--theme-body-tracking`) worden
+  toegepast via de classes `.titel-theme` en `.label-theme`.
+- **Twee donkere themes** (Audi en CUPRA) draaien het hele scherm om. Controleer bij
+  nieuwe UI dus altijd even één van die twee: een vlak dat alleen op wit getest is,
+  valt daar door de mand.
+- **Fonts.** De huisstijlletters van de merken zijn geen van alle vrij te gebruiken; in
+  `app/layout.tsx` staat per merk de dichtstbijzijnde vrije benadering (DM Sans, Archivo,
+  Manrope, Fira Sans, Saira, Barlow, Jost + Cormorant Garamond) met een toelichting
+  waaróm die is gekozen. Ze laden met `preload: false`, zodat een bezoeker alleen het
+  font van zijn eigen theme binnenhaalt.
+- **Grafieken** kunnen geen CSS-variabelen lezen (Recharts zet kleuren als
+  SVG-attribuut), dus het palet per theme staat in `lib/themes.ts` en wordt opgehaald
+  met `useGrafiekKleuren()`. Nieuw theme = een blok in globals.css + een regel in
+  `lib/themes.ts`; verder hoeft er niets te veranderen.
 
 ### Component- en codepatronen
 
@@ -131,6 +173,9 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   `StatusIndicator`, `Modal`, `CampaignNotes`, `Avatar`, `brandLogos`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
+- Het oogje voor de themes hangt `fixed` rechtsboven in het scherm (niet in de
+  PageHeader), zodat het op elk tabblad en tijdens scrollen op dezelfde plek staat; de
+  `<main>` houdt daarvoor rechts ruimte vrij (`pr-16`).
 - Eén icon-set (`components/icons.tsx`): simpele, consistente line-icons met
   `stroke="currentColor"`. Geen emoji, geen mix van iconstijlen, geen los icon-pakket
   voor een handvol glyphs — alleen wanneer een merklogo echt een getrouwe vector nodig

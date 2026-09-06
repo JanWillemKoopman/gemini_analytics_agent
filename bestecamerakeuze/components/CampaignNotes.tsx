@@ -138,7 +138,7 @@ export default function CampaignNotes({ campagneNaam, ingelogd }: Props) {
               <p>Log in om aantekeningen te bekijken en toe te voegen.</p>
               <a
                 href="/login"
-                className="mt-3 inline-block rounded-pill bg-primary px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+                className="mt-3 inline-block rounded-button bg-primary px-4 py-1.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
               >
                 Inloggen
               </a>
@@ -183,7 +183,7 @@ export default function CampaignNotes({ campagneNaam, ingelogd }: Props) {
                               <button
                                 type="button"
                                 onClick={() => opslaan(item.id)}
-                                className="rounded-control bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-dark"
+                                className="rounded-control bg-primary px-3 py-1 text-xs font-medium text-on-primary hover:bg-primary-dark"
                               >
                                 Opslaan
                               </button>
@@ -252,7 +252,7 @@ export default function CampaignNotes({ campagneNaam, ingelogd }: Props) {
                   onClick={toevoegen}
                   disabled={!nieuw.trim() || bezigMetToevoegen}
                   aria-label="Aantekening toevoegen"
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-primary text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-primary text-on-primary transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <IconPlus className="h-4 w-4" />
                 </button>

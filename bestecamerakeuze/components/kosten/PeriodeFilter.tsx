@@ -68,7 +68,7 @@ export default function PeriodeFilter({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 rounded-pill border border-line bg-card px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-primary"
+        className="flex items-center gap-1.5 rounded-button border border-line bg-card px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-primary"
       >
         {herkenLabel(periode)}
       </button>
@@ -117,7 +117,7 @@ export default function PeriodeFilter({
                 onChange({ van: aangepastVan, tot: aangepastTot });
                 setOpen(false);
               }}
-              className="mt-2 w-full rounded-pill bg-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+              className="mt-2 w-full rounded-button bg-primary px-3 py-1.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
             >
               Toepassen
             </button>

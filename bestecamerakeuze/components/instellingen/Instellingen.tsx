@@ -134,7 +134,7 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
         </p>
         <a
           href="/login"
-          className="mt-5 inline-block rounded-pill bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          className="mt-5 inline-block rounded-button bg-primary px-5 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
         >
           Inloggen
         </a>
@@ -209,7 +209,7 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
           <button
             type="submit"
             disabled={bezigMetOpslaan}
-            className="rounded-control bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:cursor-wait disabled:opacity-60"
+            className="rounded-control bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:cursor-wait disabled:opacity-60"
           >
             {bezigMetOpslaan ? "Opslaan…" : "Opslaan"}
           </button>

@@ -55,7 +55,7 @@ export default function FilterSelect({ label, options, selected, onChange }: Pro
         aria-expanded={open}
         className="flex min-w-[128px] flex-col items-start gap-0.5 rounded-control px-3 py-1.5 text-left transition-colors duration-150 hover:bg-surface"
       >
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-faint">{label}</span>
+        <span className="label-theme text-label text-ink-faint">{label}</span>
         <span className="flex items-center gap-1 text-sm font-medium text-ink">
           <span className="max-w-32 truncate">{valueLabel}</span>
           <IconChevronDown

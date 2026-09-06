@@ -129,7 +129,7 @@ export default function CampaignTable({ campagnes, notitiesBeschikbaar, ingelogd
             <tr>
               <th
                 scope="col"
-                className="sticky left-0 top-0 z-30 border-b border-r border-line bg-card px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-faint"
+                className="label-theme sticky left-0 top-0 z-30 border-b border-r border-line bg-card px-4 py-3 text-label text-ink-faint"
               >
                 Campagne
               </th>
@@ -154,7 +154,7 @@ export default function CampaignTable({ campagnes, notitiesBeschikbaar, ingelogd
                 <tr>
                   <th
                     scope="colgroup"
-                    className="sticky left-0 z-10 border-b border-line-soft bg-surface-tint px-4 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-faint"
+                    className="label-theme sticky left-0 z-10 border-b border-line-soft bg-surface-tint px-4 py-1.5 text-left text-label text-ink-faint"
                   >
                     {group.title}
                   </th>

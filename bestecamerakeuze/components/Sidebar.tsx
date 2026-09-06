@@ -46,10 +46,10 @@ export default function Sidebar({
         <div className="flex items-center gap-2.5 px-0.5">
           <LogoMark className="h-9 w-9 text-[13px]" />
           <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
-            <span className="block font-sans-w7 text-[15px] font-bold tracking-[0.04em] text-sidebar-ink">
+            <span className="block font-sans-w7 text-cell font-bold tracking-[0.04em] text-sidebar-ink">
               Udenhout
             </span>
-            <span className="block text-[11px] text-sidebar-ink-muted">AI-dataloket</span>
+            <span className="block text-label text-sidebar-ink-muted">AI-dataloket</span>
           </span>
         </div>
 
@@ -61,7 +61,7 @@ export default function Sidebar({
             onClick={() => onNavigate("campagnes")}
           />
 
-          <p className="mb-1 mt-4 hidden px-3 text-[11px] font-semibold uppercase tracking-wider text-sidebar-ink-muted group-hover:block">
+          <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
             Chatbot
           </p>
           <NavigationItem

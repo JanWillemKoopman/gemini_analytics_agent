@@ -4,6 +4,7 @@ import { useState } from "react";
 import FooterNote from "@/components/FooterNote";
 import PageHeader from "@/components/PageHeader";
 import Sidebar, { type DashboardView } from "@/components/Sidebar";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 type Props = {
   gebruikerEmail: string | null;
@@ -67,6 +68,10 @@ export default function AppShell({
 
   return (
     <div className="flex min-h-screen bg-page">
+      {/* Het oogje staat helemaal rechtsboven in het scherm en blijft daar op elk
+          tabblad staan — het hoort bij het venster, niet bij één pagina. */}
+      <ThemeSwitcher />
+
       <div className="sticky top-0 z-30 h-screen w-[72px] shrink-0">
         <Sidebar
           actief={actief}
@@ -77,7 +82,9 @@ export default function AppShell({
         />
       </div>
 
-      <main className="min-w-0 flex-1 px-8 py-6">
+      {/* pr-16: ruimte voor het vaste oogje rechtsboven, zodat de status-/updateknop
+          in de PageHeader er niet onder verdwijnt. */}
+      <main className="min-w-0 flex-1 py-6 pl-8 pr-16">
         <PageHeader
           title={title}
           subtitle={subtitle}

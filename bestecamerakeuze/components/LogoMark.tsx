@@ -7,7 +7,7 @@ export default function LogoMark({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center rounded-[10px] bg-primary font-sans-w7 text-[13px] font-bold tracking-tight text-white ${className ?? ""}`}
+      className={`flex shrink-0 items-center justify-center rounded-control bg-logo font-sans-w7 text-[13px] font-bold tracking-tight text-on-logo ${className ?? ""}`}
     >
       AI
     </span>

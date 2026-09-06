@@ -17,7 +17,7 @@ export default function CampaignHeader({ campagne, notitiesBeschikbaar, ingelogd
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <div className="flex min-w-0 items-start justify-between gap-1.5">
-        <span className="block min-w-0 truncate text-[15px] font-semibold text-ink">{campagne.naam}</span>
+        <span className="block min-w-0 truncate text-cell font-semibold text-ink">{campagne.naam}</span>
         {notitiesBeschikbaar && (
           <CampaignNotes campagneNaam={campagne.naam} ingelogd={ingelogd} />
         )}

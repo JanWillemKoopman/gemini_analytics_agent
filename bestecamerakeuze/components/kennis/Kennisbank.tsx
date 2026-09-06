@@ -109,9 +109,9 @@ function Formulierveld({
               key={s.waarde}
               type="button"
               onClick={() => setFormulier({ ...formulier, soort: s.waarde })}
-              className={`rounded-pill border px-3.5 py-1.5 text-sm transition-colors ${
+              className={`rounded-button border px-3.5 py-1.5 text-sm transition-colors ${
                 formulier.soort === s.waarde
-                  ? "border-primary bg-primary text-white"
+                  ? "border-primary bg-primary text-on-primary"
                   : "border-line bg-card text-ink hover:border-primary"
               }`}
             >
@@ -181,14 +181,14 @@ function Formulierveld({
           type="button"
           onClick={onOpslaan}
           disabled={bezig || !formulier.titel.trim() || !formulier.inhoud.trim()}
-          className="rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-40"
+          className="rounded-button bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-40"
         >
           {bezig ? "Opslaan…" : "Opslaan"}
         </button>
         <button
           type="button"
           onClick={onAnnuleer}
-          className="rounded-pill border border-line bg-card px-5 py-2.5 text-sm text-ink transition-colors hover:border-primary"
+          className="rounded-button border border-line bg-card px-5 py-2.5 text-sm text-ink transition-colors hover:border-primary"
         >
           Annuleren
         </button>
@@ -283,7 +283,7 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
         </p>
         <a
           href="/login"
-          className="mt-5 inline-block rounded-pill bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          className="mt-5 inline-block rounded-button bg-primary px-5 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
         >
           Inloggen
         </a>
@@ -320,7 +320,7 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
               setBewerktId(null);
               setFormulier(leeg());
             }}
-            className="rounded-pill bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            className="rounded-button bg-primary px-5 py-2.5 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
           >
             Kennis toevoegen
           </button>
@@ -330,7 +330,7 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
           value={zoek}
           onChange={(e) => setZoek(e.target.value)}
           placeholder="Zoeken"
-          className="min-w-[200px] flex-1 rounded-pill border border-line bg-card px-4 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
+          className="min-w-[200px] flex-1 rounded-button border border-line bg-card px-4 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
         />
         <span className="text-sm text-ink-faint">
           {items.filter((i) => i.actief).length} actief van {items.length}
@@ -410,7 +410,7 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`rounded-pill border px-2.5 py-0.5 text-xs ${SOORT_KLEUR[item.soort]}`}
+                      className={`rounded-button border px-2.5 py-0.5 text-xs ${SOORT_KLEUR[item.soort]}`}
                     >
                       {SOORTEN.find((s) => s.waarde === item.soort)?.label ?? item.soort}
                     </span>
@@ -433,21 +433,21 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
                   <button
                     type="button"
                     onClick={() => bewerk(item)}
-                    className="rounded-pill border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-primary hover:text-ink"
+                    className="rounded-button border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-primary hover:text-ink"
                   >
                     Aanpassen
                   </button>
                   <button
                     type="button"
                     onClick={() => void zetActief(item, !item.actief)}
-                    className="rounded-pill border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-primary hover:text-ink"
+                    className="rounded-button border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-primary hover:text-ink"
                   >
                     {item.actief ? "Uitzetten" : "Aanzetten"}
                   </button>
                   <button
                     type="button"
                     onClick={() => void verwijder(item)}
-                    className="rounded-pill border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-orange hover:text-orange"
+                    className="rounded-button border border-line bg-card px-3 py-1 text-xs text-ink-muted transition-colors hover:border-orange hover:text-orange"
                   >
                     Verwijderen
                   </button>

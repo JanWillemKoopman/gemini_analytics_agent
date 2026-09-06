@@ -15,17 +15,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  alsGetal,
-  alsLabel,
-  AS_STIJL,
-  CATEGORIE_KLEUREN,
-  formatteer,
-  RASTER_KLEUR,
-  SERIE_KLEUR,
-  VLAK_KLEUR,
-  type Eenheid,
-} from "./chartTheme";
+import { useGrafiekKleuren } from "@/components/ThemeProvider";
+import { alsGetal, alsLabel, AS_GROOTTE, formatteer, type Eenheid } from "./chartTheme";
 
 /**
  * De visuele weergave van één queryresultaat.
@@ -144,6 +135,14 @@ function KpiTegel({
 }
 
 export default function Visual({ weergave, kolommen, rijen }: Props) {
+  // Het palet volgt het gekozen theme (het oogje rechtsboven): een grafiek op het
+  // Audi- of CUPRA-theme staat op een donkere kaart en heeft dus andere marks nodig
+  // dan dezelfde grafiek op een licht theme.
+  const kleuren = useGrafiekKleuren();
+  const asStijl = { fontSize: AS_GROOTTE, fill: kleuren.as } as const;
+  // Eén serie = één kleur; de eerste kleur van de reeks is de seriekleur.
+  const serieKleur = kleuren.categorieen[0];
+
   const labelKolom =
     weergave.labelKolom && kolommen.includes(weergave.labelKolom)
       ? weergave.labelKolom
@@ -234,14 +233,14 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
                 outerRadius={92}
                 // 2px tussenruimte in de vlakkleur i.p.v. een rand om elk segment.
                 paddingAngle={1.5}
-                stroke={VLAK_KLEUR}
+                stroke={kleuren.vlak}
                 strokeWidth={2}
                 isAnimationActive={false}
               >
                 {data.map((d, i) => (
                   <Cell
                     key={d.label}
-                    fill={CATEGORIE_KLEUREN[i % CATEGORIE_KLEUREN.length]}
+                    fill={kleuren.categorieen[i % kleuren.categorieen.length]}
                   />
                 ))}
               </Pie>
@@ -255,7 +254,7 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
                 <span
                   aria-hidden="true"
                   className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ background: CATEGORIE_KLEUREN[i % CATEGORIE_KLEUREN.length] }}
+                  style={{ background: kleuren.categorieen[i % kleuren.categorieen.length] }}
                 />
                 <span className="flex-1 text-ink">{d.label}</span>
                 <span className="font-sans-w7 font-semibold text-ink tabular-nums">
@@ -291,10 +290,10 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
         {/* Hoogte omvat de asband, zodat de labels niet buiten de kaart vallen. */}
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
-            <CartesianGrid stroke={RASTER_KLEUR} vertical={false} />
-            <XAxis dataKey="label" tick={AS_STIJL} tickLine={false} axisLine={false} minTickGap={24} />
+            <CartesianGrid stroke={kleuren.raster} vertical={false} />
+            <XAxis dataKey="label" tick={asStijl} tickLine={false} axisLine={false} minTickGap={24} />
             <YAxis
-              tick={AS_STIJL}
+              tick={asStijl}
               tickLine={false}
               axisLine={false}
               width={56}
@@ -303,7 +302,7 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
             <Tooltip content={<Tip eenheid={eenheid} />} />
             <Line
               dataKey="waarde"
-              stroke={SERIE_KLEUR}
+              stroke={serieKleur}
               strokeWidth={2}
               // Alleen het eindpunt krijgt een marker: dat is de stand van nu, en het
               // maakt de laatste waarde afleesbaar zonder te hoveren.
@@ -318,13 +317,13 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
                     cx={props.cx}
                     cy={props.cy}
                     r={4}
-                    fill={SERIE_KLEUR}
-                    stroke={VLAK_KLEUR}
+                    fill={serieKleur}
+                    stroke={kleuren.vlak}
                     strokeWidth={2}
                   />
                 );
               }}
-              activeDot={{ r: 5, strokeWidth: 2, stroke: VLAK_KLEUR }}
+              activeDot={{ r: 5, strokeWidth: 2, stroke: kleuren.vlak }}
               isAnimationActive={false}
             >
             </Line>
@@ -346,10 +345,10 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
           layout="vertical"
           margin={{ top: 4, right: 56, bottom: 4, left: 4 }}
         >
-          <CartesianGrid stroke={RASTER_KLEUR} horizontal={false} />
+          <CartesianGrid stroke={kleuren.raster} horizontal={false} />
           <XAxis
             type="number"
-            tick={AS_STIJL}
+            tick={asStijl}
             tickLine={false}
             axisLine={false}
             tickFormatter={(v: number) => formatteer(v, eenheid, true)}
@@ -357,15 +356,15 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
           <YAxis
             type="category"
             dataKey="label"
-            tick={AS_STIJL}
+            tick={asStijl}
             tickLine={false}
             axisLine={false}
             width={120}
           />
-          <Tooltip content={<Tip eenheid={eenheid} />} cursor={{ fill: "rgba(25,36,59,0.04)" }} />
+          <Tooltip content={<Tip eenheid={eenheid} />} cursor={{ fill: kleuren.raster }} />
           <Bar
             dataKey="waarde"
-            fill={SERIE_KLEUR}
+            fill={serieKleur}
             // Afgeronde uiteinden aan de datazijde; de staaf blijft op de nullijn staan.
             radius={[0, 4, 4, 0]}
             barSize={16}
@@ -377,7 +376,7 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
               dataKey="waarde"
               position="right"
               offset={8}
-              fill="#19243b"
+              fill={kleuren.label}
               fontSize={12}
               fontWeight={600}
               formatter={(v: unknown) => formatteer(Number(v), eenheid, true)}

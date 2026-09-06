@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { createClient } from "@/lib/supabase/client";
 
 /**
@@ -43,7 +44,8 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-md flex-col justify-center px-4 py-16">
-      <h1 className="font-sans-w7 text-2xl font-bold text-ink">Inloggen</h1>
+      <ThemeSwitcher />
+      <h1 className="titel-theme text-ink">Inloggen</h1>
       <p className="mt-2 text-sm text-ink-muted">
         Log in met het e-mailadres en wachtwoord die je van Udenhout hebt gekregen.
       </p>
@@ -56,7 +58,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="voornaam@udenhout.nl"
-          className="rounded-pill border border-line bg-card px-5 py-3 text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
+          className="rounded-button border border-line bg-card px-5 py-3 text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
         />
         <input
           type="password"
@@ -65,12 +67,12 @@ export default function LoginPage() {
           value={wachtwoord}
           onChange={(e) => setWachtwoord(e.target.value)}
           placeholder="Wachtwoord"
-          className="rounded-pill border border-line bg-card px-5 py-3 text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
+          className="rounded-button border border-line bg-card px-5 py-3 text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
         />
         <button
           type="submit"
           disabled={bezig}
-          className="rounded-pill bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
+          className="rounded-button bg-primary px-6 py-3 font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:opacity-50"
         >
           {bezig ? "Inloggen…" : "Inloggen"}
         </button>

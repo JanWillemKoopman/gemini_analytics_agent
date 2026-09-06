@@ -1,15 +1,34 @@
 @import "tailwindcss";
 
-/* Tailwind v4 configureert het thema in CSS. Elke token hier levert automatisch
-   utilities op (--color-brand → bg-brand, text-brand, border-brand, …).
+/* Tailwind CSS v4 configureert het thema in CSS. Elke token hier levert automatisch
+   utilities op (--color-brand → bg-brand, text-brand, border-brand, --text-label →
+   text-label, --radius-button → rounded-button, …).
 
-   Exact palet van udenhout.nl (uit de officiële site-CSS, niet meer geraden uit
-   screenshots): zwart/wit als basis, donkerblauw (#19243b) voor merk/navigatie,
-   helderblauw (#003da5) als primaire actie-/linkkleur, oranje (#ed6935) als
-   secundair accent, en zand (#e2ddd1) / lichtbeige (#f6f4f0) als neutrale
-   vlakken — o.a. voor tabelkoppen en zebra-rijen. Pil-vormige knoppen en filters
-   (volledig afgeronde hoeken), net als op hun site. */
+   ── Themes ──────────────────────────────────────────────────────────────────────
+   Het blok hieronder is het standaardtheme (de huisstijl van Udenhout). Onderaan dit
+   bestand staat per automerk uit de Volkswagen Groep een `[data-theme="…"]`-blok dat
+   dezelfde tokens overschrijft; het oogje rechtsboven (components/ThemeSwitcher.tsx)
+   zet dat attribuut op <html>. Omdat élk component uitsluitend deze semantische tokens
+   gebruikt, verandert daarmee het hele dashboard — alle tabbladen, tabellen, grafieken,
+   pop-ups en formulieren — in één keer mee.
+
+   Twee dingen om vast te houden bij het aanpassen of toevoegen van een theme:
+   - De `[data-theme]`-blokken staan bewust búiten `@layer`. Tailwind zet zijn eigen
+     tokens in `@layer theme`, en ongelaagde CSS wint altijd van gelaagde CSS — anders
+     zou je met specificiteit moeten gaan vechten.
+   - Kleur is niet het enige verschil. Font, lettergrootte, letterspatiëring,
+     hoekradius en schaduw horen net zo goed bij het merk; een theme dat alleen
+     kleuren verzet, ziet er niet uit als dat merk.
+
+   Standaardtheme — exact palet van udenhout.nl (uit de officiële site-CSS): zwart/wit
+   als basis, donkerblauw (#19243b) voor merk/navigatie, helderblauw (#003da5) als
+   primaire actie-/linkkleur, oranje (#ed6935) als secundair accent, en zand (#e2ddd1) /
+   lichtbeige (#f6f4f0) als neutrale vlakken. */
 @theme {
+  /* Merkkleur; --color-brand-light is de vlakkleur van het initialen-avatar en
+     --color-brand de initialen daarin. Dat avatar staat zowel op de donkere sidebar
+     als op een lichte kaart, dus dit paar moet altijd een dekkende vlakkleur met
+     voldoende contrast zijn — geen doorschijnende accenttint. */
   --color-brand: #19243b;
   --color-brand-dark: #0e1421;
   --color-brand-light: #e6eaf1;
@@ -18,10 +37,21 @@
   --color-primary: #003da5;
   --color-primary-dark: #002e7d;
   --color-primary-light: rgba(0, 61, 165, 0.08);
+  /* Tekst/iconen bovenop --color-primary. Niet elk merk heeft een donkere primaire
+     kleur (Škoda's Electric Green en CUPRA's koper vragen juist om donkere tekst),
+     dus dit is een token en geen vaste `text-white`. */
+  --color-on-primary: #ffffff;
 
   /* Oranje: secundair accent, zoals de state-orange knoppen/bullets in de huisstijl. */
   --color-orange: #ed6935;
   --color-orange-dark: #d8571f;
+
+  /* Het "AI"-beeldmerk in de sidebar. Bij Volkswagen, Škoda en Bentley is de primaire
+     merkkleur óók de sidebarkleur — een beeldmerk in bg-primary zou daar onzichtbaar
+     zijn. Vandaar een eigen kleurenpaar, dat per theme de accentkleur van het merk
+     pakt (VW-helderblauw, Škoda's Electric Green, Bentley-goud). */
+  --color-logo: #003da5;
+  --color-on-logo: #ffffff;
 
   --color-accent: #e2ddd1;
   --color-accent-dark: #d5cdbb;
@@ -70,9 +100,21 @@
   --radius-panel: 20px;
   --radius-pill: 999px;
   --radius-control: 10px;
+  /* Vorm van knoppen en invoervelden. Udenhout en Volkswagen zijn pilvormig, Porsche
+     bijna rechthoekig, CUPRA en Bentley scherp — dit is per merk een van de meest
+     kenmerkende verschillen, dus een eigen token in plaats van een vaste `rounded-pill`. */
+  --radius-button: 999px;
 
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
   --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.12);
+
+  /* Lettergroottes zijn onderdeel van het theme: Audi zet grote, brede letters neer,
+     CUPRA juist compacte kapitalen. De Tailwind-groottes (text-xs/sm/base) zijn
+     daarom per theme overschrijfbaar, plus drie eigen maten voor terugkerende
+     plekken in dit dashboard. */
+  --text-label: 11px; /* kleine kapitalen: PLANNING, STATUS, MERK, … */
+  --text-cell: 15px; /* campagnenaam in de tabelkop, naam in de sidebar */
+  --text-title: 28px; /* de paginatitel in de PageHeader */
 
   /* TheSansB (W5 Plain body / W7 koppen) is de huisstijlfont van udenhout.nl, maar niet
      publiek als webfont beschikbaar — staat daarom vooraan de stack voor wanneer hij
@@ -86,16 +128,51 @@
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Typografische eigenschappen die geen Tailwind-utility nodig hebben, maar wel per merk
+   verschillen. Ze worden toegepast door de `.titel-theme` / `.label-theme`-classes
+   verderop; een theme hoeft alleen deze waardes te verzetten. */
+:root {
+  --theme-title-weight: 700;
+  --theme-title-tracking: -0.02em;
+  --theme-title-transform: none;
+  --theme-title-stretch: 100%;
+  --theme-label-tracking: 0.06em;
+  --theme-label-transform: uppercase;
+  --theme-label-weight: 600;
+  --theme-body-tracking: normal;
+}
+
 body {
   background-color: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  letter-spacing: var(--theme-body-tracking);
   -webkit-font-smoothing: antialiased;
+}
+
+/* De paginatitel van elk tabblad. Per merk verschilt niet alleen de grootte maar ook
+   het gewicht (Audi zet zijn koppen juist licht neer), de spatiëring en of hij in
+   kapitalen staat (CUPRA, Bentley). */
+.titel-theme {
+  font-family: var(--font-sans-w7);
+  font-size: var(--text-title);
+  font-weight: var(--theme-title-weight);
+  font-stretch: var(--theme-title-stretch);
+  letter-spacing: var(--theme-title-tracking);
+  text-transform: var(--theme-title-transform);
+  line-height: 1.15;
+}
+
+/* De kleine kapitalenlabels: groepskoppen in de tabel, filterlabels, menukopjes. */
+.label-theme {
+  font-weight: var(--theme-label-weight);
+  letter-spacing: var(--theme-label-tracking);
+  text-transform: var(--theme-label-transform);
 }
 
 @layer base {
   :focus-visible {
-    outline: 2px solid var(--color-brand);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
@@ -139,4 +216,579 @@ body {
   .status-dot-ademen {
     animation: none;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   VOLKSWAGEN
+   Licht, kalm en toegankelijk. Deep Space Blue (#001e50) is bij Volkswagen niet alleen
+   de merkkleur maar ook de tekstkleur: het hele scherm staat in blauwzwart in plaats
+   van in grijs. Daarnaast een koel lichtgrijs canvas, helderblauw (#00b0f0) als
+   signaalkleur, en de ronde, pilvormige knoppen die de site kenmerken. VW Head/VW Text
+   is niet vrij beschikbaar; DM Sans benadert de geometrische, vriendelijke vormen met
+   de hoge x-hoogte het dichtst.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="volkswagen"] {
+  --color-logo: #00b0f0;
+  --color-on-logo: #001e50;
+
+  --color-brand: #001e50;
+  --color-brand-dark: #00133a;
+  --color-brand-light: #e0edfa;
+
+  --color-primary: #001e50;
+  --color-primary-dark: #00133a;
+  --color-primary-light: rgba(0, 30, 80, 0.07);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #00b0f0;
+  --color-orange-dark: #0092c8;
+
+  --color-accent: #d6e4f2;
+  --color-accent-dark: #bed4ea;
+  --color-surface: #e9edf3;
+  --color-surface-tint: #f6f8fb;
+
+  --color-ink: #001e50;
+  --color-ink-muted: rgba(0, 30, 80, 0.66);
+  --color-ink-faint: rgba(0, 30, 80, 0.45);
+
+  --color-page: #f0f2f5;
+  --color-card: #ffffff;
+  --color-line: rgba(0, 30, 80, 0.12);
+  --color-line-soft: rgba(0, 30, 80, 0.07);
+
+  --color-open: #008c46;
+  --color-open-light: #d8f2e3;
+  --color-open-bright: #4fd08c;
+  --color-closed: #8794a8;
+  --color-closed-light: #e9edf3;
+
+  --color-positive: #008c46;
+  --color-negative: #c8102e;
+
+  --color-progress-track: rgba(0, 30, 80, 0.1);
+  --color-progress-fill: #00b0f0;
+
+  --color-sidebar: #001e50;
+  --color-sidebar-line: rgba(255, 255, 255, 0.12);
+  --color-sidebar-ink: #ffffff;
+  --color-sidebar-ink-muted: rgba(255, 255, 255, 0.6);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-active: rgba(0, 176, 240, 0.22);
+
+  --radius-card: 16px;
+  --radius-panel: 20px;
+  --radius-control: 12px;
+  --radius-button: 999px;
+
+  --shadow-card: 0 1px 2px rgba(0, 30, 80, 0.05), 0 1px 14px rgba(0, 30, 80, 0.05);
+  --shadow-dropdown: 0 10px 28px rgba(0, 30, 80, 0.16);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 30px;
+
+  --font-sans: var(--font-vw), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-sans-w7: var(--font-vw), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+
+  --theme-title-weight: 700;
+  --theme-title-tracking: -0.02em;
+  --theme-label-tracking: 0.05em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   AUDI
+   Audi keert om waar de concurrentie licht blijft: het canvas is bijna-zwart (#181d25)
+   met bijna-witte tekst (#fcfcfd), en Progressive Red (#f50537) is het enige accent —
+   spaarzaam ingezet, precies zoals in hun eigen interface. Koppen staan in Audi Type
+   met een normaal (niet vet) gewicht, groot en verbreed; Archivo is een variabele
+   grotesk waarvan de breedte-as (wdth) diezelfde "extended" indruk geeft. Knoppen zijn
+   volledig ronde pillen, fotokaders 20px afgerond.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="audi"] {
+  --color-logo: #f50537;
+  --color-on-logo: #ffffff;
+
+  --color-brand: #181d25;
+  --color-brand-dark: #c50429;
+  --color-brand-light: #e8e9ec;
+
+  --color-primary: #f50537;
+  --color-primary-dark: #d20430;
+  --color-primary-light: rgba(245, 5, 55, 0.14);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #f50537;
+  --color-orange-dark: #d20430;
+
+  --color-accent: #333a45;
+  --color-accent-dark: #464e5b;
+  --color-surface: #232936;
+  --color-surface-tint: #1d222c;
+
+  --color-ink: #fcfcfd;
+  --color-ink-muted: rgba(252, 252, 253, 0.68);
+  --color-ink-faint: rgba(252, 252, 253, 0.45);
+
+  --color-page: #101319;
+  --color-card: #181d25;
+  --color-line: rgba(252, 252, 253, 0.13);
+  --color-line-soft: rgba(252, 252, 253, 0.07);
+
+  --color-open: #31d0aa;
+  --color-open-light: rgba(49, 208, 170, 0.16);
+  --color-open-bright: #9df0dd;
+  --color-closed: #767d89;
+  --color-closed-light: rgba(252, 252, 253, 0.08);
+
+  --color-positive: #31d0aa;
+  --color-negative: #ff6b7a;
+
+  --color-progress-track: rgba(252, 252, 253, 0.14);
+  --color-progress-fill: #f50537;
+
+  --color-sidebar: #0b0e13;
+  --color-sidebar-line: rgba(255, 255, 255, 0.1);
+  --color-sidebar-ink: #fcfcfd;
+  --color-sidebar-ink-muted: rgba(252, 252, 253, 0.55);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --color-sidebar-active: rgba(245, 5, 55, 0.24);
+
+  --radius-card: 20px;
+  --radius-panel: 24px;
+  --radius-control: 12px;
+  --radius-button: 999px;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.6);
+
+  --text-xs: 0.8125rem; /* 13px */
+  --text-sm: 0.9375rem; /* 15px */
+  --text-base: 1.0625rem; /* 17px */
+  --text-label: 12px;
+  --text-cell: 16px;
+  --text-title: 34px;
+
+  --font-sans: var(--font-audi), ui-sans-serif, system-ui, Verdana, sans-serif;
+  --font-sans-w7: var(--font-audi), ui-sans-serif, system-ui, Verdana, sans-serif;
+
+  /* Audi zet koppen groot en breed neer, maar niet vet — dat is het kenmerk van
+     Audi Type Extended. */
+  --theme-title-weight: 400;
+  --theme-title-tracking: -0.01em;
+  --theme-title-stretch: 118%;
+  --theme-label-weight: 500;
+  --theme-label-tracking: 0.08em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   ŠKODA
+   Twee groenen tegenover elkaar: Emerald Green (#0e3a2f) als inkt- en merkkleur voor
+   alles wat vertrouwen moet uitstralen, en Electric Green (#78faae) als frisse
+   signaalkleur — precies de dualiteit uit hun huisstijl. Verder veel wit, een
+   groenig-witte pagina en rechthoekige knoppen met een kleine radius. Škoda Next/Pro is
+   geometrisch met licht afgeronde uiteinden; Manrope komt daar dicht bij.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="skoda"] {
+  --color-logo: #78faae;
+  --color-on-logo: #0e3a2f;
+
+  --color-brand: #0e3a2f;
+  --color-brand-dark: #092822;
+  --color-brand-light: #dcf3e6;
+
+  --color-primary: #0e3a2f;
+  --color-primary-dark: #092822;
+  --color-primary-light: rgba(14, 58, 47, 0.08);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #0e6b4f;
+  --color-orange-dark: #0a5540;
+
+  --color-accent: #cfe6d8;
+  --color-accent-dark: #b7d8c4;
+  --color-surface: #eaf1ec;
+  --color-surface-tint: #f7faf8;
+
+  --color-ink: #0e3a2f;
+  --color-ink-muted: rgba(14, 58, 47, 0.68);
+  --color-ink-faint: rgba(14, 58, 47, 0.45);
+
+  --color-page: #f2f5f2;
+  --color-card: #ffffff;
+  --color-line: rgba(14, 58, 47, 0.13);
+  --color-line-soft: rgba(14, 58, 47, 0.07);
+
+  --color-open: #118a4e;
+  --color-open-light: #dcf7e7;
+  --color-open-bright: #78faae;
+  --color-closed: #8a9c93;
+  --color-closed-light: #eaf1ec;
+
+  --color-positive: #118a4e;
+  --color-negative: #b4321f;
+
+  --color-progress-track: rgba(14, 58, 47, 0.1);
+  --color-progress-fill: #118a4e;
+
+  --color-sidebar: #0e3a2f;
+  --color-sidebar-line: rgba(255, 255, 255, 0.12);
+  --color-sidebar-ink: #ffffff;
+  --color-sidebar-ink-muted: rgba(255, 255, 255, 0.6);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --color-sidebar-active: rgba(120, 250, 174, 0.22);
+
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-control: 8px;
+  --radius-button: 6px;
+
+  --shadow-card: 0 1px 2px rgba(14, 58, 47, 0.05), 0 1px 14px rgba(14, 58, 47, 0.05);
+  --shadow-dropdown: 0 10px 28px rgba(14, 58, 47, 0.16);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 30px;
+
+  --font-sans: var(--font-skoda), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-sans-w7: var(--font-skoda), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+
+  --theme-title-weight: 800;
+  --theme-title-tracking: -0.03em;
+  --theme-label-tracking: 0.07em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   SEAT
+   Mediterraan en warm: een zandwit canvas in plaats van koel grijs, zwarte inkt zoals
+   het huidige (monochrome) SEAT-woordmerk, en SEAT-rood (#e4002b) als enige felle
+   kleur. SEAT's huisstijlletter stamt af van FF Meta; Fira Sans is van dezelfde
+   ontwerper en de dichtstbijzijnde vrij beschikbare verwant. Vriendelijke, ronde
+   knoppen.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="seat"] {
+  --color-logo: #e4002b;
+  --color-on-logo: #ffffff;
+
+  --color-brand: #111111;
+  --color-brand-dark: #000000;
+  --color-brand-light: #f0ece7;
+
+  --color-primary: #e4002b;
+  --color-primary-dark: #b80023;
+  --color-primary-light: rgba(228, 0, 43, 0.08);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #e2801e;
+  --color-orange-dark: #c26810;
+
+  --color-accent: #e8e1d8;
+  --color-accent-dark: #d9d0c3;
+  --color-surface: #f0ece7;
+  --color-surface-tint: #faf8f6;
+
+  --color-ink: #111111;
+  --color-ink-muted: rgba(17, 17, 17, 0.64);
+  --color-ink-faint: rgba(17, 17, 17, 0.44);
+
+  --color-page: #f5f3f0;
+  --color-card: #ffffff;
+  --color-line: rgba(17, 17, 17, 0.12);
+  --color-line-soft: rgba(17, 17, 17, 0.06);
+
+  --color-open: #0f8f5f;
+  --color-open-light: #dcf3e8;
+  --color-open-bright: #5fd8a0;
+  --color-closed: #9a938b;
+  --color-closed-light: #f0ece7;
+
+  --color-positive: #0f8f5f;
+  --color-negative: #c8102e;
+
+  --color-progress-track: rgba(17, 17, 17, 0.1);
+  --color-progress-fill: #e4002b;
+
+  --color-sidebar: #171513;
+  --color-sidebar-line: rgba(255, 255, 255, 0.1);
+  --color-sidebar-ink: #faf8f6;
+  --color-sidebar-ink-muted: rgba(250, 248, 246, 0.58);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --color-sidebar-active: rgba(228, 0, 43, 0.28);
+
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-control: 10px;
+  --radius-button: 999px;
+
+  --shadow-card: 0 1px 2px rgba(17, 17, 17, 0.05), 0 1px 14px rgba(17, 17, 17, 0.05);
+  --shadow-dropdown: 0 10px 28px rgba(17, 17, 17, 0.16);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 28px;
+
+  --font-sans: var(--font-seat), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-sans-w7: var(--font-seat), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+
+  --theme-title-weight: 700;
+  --theme-title-tracking: -0.02em;
+  --theme-label-tracking: 0.06em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   CUPRA
+   Het donkerste en scherpste theme. Petrol blue als bijna-zwarte ondergrond, koper als
+   enige warme kleur, en overal rechte hoeken (radius 0–4px) — CUPRA's vormtaal is
+   hoekig, van het logo tot de knoppen. Koperen vlakken krijgen dónkere tekst, niet
+   witte: dat is hoe het merk het zelf doet en het is bovendien beter leesbaar. Koppen
+   in kapitalen met ruime spatiëring; Saira benadert de smalle, technische CUPRA-letter.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="cupra"] {
+  --color-logo: #b58150;
+  --color-on-logo: #0a1416;
+
+  --color-brand: #0e1a1d;
+  --color-brand-dark: #8f6238;
+  --color-brand-light: #d9cfc2;
+
+  --color-primary: #b58150;
+  --color-primary-dark: #9a6b3e;
+  --color-primary-light: rgba(181, 129, 80, 0.16);
+  /* Donkere tekst op koper — koper is te licht voor wit. */
+  --color-on-primary: #0a1416;
+
+  --color-orange: #b58150;
+  --color-orange-dark: #9a6b3e;
+
+  --color-accent: #1c3034;
+  --color-accent-dark: #264146;
+  --color-surface: #16272a;
+  --color-surface-tint: #122023;
+
+  --color-ink: #f2f0ed;
+  --color-ink-muted: rgba(242, 240, 237, 0.64);
+  --color-ink-faint: rgba(242, 240, 237, 0.42);
+
+  --color-page: #0a1416;
+  --color-card: #0e1a1d;
+  --color-line: rgba(242, 240, 237, 0.12);
+  --color-line-soft: rgba(242, 240, 237, 0.07);
+
+  --color-open: #4fb89a;
+  --color-open-light: rgba(79, 184, 154, 0.16);
+  --color-open-bright: #a8ecd9;
+  --color-closed: #6d7f82;
+  --color-closed-light: rgba(242, 240, 237, 0.08);
+
+  --color-positive: #4fb89a;
+  --color-negative: #e0554a;
+
+  --color-progress-track: rgba(242, 240, 237, 0.12);
+  --color-progress-fill: #b58150;
+
+  --color-sidebar: #050d0f;
+  --color-sidebar-line: rgba(255, 255, 255, 0.09);
+  --color-sidebar-ink: #f2f0ed;
+  --color-sidebar-ink-muted: rgba(242, 240, 237, 0.52);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --color-sidebar-active: rgba(181, 129, 80, 0.28);
+
+  --radius-card: 4px;
+  --radius-panel: 4px;
+  --radius-control: 2px;
+  --radius-button: 0px;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 22px rgba(0, 0, 0, 0.35);
+  --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.62);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem; /* 13px — compacter, technischer */
+  --text-base: 0.9375rem;
+  --text-label: 11px;
+  --text-cell: 14px;
+  --text-title: 26px;
+
+  --font-sans: var(--font-cupra), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-sans-w7: var(--font-cupra), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+
+  --theme-title-weight: 600;
+  --theme-title-tracking: 0.1em;
+  --theme-title-transform: uppercase;
+  --theme-label-weight: 600;
+  --theme-label-tracking: 0.14em;
+  --theme-body-tracking: 0.01em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   PORSCHE
+   Technisch, precies, terughoudend. Het Porsche Design System werkt met een licht grijs
+   vlak (#eeeff2) achter witte kaarten, bijna-zwarte tekst (#010205), grijstinten voor
+   secundaire tekst (#626669) en Porsche-rood (#d5001c) uitsluitend als accent. Kleine
+   hoekradii (4–8px) in plaats van pillen — de vormen zijn recht en gecontroleerd. De
+   fallbackstack van Porsche Next begint met Arial Narrow; Barlow heeft diezelfde iets
+   smallere, strakke grotesk-vorm.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="porsche"] {
+  --color-logo: #d5001c;
+  --color-on-logo: #ffffff;
+
+  --color-brand: #010205;
+  --color-brand-dark: #000000;
+  --color-brand-light: #eeeff2;
+
+  --color-primary: #d5001c;
+  --color-primary-dark: #b00017;
+  --color-primary-light: rgba(213, 0, 28, 0.08);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #d5001c;
+  --color-orange-dark: #b00017;
+
+  --color-accent: #d8d8db;
+  --color-accent-dark: #c9cacb;
+  --color-surface: #eeeff2;
+  --color-surface-tint: #f7f8f9;
+
+  --color-ink: #010205;
+  --color-ink-muted: #626669;
+  --color-ink-faint: #96989a;
+
+  --color-page: #eeeff2;
+  --color-card: #ffffff;
+  --color-line: rgba(1, 2, 5, 0.14);
+  --color-line-soft: rgba(1, 2, 5, 0.07);
+
+  --color-open: #018a16;
+  --color-open-light: #dcf2df;
+  --color-open-bright: #5fd170;
+  --color-closed: #96989a;
+  --color-closed-light: #eeeff2;
+
+  --color-positive: #018a16;
+  --color-negative: #e00000;
+
+  --color-progress-track: rgba(1, 2, 5, 0.12);
+  --color-progress-fill: #d5001c;
+
+  --color-sidebar: #0e1418;
+  --color-sidebar-line: rgba(255, 255, 255, 0.11);
+  --color-sidebar-ink: #ffffff;
+  --color-sidebar-ink-muted: rgba(255, 255, 255, 0.6);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --color-sidebar-active: rgba(213, 0, 28, 0.3);
+
+  --radius-card: 8px;
+  --radius-panel: 12px;
+  --radius-control: 4px;
+  --radius-button: 4px;
+
+  --shadow-card: 0 1px 2px rgba(1, 2, 5, 0.06), 0 1px 12px rgba(1, 2, 5, 0.05);
+  --shadow-dropdown: 0 10px 28px rgba(1, 2, 5, 0.18);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 32px;
+
+  --font-sans: var(--font-porsche), "Arial Narrow", ui-sans-serif, system-ui, Arial, sans-serif;
+  --font-sans-w7: var(--font-porsche), "Arial Narrow", ui-sans-serif, system-ui, Arial, sans-serif;
+
+  --theme-title-weight: 700;
+  --theme-title-tracking: -0.015em;
+  --theme-label-tracking: 0.05em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   BENTLEY
+   Het rustigste en meest klassieke theme: crème papier in plaats van wit-grijs,
+   British Racing Green als inkt- en navigatiekleur, en goud als enige accent — de
+   kleuren van het merk zelf. Randen zijn vrijwel recht (2–3px), zoals gedrukt
+   briefpapier. Koppen staan in een geserifde letter, in kapitalen met ruime spatiëring
+   (Cormorant Garamond); de lopende tekst in een rustige geometrische sans (Jost),
+   verwant aan de Gill-achtige letter waar Bentley zijn huisstijlletter op baseerde.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="bentley"] {
+  --color-logo: #b08d45;
+  --color-on-logo: #10231c;
+
+  --color-brand: #10231c;
+  --color-brand-dark: #081712;
+  --color-brand-light: #e3ece7;
+
+  --color-primary: #103b2d;
+  --color-primary-dark: #0a2a20;
+  --color-primary-light: rgba(16, 59, 45, 0.08);
+  --color-on-primary: #f5f2eb;
+
+  --color-orange: #b08d45;
+  --color-orange-dark: #94742f;
+
+  --color-accent: #e4ded1;
+  --color-accent-dark: #d3ccbb;
+  --color-surface: #ece7dc;
+  --color-surface-tint: #f8f6f1;
+
+  --color-ink: #1a2b23;
+  --color-ink-muted: rgba(26, 43, 35, 0.66);
+  --color-ink-faint: rgba(26, 43, 35, 0.44);
+
+  --color-page: #f5f2eb;
+  --color-card: #ffffff;
+  --color-line: rgba(26, 43, 35, 0.14);
+  --color-line-soft: rgba(26, 43, 35, 0.07);
+
+  --color-open: #1c6b4b;
+  --color-open-light: #dcece4;
+  --color-open-bright: #6cc49e;
+  --color-closed: #96968a;
+  --color-closed-light: #ece7dc;
+
+  --color-positive: #1c6b4b;
+  --color-negative: #9c3123;
+
+  --color-progress-track: rgba(26, 43, 35, 0.12);
+  --color-progress-fill: #b08d45;
+
+  --color-sidebar: #10231c;
+  --color-sidebar-line: rgba(245, 242, 235, 0.14);
+  --color-sidebar-ink: #f5f2eb;
+  --color-sidebar-ink-muted: rgba(245, 242, 235, 0.58);
+  --color-sidebar-hover: rgba(245, 242, 235, 0.07);
+  --color-sidebar-active: rgba(176, 141, 69, 0.3);
+
+  --radius-card: 3px;
+  --radius-panel: 3px;
+  --radius-control: 2px;
+  --radius-button: 2px;
+
+  --shadow-card: 0 1px 2px rgba(26, 43, 35, 0.06), 0 1px 12px rgba(26, 43, 35, 0.05);
+  --shadow-dropdown: 0 10px 30px rgba(26, 43, 35, 0.2);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 32px;
+
+  --font-sans: var(--font-bentley), ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-sans-w7: var(--font-bentley-kop), Georgia, "Times New Roman", serif;
+
+  --theme-title-weight: 600;
+  --theme-title-tracking: 0.16em;
+  --theme-title-transform: uppercase;
+  --theme-label-weight: 500;
+  --theme-label-tracking: 0.16em;
+  --theme-body-tracking: 0.015em;
 }

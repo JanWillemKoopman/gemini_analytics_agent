@@ -12,7 +12,7 @@ export default function PageHeader({ title, subtitle, meta }: Props) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="font-sans-w7 text-[28px] font-bold leading-tight tracking-tight text-ink">
+        <h1 className="titel-theme text-ink">
           {title}
         </h1>
         <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>

@@ -13,7 +13,8 @@ import {
 import FilterSelect from "@/components/FilterSelect";
 import PeriodeFilter, { type Periode } from "@/components/kosten/PeriodeFilter";
 import { formatNumber, formatUsd } from "@/lib/format";
-import { RASTER_KLEUR, AS_STIJL, SERIE_KLEUR } from "@/components/chat/chartTheme";
+import { AS_GROOTTE } from "@/components/chat/chartTheme";
+import { useGrafiekKleuren } from "@/components/ThemeProvider";
 
 interface KostenRegel {
   datum: string;
@@ -80,6 +81,9 @@ function DagTooltip({
 }
 
 export default function Kosten({ ingelogd }: { ingelogd: boolean }) {
+  // Zelfde palet als de chatgrafieken; volgt het gekozen theme.
+  const kleuren = useGrafiekKleuren();
+  const asStijl = { fontSize: AS_GROOTTE, fill: kleuren.as } as const;
   const [periode, setPeriode] = useState<Periode>({ van: dagenGeleden(29), tot: vandaag() });
   const [modellen, setModellen] = useState<string[]>([]);
   const [data, setData] = useState<Overzicht | null>(null);
@@ -122,7 +126,7 @@ export default function Kosten({ ingelogd }: { ingelogd: boolean }) {
         <p className="font-sans-w7 text-lg font-bold text-ink">Log in om de kosten te bekijken</p>
         <a
           href="/login"
-          className="mt-5 inline-block rounded-pill bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+          className="mt-5 inline-block rounded-button bg-primary px-5 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark"
         >
           Inloggen
         </a>
@@ -174,17 +178,17 @@ export default function Kosten({ ingelogd }: { ingelogd: boolean }) {
         <p className="mb-4 font-sans-w7 text-sm font-bold text-ink">Uitgaven per dag</p>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={balkjes} margin={{ top: 4, right: 8, bottom: 4, left: 4 }}>
-            <CartesianGrid stroke={RASTER_KLEUR} vertical={false} />
+            <CartesianGrid stroke={kleuren.raster} vertical={false} />
             <XAxis
               dataKey="label"
-              tick={AS_STIJL}
+              tick={asStijl}
               tickLine={false}
               axisLine={false}
               interval={dichteAs ? "preserveStartEnd" : 0}
               minTickGap={dichteAs ? 24 : 4}
             />
             <YAxis
-              tick={AS_STIJL}
+              tick={asStijl}
               tickLine={false}
               axisLine={false}
               width={64}
@@ -193,7 +197,7 @@ export default function Kosten({ ingelogd }: { ingelogd: boolean }) {
             <Tooltip content={<DagTooltip />} cursor={{ fill: "rgba(25,36,59,0.04)" }} />
             <Bar
               dataKey="kostenUsd"
-              fill={SERIE_KLEUR}
+              fill={kleuren.categorieen[0]}
               radius={[3, 3, 0, 0]}
               isAnimationActive={false}
               // Elke dag krijgt een staaf, ook bij €0 — anders lijkt een stille dag

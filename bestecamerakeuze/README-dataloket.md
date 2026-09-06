@@ -11,7 +11,7 @@ Onderstaande stappen zijn eenmalig.
 Voer in volgorde uit in de Supabase SQL-editor:
 `supabase/migrations/0001_dataloket.sql`, dan `0002_gesprekken.sql`, dan
 `0003_kennisbank.sql`, dan `0004_claude_kosten.sql`, dan `0005_campagne_notities.sql`,
-dan `0006_profielen.sql`.
+dan `0006_profielen.sql`, dan `0007_google_ads.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -21,7 +21,10 @@ historie van ervoor), de vijfde de aantekeningen/learnings per campagne (voedt d
 aantekeningen-pop-up op het campagnedashboard — die knop verschijnt pas zodra Supabase
 geconfigureerd is, ongeacht de andere twee dataloket-variabelen hieronder), de zesde de
 naam + avatarfoto per collega (inclusief de `avatars`-bucket in Supabase Storage) — voedt
-zowel Instellingen als de naam/foto bij elke aantekening.
+zowel Instellingen als de naam/foto bij elke aantekening, de zevende de vier
+Google Ads-tabellen (campagnes, zoekwoorden, advertentiegroepen, conversies) — die
+blijven leeg totdat `/api/sync-ads` voor het eerst draait (zie "Google Ads API
+koppelen" hieronder).
 
 Dat maakt het `dataloket`-schema aan met:
 
@@ -60,8 +63,13 @@ In Vercel (of `.env.local` voor lokaal):
 | `DATAQUERY_DATABASE_URL` | de read-only verbinding uit stap 2 |
 | `ANTHROPIC_API_KEY` | de Claude API |
 | `SYNC_DATABASE_URL` | schrijvende verbinding, alleen voor de sync-job |
-| `CRON_SECRET` | beschermt `/api/sync` tegen aanroepen van buiten |
+| `CRON_SECRET` | beschermt `/api/sync` én `/api/sync-ads` tegen aanroepen van buiten |
 | `SUPABASE_SERVICE_ROLE_KEY` | alleen voor `scripts/maak-gebruiker.ts`, nooit in de app zelf — zie hieronder |
+| `GOOGLE_ADS_DEVELOPER_TOKEN` | toegang tot de Google Ads API — zie "Google Ads API koppelen" |
+| `GOOGLE_ADS_CLIENT_ID` / `GOOGLE_ADS_CLIENT_SECRET` | OAuth-client waarmee de refresh token is aangemaakt |
+| `GOOGLE_ADS_REFRESH_TOKEN` | logt in namens de Google-gebruiker die toegang tot de Ads-accounts heeft, zonder wachtwoord opnieuw in te voeren |
+| `GOOGLE_ADS_LOGIN_CUSTOMER_ID` | het manager-account (MCC) waaronder de klantaccounts hangen |
+| `GOOGLE_ADS_CUSTOMER_IDS` | de klantaccounts die uitgelezen worden, kommagescheiden |
 
 `DATAQUERY_DATABASE_URL` en `SYNC_DATABASE_URL` horen **verschillende** rollen te zijn.
 
@@ -106,6 +114,55 @@ in `middleware.ts` aan — dat staat als commentaar in het bestand.
    `lib/dictionary/index.ts`.
 
 Stap 4 is het werk dat ertoe doet. Zie hieronder.
+
+## Google Ads API koppelen
+
+In tegenstelling tot de sheets loopt Google Ads niet via `lib/sync/bronnen.ts` maar via
+een rechtstreekse, geauthenticeerde verbinding met de Google Ads API
+(`lib/sync/googleAds.ts`, aangeroepen door `/api/sync-ads`). Dat vraagt vier dingen die
+je eenmalig moet aanmaken:
+
+1. **Developer token.** Log in op het [Google Ads API Center](https://ads.google.com/aw/apicenter)
+   met het manager-account (MCC) en vraag een developer token aan. Nieuwe tokens
+   krijgen automatisch **test access** (werkt alleen tegen test-accounts); voor de
+   echte accounts moet je **basic access** aanvragen via hetzelfde scherm — dat is een
+   handmatige beoordeling door Google en kan een paar dagen duren. Zonder goedkeuring
+   krijg je een `DEVELOPER_TOKEN_NOT_APPROVED`-fout zodra de sync draait.
+2. **OAuth-client (client ID + secret).** Maak in de
+   [Google Cloud Console](https://console.cloud.google.com/apis/credentials) een
+   OAuth 2.0-client aan van het type "Desktop app" (of "Web application" met
+   `http://localhost` als redirect-URI), in een project waar de **Google Ads API** is
+   ingeschakeld (API's en services → Bibliotheek → "Google Ads API" → Inschakelen).
+   Dit levert `GOOGLE_ADS_CLIENT_ID` en `GOOGLE_ADS_CLIENT_SECRET` op.
+3. **Refresh token.** Met die client-gegevens doorloop je één keer de OAuth-toestemming
+   als de Google-gebruiker die toegang heeft tot het MCC — bijvoorbeeld met Google's
+   eigen [OAuth 2.0 Playground](https://developers.google.com/oauthplayground):
+   client ID/secret invullen bij de instellingen (tandwiel rechtsboven, "Use your own
+   OAuth credentials"), scope `https://www.googleapis.com/auth/adwords` autoriseren, en
+   de playground ruilt de toestemming in voor een refresh token. Die token verloopt
+   niet vanzelf (tenzij hij 6 maanden ongebruikt blijft) — bewaar hem als
+   `GOOGLE_ADS_REFRESH_TOKEN`.
+4. **Account-ids.** `GOOGLE_ADS_LOGIN_CUSTOMER_ID` is het manager-account (het
+   10-cijferige id rechtsboven in de Google Ads-interface, zonder streepjes) waarmee je
+   inlogt. `GOOGLE_ADS_CUSTOMER_IDS` zijn de losse klantaccounts eronder die
+   daadwerkelijk uitgelezen worden — kommagescheiden, optioneel met een leesbare naam
+   erachter (`1234567890:Udenhout Trucks,2345678901:Udenhout Bedrijfswagens`); zonder
+   naam wordt het kale id gebruikt. Zie `.env.example` voor het exacte format.
+
+Zodra alle zes variabelen gezet zijn (zie de tabel hierboven) pakt `/api/sync-ads` ze
+automatisch op bij de volgende cron-run of handmatige aanroep — zonder dat is het een
+no-op, net als `/api/sync` zonder `BRONNEN`. De sync haalt telkens de laatste 90 dagen
+op voor vier rapporten (campagnes, zoekwoorden, advertentiegroepen, conversies per
+conversieactie) en vervangt de bijbehorende tabellen volledig, zelfde filosofie als de
+sheet-sync. De vier tabellen zijn al beschreven in `lib/dictionary/tabellen/`
+(`googleAdsCampagnes.ts`, `googleAdsZoekwoorden.ts`, `googleAdsAdvertentiegroepen.ts`,
+`googleAdsConversies.ts`) en staan al in de lijst in `lib/dictionary/index.ts` — de chat
+kan er dus mee praten zodra de tabellen gevuld zijn, zonder verdere code-aanpassingen.
+
+Wil je meer of andere Ads-rapporten (bv. advertenties zelf, apparaattype, locatie),
+volg dan hetzelfde patroon: een nieuwe GAQL-query en mapper-functie in
+`lib/sync/googleAds.ts`, een nieuwe ruwe tabel + view in een volgende migratie, en een
+nieuwe beschrijving in `lib/dictionary/tabellen/`.
 
 ## Twee soorten kennis
 
@@ -182,11 +239,13 @@ npm run build
 
 ## De sync draaien
 
-`vercel.json` zet de nachtelijke cron op 02:00 UTC — dat is 03:00 Nederlandse wintertijd
-en 04:00 zomertijd (Vercel-crons draaien altijd in UTC). Handmatig:
+`vercel.json` zet de nachtelijke cron op 02:00 UTC voor de sheets en 02:15 UTC voor
+Google Ads — dat is respectievelijk 03:00/03:15 Nederlandse wintertijd en 04:00/04:15
+zomertijd (Vercel-crons draaien altijd in UTC). Handmatig:
 
 ```bash
 curl -X POST https://<jouw-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
+curl -X POST https://<jouw-app>/api/sync-ads -H "Authorization: Bearer $CRON_SECRET"
 ```
 
 ## Grenzen die in de code vastliggen

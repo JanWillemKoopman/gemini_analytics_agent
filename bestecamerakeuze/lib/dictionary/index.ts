@@ -1,5 +1,9 @@
 import type { AlgemeneContext, TabelBeschrijving } from "@/lib/dictionary/types";
 import { verkopen } from "@/lib/dictionary/tabellen/verkopen";
+import { googleAdsCampagnes } from "@/lib/dictionary/tabellen/googleAdsCampagnes";
+import { googleAdsZoekwoorden } from "@/lib/dictionary/tabellen/googleAdsZoekwoorden";
+import { googleAdsAdvertentiegroepen } from "@/lib/dictionary/tabellen/googleAdsAdvertentiegroepen";
+import { googleAdsConversies } from "@/lib/dictionary/tabellen/googleAdsConversies";
 
 /**
  * Het complete datawoordenboek plus de vertaling ervan naar de systeemprompt.
@@ -26,7 +30,13 @@ export const algemeneContext: AlgemeneContext = {
 };
 
 /** Alle tabellen waar de chat op mag queryen. Nieuwe bron? Hier toevoegen. */
-export const tabellen: TabelBeschrijving[] = [verkopen];
+export const tabellen: TabelBeschrijving[] = [
+  verkopen,
+  googleAdsCampagnes,
+  googleAdsZoekwoorden,
+  googleAdsAdvertentiegroepen,
+  googleAdsConversies,
+];
 
 /** De views waar de chat vanaf weet — gebruikt in de systeemprompt en in de UI. */
 export function beschikbareViews(): string[] {

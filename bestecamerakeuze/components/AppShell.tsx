@@ -67,7 +67,7 @@ export default function AppShell({
 
   return (
     <div className="flex min-h-screen bg-page">
-      <div className="sticky top-0 h-screen">
+      <div className="sticky top-0 z-30 h-screen w-[72px] shrink-0">
         <Sidebar
           actief={actief}
           onNavigate={setActief}

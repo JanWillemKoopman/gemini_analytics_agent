@@ -1,4 +1,5 @@
 import Avatar from "@/components/Avatar";
+import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
 import {
   IconBook,
@@ -36,18 +37,19 @@ export default function Sidebar({
   const weergavenaam = profielNaam || naamVoor(gebruikerEmail);
 
   return (
-    <aside className="flex h-full w-[240px] shrink-0 flex-col justify-between overflow-y-auto border-r border-sidebar-line bg-sidebar px-4 py-5">
+    // Staat standaard ingeklapt op een smalle icoon-rail (72px); bij hover klapt hij uit
+    // tot 240px. De rail zelf reserveert de ruimte in AppShell (sticky, w-[72px]) en dit
+    // element is daarbinnen absoluut gepositioneerd, zodat uitklappen over de content
+    // heen valt in plaats van hem opzij te duwen — geen layoutshift op hover.
+    <aside className="group absolute inset-y-0 left-0 flex w-[72px] flex-col justify-between overflow-x-hidden overflow-y-auto border-r border-sidebar-line bg-sidebar px-4 py-5 transition-[width] duration-200 ease-out hover:z-40 hover:w-[240px] hover:shadow-dropdown">
       <div>
-        <div className="flex items-center gap-2 px-2">
-          <span className="font-sans-w7 text-[15px] font-bold tracking-[0.08em] text-sidebar-ink">
-            UDENHOUT
-          </span>
-          <span
-            aria-label="AI-aangedreven"
-            title="AI-aangedreven"
-            className="flex h-4 w-6 shrink-0 items-center justify-center rounded-[5px] border border-white/15 bg-white/10 text-[9px] font-bold tracking-wide text-sidebar-ink-muted"
-          >
-            AI
+        <div className="flex items-center gap-2.5 px-0.5">
+          <LogoMark className="h-9 w-9 text-[13px]" />
+          <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
+            <span className="block font-sans-w7 text-[15px] font-bold tracking-[0.04em] text-sidebar-ink">
+              Udenhout
+            </span>
+            <span className="block text-[11px] text-sidebar-ink-muted">AI-dataloket</span>
           </span>
         </div>
 
@@ -59,7 +61,7 @@ export default function Sidebar({
             onClick={() => onNavigate("campagnes")}
           />
 
-          <p className="mb-1 mt-4 px-3 text-[11px] font-semibold uppercase tracking-wider text-sidebar-ink-muted">
+          <p className="mb-1 mt-4 hidden px-3 text-[11px] font-semibold uppercase tracking-wider text-sidebar-ink-muted group-hover:block">
             Chatbot
           </p>
           <NavigationItem
@@ -96,13 +98,13 @@ export default function Sidebar({
           className="flex w-full items-center gap-2.5 rounded-control px-2 py-2 text-left transition-colors duration-150 hover:bg-sidebar-hover"
         >
           <Avatar naam={weergavenaam} avatarUrl={profielAvatarUrl} size={32} />
-          <span className="min-w-0 flex-1">
+          <span className="min-w-0 max-w-0 flex-1 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
             <span className="block truncate text-sm font-medium text-sidebar-ink">
               {weergavenaam}
             </span>
             <span className="block truncate text-xs text-sidebar-ink-muted">Udenhout</span>
           </span>
-          <IconChevronUpDown className="h-4 w-4 shrink-0 text-sidebar-ink-muted" />
+          <IconChevronUpDown className="hidden h-4 w-4 shrink-0 text-sidebar-ink-muted group-hover:block" />
         </button>
       </div>
     </aside>

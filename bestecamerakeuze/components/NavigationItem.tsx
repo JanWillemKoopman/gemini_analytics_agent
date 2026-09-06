@@ -19,7 +19,11 @@ export default function NavigationItem({ icon, label, active, onClick }: Props) 
       }`}
     >
       <span className="shrink-0 [&>svg]:h-[18px] [&>svg]:w-[18px]">{icon}</span>
-      {label}
+      {/* Ingeklapt (rail op 72px) is er geen ruimte voor tekst — de breedte + transparantie
+          animeren mee met het uitklappen van de sidebar (zie Sidebar.tsx, group-hover). */}
+      <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
+        {label}
+      </span>
     </button>
   );
 }

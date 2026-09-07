@@ -39,10 +39,13 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   wordmark "Udenhout" en profielnaam faden/schuiven mee in, via Tailwind
   `group`/`group-hover` — geen JS-state nodig) en overlayt hij de content in plaats van
   hem te verschuiven (de aside is absoluut gepositioneerd binnen een vaste 72px-kolom in
-  `AppShell.tsx`). Navigatie: Campagnes, Prikbord, Vraag het je data, Kennisbank, Kosten,
-  onderaan Instellingen en het gebruikersprofiel. Het prikbord staat bewust direct onder
-  Campagnes: het hoort bij het wekelijks kijken naar cijfers, niet bij de chat. Eén
-  actieve state, subtiel gemarkeerd — geen felle kleuren.
+  `AppShell.tsx`). Navigatie staat in twee groepen onder een klein, uppercase
+  groepskopje (net als de "Planning"/"Budget"-groepskoppen in de campagnetabel):
+  **Campagnes** (Campagnes, Tijdlijn) en **Chatbot** (Start gesprek, Prikbord,
+  Kennisbank) — het Prikbord staat bewust onder Chatbot, want het is een functie van de
+  chat (grafieken die je daaruit vastpint), niet van het wekelijkse cijferoverzicht.
+  Onderaan, buiten de groepen: Kosten, Instellingen en het gebruikersprofiel. Eén actieve
+  state, subtiel gemarkeerd — geen felle kleuren.
 - **Geen dubbele navigatie**: de tabbladtitels staan alleen in de sidebar, nooit ook nog
   eens als een rij tabs boven de content.
 - **Page header**: paginatitel + korte subtitel links; rechts contextuele status (bv.
@@ -186,7 +189,7 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
   `StatusIndicator`, `Modal`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
-  `Prikbord`, `Avatar`, `brandLogos`. Voeg nieuwe UI
+  `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
 - Het oogje voor de themes hangt `fixed` rechtsboven in het scherm (niet in de

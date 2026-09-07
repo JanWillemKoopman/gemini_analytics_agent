@@ -3,6 +3,7 @@ import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
 import {
   IconBook,
+  IconCalendar,
   IconChat,
   IconChevronUpDown,
   IconCoin,
@@ -13,6 +14,7 @@ import {
 
 export type DashboardView =
   | "campagnes"
+  | "tijdlijn"
   | "prikbord"
   | "chat"
   | "kennis"
@@ -61,6 +63,9 @@ export default function Sidebar({
         </div>
 
         <nav aria-label="Hoofdnavigatie" className="mt-6 flex flex-col gap-0.5">
+          <p className="label-theme mb-1 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
+            Campagnes
+          </p>
           <NavigationItem
             icon={<IconMegaphone />}
             label="Campagnes"
@@ -68,10 +73,10 @@ export default function Sidebar({
             onClick={() => onNavigate("campagnes")}
           />
           <NavigationItem
-            icon={<IconPin />}
-            label="Prikbord"
-            active={actief === "prikbord"}
-            onClick={() => onNavigate("prikbord")}
+            icon={<IconCalendar />}
+            label="Tijdlijn"
+            active={actief === "tijdlijn"}
+            onClick={() => onNavigate("tijdlijn")}
           />
 
           <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
@@ -82,6 +87,12 @@ export default function Sidebar({
             label="Start gesprek"
             active={actief === "chat"}
             onClick={() => onNavigate("chat")}
+          />
+          <NavigationItem
+            icon={<IconPin />}
+            label="Prikbord"
+            active={actief === "prikbord"}
+            onClick={() => onNavigate("prikbord")}
           />
           <NavigationItem
             icon={<IconBook />}

@@ -45,17 +45,14 @@ moeten wijzen.
 campagne is een kolom (met merk-badge en status-badge — groen "Open", grijs "Gesloten"),
 de metrics staan eronder als rijen, in deze volgorde:
 
-1. Startdatum
-2. Einddatum
-3. Budget (percentage uitgegeven erachter)
-4. Doel orders
-5. Order totaal (percentage van doel orders behaald erachter)
-6. Doel leads
-7. Leads (percentage van doel leads behaald erachter)
+**Planning:** Startdatum, Einddatum
+**Budget:** Budget (percentage benut erachter), Uitgaven (restant of overschrijding erachter)
+**Leads:** Doel leads, Leads (percentage van doel behaald erachter), Online leads
+**Orders:** Doel orders, Orders (afwijking t.o.v. doel erachter)
 
 Percentages komen uit `ratio`/`formatPercent`/`withPercent` in `lib/format.ts` en vallen
-terug op enkel de hoofdwaarde zodra teller of noemer ontbreekt. Rijen toevoegen is een
-kwestie van een item toevoegen aan de `ROWS`-array in `CampaignMatrix.tsx`.
+terug op enkel de hoofdwaarde zodra teller of noemer ontbreekt. Rijen toevoegen is een kwestie van een item (label + uitleg + render) toevoegen aan
+de juiste groep in de `GROUPS`-array in `components/CampaignTable.tsx`.
 
 De campagnes staan altijd gesorteerd op startdatum, hoogste (meest recente) links
 (`sortByStartdatumDesc` in `CampaignDashboard.tsx`) — geen aparte sorteerkeuze in de UI.

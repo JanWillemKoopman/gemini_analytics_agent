@@ -73,6 +73,21 @@ export function deviationFromTarget(actual: number | null, target: number | null
     : { text: `−${formatted} onder doel`, tone: "negative" };
 }
 
+/**
+ * Wat er van het budget over is, in mensentaal ("nog € 1.500 te besteden" /
+ * "€ 200 boven budget") — hetzelfde patroon als deviationFromTarget, maar dan met de
+ * tekens omgedraaid: bij uitgaven is méér dan begroot juist ongunstig.
+ */
+export function budgetRestant(uitgaven: number | null, budget: number | null): Deviation | null {
+  if (uitgaven === null || budget === null) return null;
+  const restant = Math.round(budget - uitgaven);
+  if (restant === 0) return { text: "budget precies op", tone: "neutral" };
+  const bedrag = formatCurrency(Math.abs(restant));
+  return restant > 0
+    ? { text: `nog ${bedrag} te besteden`, tone: "neutral" }
+    : { text: `${bedrag} boven budget`, tone: "negative" };
+}
+
 /** "van doel"-percentage voor metrics waarbij een absolute afwijking minder zegt (bv. leads). */
 export function percentOfTarget(actual: number | null, target: number | null): string | null {
   const percent = formatPercent(ratio(actual, target));

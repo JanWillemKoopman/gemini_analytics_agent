@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react";
 import type { Campagne } from "@/lib/sheet";
 import {
+  budgetRestant,
   deviationFromTarget,
   formatCurrency,
   formatDate,
@@ -63,6 +64,21 @@ const GROUPS: Group[] = [
               primary={formatCurrency(c.budget)}
               secondary={percent !== null ? `${Math.round(percent)}% benut` : undefined}
               progress={percent ?? undefined}
+            />
+          );
+        },
+      },
+      {
+        label: "Uitgaven",
+        uitleg:
+          "Wat er tot nu toe daadwerkelijk is uitgegeven (kolom “Uitgaven” in de sheet). Eronder staat wat er nog over is, of hoeveel het budget is overschreden.",
+        render: (c) => {
+          const restant = budgetRestant(c.uitgaven, c.budget);
+          return (
+            <MetricCell
+              primary={formatCurrency(c.uitgaven)}
+              secondary={restant?.text}
+              tone={restant?.tone}
             />
           );
         },

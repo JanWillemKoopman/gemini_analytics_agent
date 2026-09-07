@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import FooterNote from "@/components/FooterNote";
 import PageHeader from "@/components/PageHeader";
 import Sidebar, { type DashboardView } from "@/components/Sidebar";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
@@ -115,8 +114,6 @@ export default function AppShell({
         <div className="mt-6" role="tabpanel" hidden={actief !== "instellingen"}>
           {instellingen}
         </div>
-
-        <FooterNote />
       </main>
     </div>
   );

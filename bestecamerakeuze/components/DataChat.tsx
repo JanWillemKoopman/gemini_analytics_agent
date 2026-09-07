@@ -639,8 +639,8 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
   const leeg = berichten.length === 0;
 
   return (
-    <div className="flex min-h-[calc(100vh-3rem)] gap-8 lg:items-stretch">
-      <div className="flex w-full shrink-0 flex-col gap-6 border-r border-line bg-card py-6 pr-6 lg:w-72">
+    <div className="flex gap-8 lg:items-stretch">
+      <div className="-mt-6 -ml-8 flex min-h-screen w-80 shrink-0 flex-col gap-6 border-r border-line bg-card pt-6 pr-6 pb-6 pl-8">
         <div>
           <h1 className="titel-theme text-ink">Chatbot</h1>
           <p className="mt-1 text-sm text-ink-muted">Praat met je data in gewone taal</p>

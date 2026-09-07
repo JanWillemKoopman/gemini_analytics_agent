@@ -11,7 +11,8 @@ Onderstaande stappen zijn eenmalig.
 Voer in volgorde uit in de Supabase SQL-editor:
 `supabase/migrations/0001_dataloket.sql`, dan `0002_gesprekken.sql`, dan
 `0003_kennisbank.sql`, dan `0004_claude_kosten.sql`, dan `0005_campagne_notities.sql`,
-dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`.
+dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`, dan
+`0008_leads_orders.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -24,13 +25,18 @@ naam + avatarfoto per collega (inclusief de `avatars`-bucket in Supabase Storage
 zowel Instellingen als de naam/foto bij elke aantekening. De zevende maakt van de
 aantekeningen een besluitenlogboek (soort + gekoppelde metriek per aantekening), voegt
 het prikbord toe (vastgepinde grafieken uit de chat) en de view
-`v_populaire_vragen` waar de vraagbibliotheek op het chat-startscherm uit leest.
+`v_populaire_vragen` waar de vraagbibliotheek op het chat-startscherm uit leest. De achtste
+zet de echte eerste twee bronnen neer (`leads_raw`/`v_leads` en `orders_raw`/`v_orders`,
+tabbladen "Data leads" en "Data orders 2" van dezelfde spreadsheet als Campagnes) en
+trekt de rechten van `v_verkopen` in — die voorbeeldtabel is daarna niet meer bevraagbaar
+door de chat, de tabel en view zelf blijven staan als sjabloon.
 
 Dat maakt het `dataloket`-schema aan met:
 
 - `sync_runs` en `sync_afwijkingen` — wat is wanneer ingelezen, en welke rijen zijn afgekeurd
 - `query_log` — elke vraag en elke uitgevoerde query, met RLS zodat iedereen alleen zijn eigen regels ziet
-- `verkopen_raw` + `v_verkopen` — een **voorbeeldtabel** met zeven regels, zodat je de chat kunt uitproberen voordat de echte data er is
+- `verkopen_raw` + `v_verkopen` — de oorspronkelijke **voorbeeldtabel** met zeven regels; na migratie 0008 kan de chat er niet meer bij (zie hierboven)
+- `leads_raw` + `v_leads` en `orders_raw` + `v_orders` — de echte databronnen (zie `lib/dictionary/tabellen/leads.ts` en `orders.ts`), gevuld door `/api/sync` (stap 5)
 - de rol `dataloket_lezer` — de read-only rol waarop de chat draait
 
 **Vervang `VERVANG_DIT_WACHTWOORD` in de migratie** voordat je hem draait.
@@ -44,10 +50,10 @@ en wachtwoord door `dataloket_lezer` en het wachtwoord uit stap 1.
 Controleer dat de rol echt niet kan schrijven:
 
 ```sql
--- moet werken
-select count(*) from v_verkopen;
+-- moet werken (0 rijen tot de eerste sync heeft gedraaid, zie stap 5)
+select count(*) from v_leads;
 -- moet falen met "permission denied"
-delete from verkopen_raw;
+delete from leads_raw;
 ```
 
 Deze rol is de belangrijkste grens in het systeem. Gebruik hem nergens anders voor.
@@ -102,8 +108,14 @@ in `middleware.ts` aan — dat staat als commentaar in het bestand.
 ## 5. De echte sheets koppelen
 
 1. Zet per sheet een regel in `BRONNEN` in `lib/sync/bronnen.ts` (sheet-id, tabblad,
-   doeltabel, sleutelkolom en de kolommapping).
-2. Maak de bijbehorende tabel en `v_`-view aan in een nieuwe migratie.
+   doeltabel, sleutelkolom en de kolommapping). Heeft de sheet geen natuurlijke unieke
+   kolom (geen ID)? Gebruik dan `sleutelKolom: "regelnummer"` — zie de toelichting bij
+   `Bron` in dat bestand en het voorbeeld bij "Data leads"/"Data orders 2". Bevat de
+   sheet ook lege paddingrijen of rijen die je niet wilt inlezen, zet dan `vereisteKolom`
+   op een kolom die alleen bij echte rijen gevuld is.
+2. Maak de bijbehorende tabel en `v_`-view aan in een nieuwe migratie. Bewaar ruwe
+   sheetwaarden als `text` en parse ze (NL-datums, komma-getallen) in de view, niet bij
+   het inlezen — zie `0008_leads_orders.sql` voor het patroon.
 3. Geef de view expliciet vrij: `grant select on dataloket.v_naam to dataloket_lezer;`
    Dat is bewust geen automatisme — een view die niemand heeft vrijgegeven, bestaat niet
    voor de chat.

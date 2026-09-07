@@ -1,5 +1,6 @@
 import type { AlgemeneContext, TabelBeschrijving } from "@/lib/dictionary/types";
-import { verkopen } from "@/lib/dictionary/tabellen/verkopen";
+import { leads } from "@/lib/dictionary/tabellen/leads";
+import { orders } from "@/lib/dictionary/tabellen/orders";
 
 /**
  * Het complete datawoordenboek plus de vertaling ervan naar de systeemprompt.
@@ -11,8 +12,9 @@ import { verkopen } from "@/lib/dictionary/tabellen/verkopen";
 
 export const algemeneContext: AlgemeneContext = {
   organisatie:
-    "Udenhout — bedrijfswagendealer. De data beschrijft verkoop van voertuigen en " +
-    "de marketingcampagnes daaromheen.",
+    "Udenhout — dealer van Volkswagen, Volkswagen Bedrijfswagens, Audi, Škoda, SEAT en " +
+    "CUPRA. De data beschrijft leads (interesse van klanten) en orders (verkochte " +
+    "voertuigen) en hun herkomst (kanaal, campagne).",
   kalender: [
     "Weeknummers volgen de ISO-standaard: een week loopt van maandag tot en met zondag.",
     "Het boekjaar is gelijk aan het kalenderjaar.",
@@ -25,8 +27,13 @@ export const algemeneContext: AlgemeneContext = {
   ],
 };
 
-/** Alle tabellen waar de chat op mag queryen. Nieuwe bron? Hier toevoegen. */
-export const tabellen: TabelBeschrijving[] = [verkopen];
+/**
+ * Alle tabellen waar de chat op mag queryen. Nieuwe bron? Hier toevoegen — en het
+ * bijbehorende `grant select` in de migratie regelen (zie 0008_leads_orders.sql), want
+ * hier staan is een noodzakelijke maar geen voldoende voorwaarde: zonder databaserecht
+ * op de view faalt elke query alsnog.
+ */
+export const tabellen: TabelBeschrijving[] = [leads, orders];
 
 /** De views waar de chat vanaf weet — gebruikt in de systeemprompt en in de UI. */
 export function beschikbareViews(): string[] {

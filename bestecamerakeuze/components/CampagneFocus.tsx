@@ -133,14 +133,14 @@ export default function CampagneFocus({
               voortgang={budgetBenut ?? undefined}
             />
             <Kerncijfer
-              label="Leads"
+              label="Leads totaal"
               waarde={formatNumber(campagne.leads)}
               onder={percentOfTarget(campagne.leads, campagne.doelLeads) ?? undefined}
               voortgang={leadsVoortgang ?? undefined}
             />
-            <Kerncijfer label="Online leads" waarde={formatNumber(campagne.leadsMarketing)} />
+            <Kerncijfer label="Leads online" waarde={formatNumber(campagne.leadsMarketing)} />
             <Kerncijfer
-              label="Orders"
+              label="Orders totaal"
               waarde={formatNumber(campagne.orderTotaal)}
               onder={orderAfwijking?.text}
               toon={
@@ -159,8 +159,8 @@ export default function CampagneFocus({
             <Kenmerk label="Lead type" waarde={campagne.leadType} />
             <Kenmerk label="Ordersoort" waarde={campagne.ordersoort} />
             <Kenmerk label="Klantgroep" waarde={campagne.klantgroepOrders} />
-            <Kenmerk label="Doel leads" waarde={formatNumber(campagne.doelLeads)} />
-            <Kenmerk label="Doel orders" waarde={formatNumber(campagne.doelOrders)} />
+            <Kenmerk label="Doel leads online" waarde={formatNumber(campagne.doelLeads)} />
+            <Kenmerk label="Doel orders totaal" waarde={formatNumber(campagne.doelOrders)} />
             <Kenmerk label="Uitgaven" waarde={formatCurrency(campagne.uitgaven)} />
             <Kenmerk label="Resultaat" waarde={campagne.resultaat} />
           </dl>

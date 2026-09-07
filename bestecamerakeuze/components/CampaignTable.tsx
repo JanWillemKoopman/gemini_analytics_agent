@@ -24,7 +24,7 @@ type Metric = {
    * bewerkbaar.
    */
   bewerken?: {
-    veld: string;
+    veld: keyof Campagne & string;
     huidigeWaarde: (campagne: Campagne) => string;
     type?: "getal" | "tekst";
   };

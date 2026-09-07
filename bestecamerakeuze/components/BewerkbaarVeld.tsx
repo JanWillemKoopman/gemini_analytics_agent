@@ -1,11 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import type { Campagne } from "@/lib/sheet";
+import { useCampagneFilters } from "@/lib/campagneFilterContext";
 
 type Props = {
   campagneNaam: string;
-  veld: string;
+  /** Moet overeenkomen met een sleutel van `Campagne`, zodat de lokale kopie na opslaan
+   * meteen met de juiste (getypeerde) waarde bijgewerkt kan worden. */
+  veld: keyof Campagne & string;
   /** De waarde zoals die terug de sheet in moet, niet de opgemaakte weergavewaarde. */
   initieleWaarde: string;
   type?: "getal" | "tekst";
@@ -28,11 +31,12 @@ function normaliseerGetal(input: string): string | null {
 /**
  * Klik-om-te-bewerken cel: toont normaal de bestaande weergave (`children`), en
  * verandert die bij een klik in een invoerveld. Opslaan gaat via het write-endpoint
- * naar de sheet; bij succes ververst `router.refresh()` de servergegevens, net als de
- * bestaande "Data updaten"-knop.
+ * naar de sheet; bij succes werkt `werkVeldBij` de lokale kopie direct bij, zodat de
+ * nieuwe waarde meteen zichtbaar is in plaats van pas na een volledige serverrefresh
+ * (die de hele sheet opnieuw ophaalt en merkbaar trager is dan de schrijfactie zelf).
  */
 export default function BewerkbaarVeld({ campagneNaam, veld, initieleWaarde, type = "tekst", children }: Props) {
-  const router = useRouter();
+  const { werkVeldBij } = useCampagneFilters();
   const [bewerken, setBewerken] = useState(false);
   const [waarde, setWaarde] = useState(initieleWaarde);
   const [bezig, setBezig] = useState(false);
@@ -68,7 +72,8 @@ export default function BewerkbaarVeld({ campagneNaam, veld, initieleWaarde, typ
       const data = (await res.json().catch(() => ({}))) as { fout?: string };
       if (!res.ok) throw new Error(data.fout ?? "Opslaan mislukt.");
       setBewerken(false);
-      router.refresh();
+      const getypeerdeWaarde = type === "getal" ? (teVersturen === "" ? null : Number(teVersturen.replace(",", "."))) : teVersturen || null;
+      werkVeldBij(campagneNaam, { [veld]: getypeerdeWaarde } as Partial<Campagne>);
     } catch (err) {
       setFout(err instanceof Error ? err.message : "Opslaan mislukt.");
     } finally {

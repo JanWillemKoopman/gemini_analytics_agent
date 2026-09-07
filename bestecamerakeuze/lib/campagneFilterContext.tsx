@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Campagne } from "@/lib/sheet";
 
 function uniqueSorted(values: string[]): string[] {
@@ -32,6 +32,10 @@ type CampagneFilterContextValue = {
   setUitlegAan: (waarde: boolean | ((vorige: boolean) => boolean)) => void;
   activeFilterCount: number;
   clearAll: () => void;
+  /** Werkt één veld van één campagne direct in de lokale kopie bij, zonder op een
+   * volledige serverrefresh (en dus een nieuwe ophaal van de hele sheet) te wachten —
+   * de schrijfbare velden in de tabel gebruiken dit voor directe feedback na opslaan. */
+  werkVeldBij: (campagneNaam: string, patch: Partial<Campagne>) => void;
 };
 
 const CampagneFilterContext = createContext<CampagneFilterContextValue | null>(null);
@@ -43,20 +47,35 @@ const CampagneFilterContext = createContext<CampagneFilterContextValue | null>(n
  * houden. Wrap beide tabbladen (via `AppShell`'s props) in deze provider.
  */
 export function CampagneFilterProvider({
-  campagnes,
+  campagnes: campagnesProp,
   children,
 }: {
   campagnes: Campagne[];
   children: ReactNode;
 }) {
+  // Lokale kopie i.p.v. de prop direct gebruiken: zo kan `werkVeldBij` een net
+  // opgeslagen wijziging meteen laten zien zonder op een serverrefresh te wachten. Bij
+  // een echte refresh (navigatie, of de "Data updaten"-knop) komt er een nieuwe prop
+  // binnen, en die synct hieronder terug in de lokale kopie.
+  const [campagnes, setCampagnes] = useState(campagnesProp);
+  useEffect(() => {
+    setCampagnes(campagnesProp);
+  }, [campagnesProp]);
+
   const [status, setStatus] = useState<string[]>(() => {
-    const online = vindOnlineWaarde(campagnes);
+    const online = vindOnlineWaarde(campagnesProp);
     return online ? [online] : [];
   });
   const [merk, setMerk] = useState<string[]>([]);
   const [ordersoort, setOrdersoort] = useState<string[]>([]);
   const [klantgroep, setKlantgroep] = useState<string[]>([]);
   const [uitlegAan, setUitlegAan] = useState(false);
+
+  function werkVeldBij(campagneNaam: string, patch: Partial<Campagne>) {
+    setCampagnes((huidig) =>
+      huidig.map((c) => (c.naam === campagneNaam ? { ...c, ...patch } : c)),
+    );
+  }
 
   const options = useMemo<Opties>(
     () => ({
@@ -105,6 +124,7 @@ export function CampagneFilterProvider({
     setUitlegAan,
     activeFilterCount,
     clearAll,
+    werkVeldBij,
   };
 
   return <CampagneFilterContext.Provider value={value}>{children}</CampagneFilterContext.Provider>;

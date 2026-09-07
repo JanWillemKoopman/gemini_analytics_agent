@@ -18,8 +18,8 @@ type Kolom = {
 
 /**
  * Dezelfde velden als het "Nieuwe campagne"-formulier (zie NieuweCampagneModal), min de
- * naam die als sticky eerste kolom apart staat. Leads, Online leads, Orders en Status
- * blijven hier bewust weg — die komen ergens anders vandaan en zijn ook in de
+ * naam die als sticky eerste kolom apart staat. Leads totaal, Leads online, Orders totaal
+ * en Status blijven hier bewust weg — die komen ergens anders vandaan en zijn ook in de
  * campagnetabel nooit bewerkbaar (zie CLAUDE.md).
  */
 const KOLOMMEN: Kolom[] = [
@@ -52,7 +52,7 @@ const KOLOMMEN: Kolom[] = [
     render: (c) => formatCurrency(c.uitgaven),
   },
   {
-    label: "Doel leads",
+    label: "Doel leads online",
     veld: "doelLeads",
     type: "getal",
     breedte: 90,
@@ -60,7 +60,7 @@ const KOLOMMEN: Kolom[] = [
     render: (c) => formatNumber(c.doelLeads),
   },
   {
-    label: "Doel orders",
+    label: "Doel orders totaal",
     veld: "doelOrders",
     type: "getal",
     breedte: 90,

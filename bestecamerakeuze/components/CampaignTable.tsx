@@ -19,8 +19,8 @@ type Metric = {
   uitleg: string;
   render: (campagne: Campagne) => ReactNode;
   /**
-   * Alleen op metrics die een handmatig ingevulde waarde in de sheet zijn — Leads,
-   * Online leads en Orders komen ergens anders vandaan en zijn hier bewust nooit
+   * Alleen op metrics die een handmatig ingevulde waarde in de sheet zijn — Leads totaal,
+   * Leads online en Orders totaal komen ergens anders vandaan en zijn hier bewust nooit
    * bewerkbaar.
    */
   bewerken?: {
@@ -112,17 +112,7 @@ const GROUPS: Group[] = [
     title: "Leads",
     metrics: [
       {
-        label: "Doel leads",
-        uitleg: "Het aantal leads dat vooraf is afgesproken voor de hele looptijd.",
-        render: (c) => <PlainCell value={formatNumber(c.doelLeads)} />,
-        bewerken: {
-          veld: "doelLeads",
-          huidigeWaarde: (c) => (c.doelLeads !== null ? String(c.doelLeads) : ""),
-          type: "getal",
-        },
-      },
-      {
-        label: "Leads",
+        label: "Leads totaal",
         uitleg:
           "Alle leads uit deze campagne, ook die via showroom of telefoon. Eronder: hoeveel procent van het doel al binnen is.",
         render: (c) => {
@@ -137,7 +127,17 @@ const GROUPS: Group[] = [
         },
       },
       {
-        label: "Online leads",
+        label: "Doel leads online",
+        uitleg: "Het aantal leads dat vooraf is afgesproken voor de hele looptijd.",
+        render: (c) => <PlainCell value={formatNumber(c.doelLeads)} />,
+        bewerken: {
+          veld: "doelLeads",
+          huidigeWaarde: (c) => (c.doelLeads !== null ? String(c.doelLeads) : ""),
+          type: "getal",
+        },
+      },
+      {
+        label: "Leads online",
         uitleg:
           "Het deel van de leads dat online binnenkwam (kolom “Leads marketing” in de sheet) — het stuk waar de campagne zelf direct op stuurt.",
         render: (c) => <PlainCell value={formatNumber(c.leadsMarketing)} />,
@@ -148,7 +148,7 @@ const GROUPS: Group[] = [
     title: "Orders",
     metrics: [
       {
-        label: "Doel orders",
+        label: "Doel orders totaal",
         uitleg: "Het aantal orders dat vooraf is afgesproken voor de hele looptijd.",
         render: (c) => <PlainCell value={formatNumber(c.doelOrders)} />,
         bewerken: {
@@ -158,7 +158,7 @@ const GROUPS: Group[] = [
         },
       },
       {
-        label: "Orders",
+        label: "Orders totaal",
         uitleg:
           "Getekende orders. Let op: in de sheet staat hier soms een totaal over alle campagnes in plaats van een cijfer per campagne — een bedrag dat te mooi is om waar te zijn, is dat hier meestal ook.",
         render: (c) => {

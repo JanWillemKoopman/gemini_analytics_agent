@@ -2,7 +2,6 @@ import { Fragment, type ReactNode } from "react";
 import type { Campagne } from "@/lib/sheet";
 import {
   budgetRestant,
-  deviationFromTarget,
   formatCurrency,
   formatDate,
   formatNumber,
@@ -113,23 +112,23 @@ const GROUPS: Group[] = [
     metrics: [
       {
         label: "Leads totaal",
+        uitleg: "Alle leads uit deze campagne, ook die via showroom of telefoon.",
+        render: (c) => <PlainCell value={formatNumber(c.leads)} />,
+      },
+      {
+        label: "Doel leads online",
         uitleg:
-          "Alle leads uit deze campagne, ook die via showroom of telefoon. Eronder: hoeveel procent van het doel al binnen is.",
+          "Het aantal leads dat vooraf is afgesproken voor de hele looptijd. Eronder: hoeveel procent daarvan al binnen is via Leads online.",
         render: (c) => {
-          const percent = ratio(c.leads, c.doelLeads);
+          const percent = ratio(c.leadsMarketing, c.doelLeads);
           return (
             <MetricCell
-              primary={formatNumber(c.leads)}
-              secondary={percentOfTarget(c.leads, c.doelLeads) ?? undefined}
+              primary={formatNumber(c.doelLeads)}
+              secondary={percentOfTarget(c.leadsMarketing, c.doelLeads) ?? undefined}
               progress={percent ?? undefined}
             />
           );
         },
-      },
-      {
-        label: "Doel leads online",
-        uitleg: "Het aantal leads dat vooraf is afgesproken voor de hele looptijd.",
-        render: (c) => <PlainCell value={formatNumber(c.doelLeads)} />,
         bewerken: {
           veld: "doelLeads",
           huidigeWaarde: (c) => (c.doelLeads !== null ? String(c.doelLeads) : ""),
@@ -149,8 +148,18 @@ const GROUPS: Group[] = [
     metrics: [
       {
         label: "Doel orders totaal",
-        uitleg: "Het aantal orders dat vooraf is afgesproken voor de hele looptijd.",
-        render: (c) => <PlainCell value={formatNumber(c.doelOrders)} />,
+        uitleg:
+          "Het aantal orders dat vooraf is afgesproken voor de hele looptijd. Eronder: hoeveel procent daarvan al binnen is via Orders totaal.",
+        render: (c) => {
+          const percent = ratio(c.orderTotaal, c.doelOrders);
+          return (
+            <MetricCell
+              primary={formatNumber(c.doelOrders)}
+              secondary={percentOfTarget(c.orderTotaal, c.doelOrders) ?? undefined}
+              progress={percent ?? undefined}
+            />
+          );
+        },
         bewerken: {
           veld: "doelOrders",
           huidigeWaarde: (c) => (c.doelOrders !== null ? String(c.doelOrders) : ""),
@@ -161,16 +170,7 @@ const GROUPS: Group[] = [
         label: "Orders totaal",
         uitleg:
           "Getekende orders. Let op: in de sheet staat hier soms een totaal over alle campagnes in plaats van een cijfer per campagne — een bedrag dat te mooi is om waar te zijn, is dat hier meestal ook.",
-        render: (c) => {
-          const deviation = deviationFromTarget(c.orderTotaal, c.doelOrders);
-          return (
-            <MetricCell
-              primary={formatNumber(c.orderTotaal)}
-              secondary={deviation?.text}
-              tone={deviation?.tone}
-            />
-          );
-        },
+        render: (c) => <PlainCell value={formatNumber(c.orderTotaal)} />,
       },
     ],
   },

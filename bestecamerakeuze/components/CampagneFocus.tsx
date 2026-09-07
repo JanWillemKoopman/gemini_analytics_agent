@@ -6,14 +6,7 @@ import ProgressBar from "@/components/ProgressBar";
 import StatusIndicator from "@/components/StatusIndicator";
 import { getBrandLogo } from "@/components/brandLogos";
 import { IconClose } from "@/components/icons";
-import {
-  deviationFromTarget,
-  formatCurrency,
-  formatDate,
-  formatNumber,
-  percentOfTarget,
-  ratio,
-} from "@/lib/format";
+import { formatCurrency, formatDate, formatNumber, ratio } from "@/lib/format";
 import type { Campagne } from "@/lib/sheet";
 
 /**
@@ -88,8 +81,6 @@ export default function CampagneFocus({
 
   const BrandLogo = campagne.merk ? getBrandLogo(campagne.merk) : null;
   const budgetBenut = ratio(campagne.uitgaven, campagne.budget);
-  const leadsVoortgang = ratio(campagne.leads, campagne.doelLeads);
-  const orderAfwijking = deviationFromTarget(campagne.orderTotaal, campagne.doelOrders);
 
   return (
     <section
@@ -132,25 +123,9 @@ export default function CampagneFocus({
               onder={budgetBenut !== null ? `${Math.round(budgetBenut)}% benut` : undefined}
               voortgang={budgetBenut ?? undefined}
             />
-            <Kerncijfer
-              label="Leads totaal"
-              waarde={formatNumber(campagne.leads)}
-              onder={percentOfTarget(campagne.leads, campagne.doelLeads) ?? undefined}
-              voortgang={leadsVoortgang ?? undefined}
-            />
+            <Kerncijfer label="Leads totaal" waarde={formatNumber(campagne.leads)} />
             <Kerncijfer label="Leads online" waarde={formatNumber(campagne.leadsMarketing)} />
-            <Kerncijfer
-              label="Orders totaal"
-              waarde={formatNumber(campagne.orderTotaal)}
-              onder={orderAfwijking?.text}
-              toon={
-                orderAfwijking?.tone === "positive"
-                  ? "positief"
-                  : orderAfwijking?.tone === "negative"
-                    ? "negatief"
-                    : "neutraal"
-              }
-            />
+            <Kerncijfer label="Orders totaal" waarde={formatNumber(campagne.orderTotaal)} />
           </div>
 
           <dl className="mt-5 grid grid-cols-3 gap-4 border-t border-line-soft pt-5">

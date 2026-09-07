@@ -234,7 +234,7 @@ export default function CampaignTable({
                 <th
                   key={c.naam}
                   scope="col"
-                  className={`sticky top-0 z-20 border-b border-line bg-card px-3 py-3 align-top ${demping(c.naam)}`}
+                  className={`sticky top-0 z-20 border-b border-line bg-card px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)] ${demping(c.naam)}`}
                 >
                   <CampaignHeader
                     campagne={c}
@@ -258,7 +258,10 @@ export default function CampaignTable({
                     {group.title}
                   </th>
                   {campagnes.map((_, i) => (
-                    <td key={i} className="border-b border-line-soft bg-surface-tint" />
+                    <td
+                      key={i}
+                      className="border-b border-line-soft bg-surface-tint [border-left:1px_dashed_var(--color-line-soft)]"
+                    />
                   ))}
                 </tr>
                 {group.metrics.map((metric) => (
@@ -277,7 +280,7 @@ export default function CampaignTable({
                     {campagnes.map((c) => (
                       <td
                         key={c.naam}
-                        className={`border-b border-line-soft px-3 py-3 align-top ${demping(c.naam)}`}
+                        className={`border-b border-line-soft px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)] ${demping(c.naam)}`}
                       >
                         {metric.bewerken && ingelogd ? (
                           <BewerkbaarVeld

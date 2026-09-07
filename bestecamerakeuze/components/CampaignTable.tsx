@@ -9,6 +9,7 @@ import {
   percentOfTarget,
   ratio,
 } from "@/lib/format";
+import BewerkbaarVeld from "@/components/BewerkbaarVeld";
 import CampaignHeader from "@/components/CampaignHeader";
 import MetricCell, { PlainCell } from "@/components/MetricCell";
 
@@ -17,6 +18,16 @@ type Metric = {
   /** Eén zin in gewone taal: wat staat hier, en waar moet je op letten? Zie "Zo lees je dit". */
   uitleg: string;
   render: (campagne: Campagne) => ReactNode;
+  /**
+   * Alleen op metrics die een handmatig ingevulde waarde in de sheet zijn — Leads,
+   * Online leads en Orders komen ergens anders vandaan en zijn hier bewust nooit
+   * bewerkbaar.
+   */
+  bewerken?: {
+    veld: string;
+    huidigeWaarde: (campagne: Campagne) => string;
+    type?: "getal" | "tekst";
+  };
 };
 
 type Group = {
@@ -41,12 +52,14 @@ const GROUPS: Group[] = [
         label: "Startdatum",
         uitleg: "Vanaf deze dag loopt de campagne. Alles hieronder telt vanaf dat moment.",
         render: (c) => <PlainCell value={formatDate(c.startdatum)} />,
+        bewerken: { veld: "startdatum", huidigeWaarde: (c) => c.startdatum ?? "" },
       },
       {
         label: "Einddatum",
         uitleg:
           "Tot deze dag loopt de campagne. Een campagne die nog loopt heeft logischerwijs nog niet zijn hele doel gehaald.",
         render: (c) => <PlainCell value={formatDate(c.einddatum)} />,
+        bewerken: { veld: "einddatum", huidigeWaarde: (c) => c.einddatum ?? "" },
       },
     ],
   },
@@ -67,6 +80,11 @@ const GROUPS: Group[] = [
             />
           );
         },
+        bewerken: {
+          veld: "budget",
+          huidigeWaarde: (c) => (c.budget !== null ? String(c.budget) : ""),
+          type: "getal",
+        },
       },
       {
         label: "Uitgaven",
@@ -82,6 +100,11 @@ const GROUPS: Group[] = [
             />
           );
         },
+        bewerken: {
+          veld: "uitgaven",
+          huidigeWaarde: (c) => (c.uitgaven !== null ? String(c.uitgaven) : ""),
+          type: "getal",
+        },
       },
     ],
   },
@@ -92,6 +115,11 @@ const GROUPS: Group[] = [
         label: "Doel leads",
         uitleg: "Het aantal leads dat vooraf is afgesproken voor de hele looptijd.",
         render: (c) => <PlainCell value={formatNumber(c.doelLeads)} />,
+        bewerken: {
+          veld: "doelLeads",
+          huidigeWaarde: (c) => (c.doelLeads !== null ? String(c.doelLeads) : ""),
+          type: "getal",
+        },
       },
       {
         label: "Leads",
@@ -123,6 +151,11 @@ const GROUPS: Group[] = [
         label: "Doel orders",
         uitleg: "Het aantal orders dat vooraf is afgesproken voor de hele looptijd.",
         render: (c) => <PlainCell value={formatNumber(c.doelOrders)} />,
+        bewerken: {
+          veld: "doelOrders",
+          huidigeWaarde: (c) => (c.doelOrders !== null ? String(c.doelOrders) : ""),
+          type: "getal",
+        },
       },
       {
         label: "Orders",
@@ -246,7 +279,18 @@ export default function CampaignTable({
                         key={c.naam}
                         className={`border-b border-line-soft px-3 py-3 align-top ${demping(c.naam)}`}
                       >
-                        {metric.render(c)}
+                        {metric.bewerken && ingelogd ? (
+                          <BewerkbaarVeld
+                            campagneNaam={c.naam}
+                            veld={metric.bewerken.veld}
+                            initieleWaarde={metric.bewerken.huidigeWaarde(c)}
+                            type={metric.bewerken.type}
+                          >
+                            {metric.render(c)}
+                          </BewerkbaarVeld>
+                        ) : (
+                          metric.render(c)
+                        )}
                       </td>
                     ))}
                   </tr>

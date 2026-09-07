@@ -128,7 +128,10 @@ export const leads: TabelBeschrijving = {
     {
       naam: "lead_type",
       type: "text",
-      betekenis: "Type contactverzoek.",
+      betekenis:
+        "Type contactverzoek. Belangrijk: dit veld bepaalt ook of een lead online of " +
+        "offline is ontstaan — 'Overig' betekent een offline lead, alle andere waarden " +
+        "zijn online leads (zie de bedrijfsregel hieronder).",
       waarden: ["Overig", "Offerte", "Proefrit", "Private Lease", "Contact", "Inruilvoorstel"],
     },
     {
@@ -148,6 +151,9 @@ export const leads: TabelBeschrijving = {
       "ID) — zie de valkuil hieronder.",
     "Campagnecijfers (budget, uitgaven, doelen) staan niet in deze tabel. Vraagt iemand " +
       "daarnaar in combinatie met leads, zeg dan dat dat (nog) niet gekoppeld beschikbaar is.",
+    "Online versus offline loopt via lead_type, niet via kanaal(groep): lead_type = " +
+      "'Overig' is een offline lead, elke andere waarde van lead_type is een online lead. " +
+      "Gebruik dit onderscheid als iemand vraagt naar 'online leads' of 'offline leads'.",
   ],
 
   synoniemen: {
@@ -156,6 +162,8 @@ export const leads: TabelBeschrijving = {
     bron: "kanaal of kanaalgroep, afhankelijk van hoe specifiek de vraag is",
     "omgezet naar order": "order_geworden = true",
     "verloren lead": "sluitreden is not null and sluitreden <> 'Gekocht'",
+    "offline lead": "lead_type = 'Overig'",
+    "online lead": "lead_type <> 'Overig' (of lead_type is not null and lead_type <> 'Overig')",
   },
 
   valkuilen: [
@@ -207,6 +215,19 @@ export const leads: TabelBeschrijving = {
         "group by sluitreden\n" +
         "order by aantal desc\n" +
         "limit 10",
+    },
+    {
+      vraag: "Hoeveel procent van de leads is online versus offline binnengekomen?",
+      sql:
+        "select\n" +
+        "  case when lead_type = 'Overig' then 'Offline' else 'Online' end as herkomst,\n" +
+        "  count(*) as aantal_leads,\n" +
+        "  round(100.0 * count(*) / sum(count(*)) over (), 1) as aandeel_pct\n" +
+        "from v_leads\n" +
+        "group by 1",
+      toelichting:
+        "Online/offline loopt via lead_type, niet via kanaal(groep) — 'Overig' is de " +
+        "enige offline-waarde, alle andere lead_type-waarden zijn online.",
     },
   ],
 };

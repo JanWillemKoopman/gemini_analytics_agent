@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Avatar from "@/components/Avatar";
+import { IconEye, IconEyeOff } from "@/components/icons";
 
 type Profiel = {
   id: string;
@@ -11,14 +12,25 @@ type Profiel = {
 };
 
 const MAX_BESTANDSGROOTTE = 4 * 1024 * 1024; // 4 MB — ruim genoeg voor een profielfoto
+const MIN_WACHTWOORD_LENGTE = 6; // zelfde ondergrens als Supabase Auth zelf hanteert
 
 /**
- * Instellingen: eigen naam en avatarfoto. De foto gaat rechtstreeks vanuit de browser
- * naar Supabase Storage (bucket "avatars", rijbeveiligd op de eigen user-id als
- * mapnaam) — dat scheelt een aparte upload-route voor binaire bestanden. Naam en de
- * resulterende URL worden daarna via /api/profiel opgeslagen.
+ * Instellingen: eigen naam, avatarfoto, e-mailadres (alleen ter info) en wachtwoord. De
+ * foto gaat rechtstreeks vanuit de browser naar Supabase Storage (bucket "avatars",
+ * rijbeveiligd op de eigen user-id als mapnaam) — dat scheelt een aparte upload-route
+ * voor binaire bestanden. Naam en de resulterende URL worden daarna via /api/profiel
+ * opgeslagen. Het wachtwoord zelf wordt nergens leesbaar opgeslagen (Supabase Auth
+ * bewaart alleen een hash) — "wachtwoord weergeven" is dus een nieuw wachtwoord kunnen
+ * intypen mét een oogje om te controleren wat je typt, niet het bestaande wachtwoord
+ * kunnen terugzien.
  */
-export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
+export default function Instellingen({
+  ingelogd,
+  email,
+}: {
+  ingelogd: boolean;
+  email: string | null;
+}) {
   const [profiel, setProfiel] = useState<Profiel | null>(null);
   const [naam, setNaam] = useState("");
   const [laden, setLaden] = useState(true);
@@ -27,6 +39,13 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
   const [fout, setFout] = useState<string | null>(null);
   const [opgeslagen, setOpgeslagen] = useState(false);
   const bestandInputRef = useRef<HTMLInputElement>(null);
+
+  const [nieuwWachtwoord, setNieuwWachtwoord] = useState("");
+  const [bevestigWachtwoord, setBevestigWachtwoord] = useState("");
+  const [toonWachtwoord, setToonWachtwoord] = useState(false);
+  const [bezigMetWachtwoord, setBezigMetWachtwoord] = useState(false);
+  const [wachtwoordFout, setWachtwoordFout] = useState<string | null>(null);
+  const [wachtwoordOpgeslagen, setWachtwoordOpgeslagen] = useState(false);
 
   useEffect(() => {
     if (!ingelogd) {
@@ -124,6 +143,54 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
     }
   }
 
+  async function avatarVerwijderen() {
+    setFout(null);
+    setBezigMetUploaden(true);
+    try {
+      const res = await fetch("/api/profiel", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarUrl: null }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.fout ?? "Kon foto niet verwijderen.");
+      setProfiel(json.profiel);
+    } catch (err) {
+      setFout(err instanceof Error ? err.message : "Kon foto niet verwijderen.");
+    } finally {
+      setBezigMetUploaden(false);
+    }
+  }
+
+  async function wachtwoordOpslaan(e: React.FormEvent) {
+    e.preventDefault();
+    setWachtwoordFout(null);
+    setWachtwoordOpgeslagen(false);
+
+    if (nieuwWachtwoord.length < MIN_WACHTWOORD_LENGTE) {
+      setWachtwoordFout(`Wachtwoord moet minimaal ${MIN_WACHTWOORD_LENGTE} tekens zijn.`);
+      return;
+    }
+    if (nieuwWachtwoord !== bevestigWachtwoord) {
+      setWachtwoordFout("Wachtwoorden komen niet overeen.");
+      return;
+    }
+
+    setBezigMetWachtwoord(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: nieuwWachtwoord });
+      if (error) throw new Error(error.message);
+      setNieuwWachtwoord("");
+      setBevestigWachtwoord("");
+      setWachtwoordOpgeslagen(true);
+    } catch (err) {
+      setWachtwoordFout(err instanceof Error ? err.message : "Kon wachtwoord niet wijzigen.");
+    } finally {
+      setBezigMetWachtwoord(false);
+    }
+  }
+
   if (!ingelogd) {
     return (
       <div className="rounded-panel border border-line bg-surface p-8 text-center">
@@ -151,6 +218,7 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
   }
 
   return (
+    <>
     <div className="max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
       <p className="font-sans-w7 text-base font-bold text-ink">Profiel</p>
       <p className="mt-1 text-sm text-ink-muted">
@@ -167,14 +235,26 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
       <div className="mt-5 flex items-center gap-4">
         <Avatar naam={profiel?.naam ?? null} avatarUrl={profiel?.avatarUrl ?? null} size={64} />
         <div>
-          <button
-            type="button"
-            onClick={() => bestandInputRef.current?.click()}
-            disabled={bezigMetUploaden}
-            className="rounded-control border border-line bg-card px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-surface disabled:cursor-wait disabled:opacity-60"
-          >
-            {bezigMetUploaden ? "Uploaden…" : "Foto wijzigen"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => bestandInputRef.current?.click()}
+              disabled={bezigMetUploaden}
+              className="rounded-control border border-line bg-card px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-surface disabled:cursor-wait disabled:opacity-60"
+            >
+              {bezigMetUploaden ? "Uploaden…" : "Foto wijzigen"}
+            </button>
+            {profiel?.avatarUrl && (
+              <button
+                type="button"
+                onClick={() => void avatarVerwijderen()}
+                disabled={bezigMetUploaden}
+                className="rounded-control border border-line bg-card px-3 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:bg-surface hover:text-orange disabled:cursor-wait disabled:opacity-60"
+              >
+                Verwijderen
+              </button>
+            )}
+          </div>
           <input
             ref={bestandInputRef}
             type="file"
@@ -217,5 +297,87 @@ export default function Instellingen({ ingelogd }: { ingelogd: boolean }) {
         {opgeslagen && <p className="text-xs text-positive">Opgeslagen.</p>}
       </form>
     </div>
+
+    <div className="mt-6 max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+      <p className="font-sans-w7 text-base font-bold text-ink">Account</p>
+
+      <div className="mt-5 flex flex-col gap-1">
+        <span className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          E-mailadres
+        </span>
+        <p className="text-sm text-ink">{email ?? "—"}</p>
+      </div>
+
+      <form onSubmit={wachtwoordOpslaan} className="mt-6 flex flex-col gap-2">
+        <label
+          htmlFor="nieuw-wachtwoord"
+          className="text-xs font-semibold uppercase tracking-wide text-ink-faint"
+        >
+          Nieuw wachtwoord
+        </label>
+        <div className="flex max-w-xs gap-2">
+          <div className="relative w-full">
+            <input
+              id="nieuw-wachtwoord"
+              type={toonWachtwoord ? "text" : "password"}
+              value={nieuwWachtwoord}
+              onChange={(e) => {
+                setNieuwWachtwoord(e.target.value);
+                setWachtwoordOpgeslagen(false);
+              }}
+              autoComplete="new-password"
+              placeholder="Minimaal 6 tekens"
+              className="w-full rounded-control border border-line bg-card px-3 py-2 pr-9 text-sm text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setToonWachtwoord((v) => !v)}
+              aria-label={toonWachtwoord ? "Wachtwoord verbergen" : "Wachtwoord weergeven"}
+              className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-ink-faint transition-colors hover:text-ink"
+            >
+              {toonWachtwoord ? (
+                <IconEyeOff className="h-4 w-4" />
+              ) : (
+                <IconEye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        <label
+          htmlFor="bevestig-wachtwoord"
+          className="mt-2 text-xs font-semibold uppercase tracking-wide text-ink-faint"
+        >
+          Bevestig wachtwoord
+        </label>
+        <div className="flex max-w-xs gap-2">
+          <input
+            id="bevestig-wachtwoord"
+            type={toonWachtwoord ? "text" : "password"}
+            value={bevestigWachtwoord}
+            onChange={(e) => {
+              setBevestigWachtwoord(e.target.value);
+              setWachtwoordOpgeslagen(false);
+            }}
+            autoComplete="new-password"
+            className="w-full rounded-control border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-primary focus:outline-none"
+          />
+        </div>
+
+        {wachtwoordFout && <p className="mt-1 text-xs text-orange">{wachtwoordFout}</p>}
+        {wachtwoordOpgeslagen && (
+          <p className="mt-1 text-xs text-positive">Wachtwoord gewijzigd.</p>
+        )}
+
+        <button
+          type="submit"
+          disabled={bezigMetWachtwoord || !nieuwWachtwoord}
+          className="mt-2 self-start rounded-control bg-primary px-4 py-2 text-sm font-medium text-on-primary transition-colors hover:bg-primary-dark disabled:cursor-wait disabled:opacity-60"
+        >
+          {bezigMetWachtwoord ? "Opslaan…" : "Wachtwoord opslaan"}
+        </button>
+      </form>
+    </div>
+    </>
   );
 }

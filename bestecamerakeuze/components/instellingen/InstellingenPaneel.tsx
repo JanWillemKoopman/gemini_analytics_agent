@@ -12,6 +12,12 @@ const Instellingen = dynamic(() => import("@/components/instellingen/Instellinge
   loading: () => <div className="h-64 rounded-panel border border-line bg-surface" />,
 });
 
-export default function InstellingenPaneel({ ingelogd }: { ingelogd: boolean }) {
-  return <Instellingen ingelogd={ingelogd} />;
+export default function InstellingenPaneel({
+  ingelogd,
+  email,
+}: {
+  ingelogd: boolean;
+  email: string | null;
+}) {
+  return <Instellingen ingelogd={ingelogd} email={email} />;
 }

@@ -95,7 +95,11 @@ export default function AppShell({
           tabblad staan — het hoort bij het venster, niet bij één pagina. */}
       <ThemeSwitcher />
 
-      <div className="sticky top-0 z-30 h-screen w-[72px] shrink-0">
+      {/* z-40: moet boven de sticky tabelkoppen (z-30/z-20/z-10 in CampaignTable/
+          CampagneTijdlijn) uitkomen. Bij gelijke z-index wint DOM-volgorde, en de tabel
+          staat ná de sidebar in de boom — zonder deze hogere waarde priemt de sticky
+          "Campagne"-kolomkop dwars door de uitgeklapte sidebar heen. */}
+      <div className="sticky top-0 z-40 h-screen w-[72px] shrink-0">
         <Sidebar
           actief={actief}
           onNavigate={setActief}

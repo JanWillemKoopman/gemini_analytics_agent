@@ -78,7 +78,7 @@ export default async function DashboardPage() {
             <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
           )
         }
-        instellingen={<InstellingenPaneel ingelogd={ingelogd} />}
+        instellingen={<InstellingenPaneel ingelogd={ingelogd} email={gebruiker?.email ?? null} />}
       />
     </CampagneFilterProvider>
   );

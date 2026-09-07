@@ -639,19 +639,26 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
   const leeg = berichten.length === 0;
 
   return (
-    <div className="flex gap-8 lg:items-start">
-      <GesprekLijst
-        gesprekken={gesprekken}
-        actiefId={actiefId}
-        zoek={zoek}
-        onZoek={setZoek}
-        onKies={(id) => void openGesprek(id)}
-        onNieuw={nieuwGesprek}
-        onHernoem={(id, titel) => void hernoem(id, titel)}
-        onVerwijder={(id) => void verwijder(id)}
-      />
+    <div className="flex min-h-[calc(100vh-3rem)] gap-8 lg:items-stretch">
+      <div className="flex w-full shrink-0 flex-col gap-6 border-r border-line bg-card py-6 pr-6 lg:w-72">
+        <div>
+          <h1 className="titel-theme text-ink">Chatbot</h1>
+          <p className="mt-1 text-sm text-ink-muted">Praat met je data in gewone taal</p>
+        </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+        <GesprekLijst
+          gesprekken={gesprekken}
+          actiefId={actiefId}
+          zoek={zoek}
+          onZoek={setZoek}
+          onKies={(id) => void openGesprek(id)}
+          onNieuw={nieuwGesprek}
+          onHernoem={(id, titel) => void hernoem(id, titel)}
+          onVerwijder={(id) => void verwijder(id)}
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col py-6">
         <div className="mx-auto flex w-full max-w-[720px] flex-1 flex-col">
           {leeg ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-6 py-16 text-center">

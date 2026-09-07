@@ -24,19 +24,61 @@ export function isSheetsSchrijvenGeconfigureerd(): boolean {
   return Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY);
 }
 
+/**
+ * Maakt de geplakte private key weer tot geldige PEM, ongeacht hoe hij precies is
+ * opgeslagen: sommige env-UI's (waaronder Vercel) bewaren de waarde inclusief
+ * omringende aanhalingstekens als je die zelf meeplakt, en de \n's uit het
+ * JSON-keybestand overleven de copy-paste soms als letterlijke `\n` en soms als
+ * echte regeleindes.
+ */
+function normaliseerPrivateKey(raw: string): string {
+  let key = raw.trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1).trim();
+  }
+  return key.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\r\n/g, "\n").trim();
+}
+
 function getAuth() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!email || !privateKey) {
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL?.trim();
+  const privateKeyRaw = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
+  if (!email || !privateKeyRaw) {
     throw new Error(
       "Schrijven naar de sheet is niet geconfigureerd (GOOGLE_SERVICE_ACCOUNT_EMAIL / GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ontbreken).",
     );
   }
+
+  const privateKey = normaliseerPrivateKey(privateKeyRaw);
+  if (!privateKey.includes("BEGIN PRIVATE KEY") || !privateKey.includes("END PRIVATE KEY")) {
+    throw new Error(
+      "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY bevat geen geldige PEM-sleutel. Plak de volledige `private_key` " +
+        'uit het JSON-keybestand van het service account, inclusief de regels "-----BEGIN PRIVATE KEY-----" ' +
+        'en "-----END PRIVATE KEY-----", zonder omringende aanhalingstekens, en herstart de deployment.',
+    );
+  }
+
   return new google.auth.JWT({
     email,
     key: privateKey,
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
+}
+
+/**
+ * Vertaalt een mislukte Google-aanroep naar een begrijpelijke foutmelding. De rauwe
+ * OpenSSL-fout ("error:1E08010C:DECODER routines::unsupported") die Node geeft zodra de
+ * private key niet als geldige PEM te lezen is, zegt een gebruiker niets — die wijst
+ * hem hier expliciet naar de env-variabele die het probleem veroorzaakt.
+ */
+function vertaalAuthFout(err: unknown): Error {
+  const message = err instanceof Error ? err.message : String(err);
+  if (message.includes("DECODER routines") || message.includes("unsupported")) {
+    return new Error(
+      "De GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY-omgevingsvariabele kon niet gelezen worden als geldige sleutel. " +
+        "Kopieer de `private_key` opnieuw uit het JSON-keybestand van het service account en herstart de deployment.",
+    );
+  }
+  return err instanceof Error ? err : new Error(message);
 }
 
 /** A1-kolomletter uit een 0-based kolomindex (0 → A, 25 → Z, 26 → AA, ...). */
@@ -67,34 +109,38 @@ export async function schrijfVeld(campagneNaam: string, veld: string, waarde: st
   const auth = getAuth();
   const sheets = google.sheets({ version: "v4", auth });
 
-  const { data } = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB}!A:Z`,
-  });
-  const rows = data.values ?? [];
-  if (rows.length === 0) {
-    throw new Error("Tabblad “Campagnes” lijkt leeg.");
-  }
+  try {
+    const { data } = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:Z`,
+    });
+    const rows = data.values ?? [];
+    if (rows.length === 0) {
+      throw new Error("Tabblad “Campagnes” lijkt leeg.");
+    }
 
-  const header = rows[0];
-  const kolomIndex = header.indexOf(kolomNaam);
-  const campagneKolomIndex = header.indexOf("Campagne naam");
-  if (kolomIndex === -1 || campagneKolomIndex === -1) {
-    throw new Error(`Kolom "${kolomNaam}" of "Campagne naam" niet gevonden in de sheet.`);
-  }
+    const header = rows[0];
+    const kolomIndex = header.indexOf(kolomNaam);
+    const campagneKolomIndex = header.indexOf("Campagne naam");
+    if (kolomIndex === -1 || campagneKolomIndex === -1) {
+      throw new Error(`Kolom "${kolomNaam}" of "Campagne naam" niet gevonden in de sheet.`);
+    }
 
-  const rijIndex = rows.findIndex(
-    (row, i) => i > 0 && row[campagneKolomIndex]?.trim() === campagneNaam,
-  );
-  if (rijIndex === -1) {
-    throw new Error(`Campagne "${campagneNaam}" niet gevonden in de sheet.`);
-  }
+    const rijIndex = rows.findIndex(
+      (row, i) => i > 0 && row[campagneKolomIndex]?.trim() === campagneNaam,
+    );
+    if (rijIndex === -1) {
+      throw new Error(`Campagne "${campagneNaam}" niet gevonden in de sheet.`);
+    }
 
-  const cel = `${kolomLetter(kolomIndex)}${rijIndex + 1}`;
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET_TAB}!${cel}`,
-    valueInputOption: "USER_ENTERED",
-    requestBody: { values: [[waarde]] },
-  });
+    const cel = `${kolomLetter(kolomIndex)}${rijIndex + 1}`;
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!${cel}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [[waarde]] },
+    });
+  } catch (err) {
+    throw vertaalAuthFout(err);
+  }
 }

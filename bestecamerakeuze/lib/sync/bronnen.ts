@@ -21,8 +21,26 @@ export interface Bron {
   tabblad: string;
   /** Doeltabel in het dataloket-schema. */
   doeltabel: string;
-  /** Kolom die een rij uniek maakt — nodig om te kunnen upserten. */
+  /**
+   * Kolom die een rij uniek maakt — nodig om te kunnen upserten. Moet zowel in
+   * `kolommen` als sheetkolom voorkomen als (na mapping) een echte databasekolom zijn,
+   * want deze naam wordt letterlijk in de `on conflict (...)`-clausule gebruikt.
+   *
+   * Heeft de bron geen natuurlijke sleutel (geen lead- of order-ID in de sheet)? Gebruik
+   * dan `"regelnummer"` — die kolom wordt door de sync zelf gevuld met het rijnummer uit
+   * de sheet (zie route.ts) en is dus altijd aanwezig en uniek binnen één sync-run. Zet
+   * hem ook als `"regelnummer": "regelnummer"` in `kolommen`. Let op: zo'n sleutel is
+   * geen stabiel ID over syncs heen — bij elke nachtelijke verversing herbegint de
+   * telling, wat prima is omdat de tabel dan toch al leeggemaakt en opnieuw gevuld wordt.
+   */
   sleutelKolom: string;
+  /**
+   * Sheetkolom die niet leeg mag zijn, anders wordt de rij afgekeurd. Los van
+   * `sleutelKolom`, want bij een gegenereerde sleutel (`regelnummer`) is die zelf nooit
+   * leeg — dan bepaalt dit veld pas welke rijen echt data bevatten (bijvoorbeeld lege
+   * paddingrijen uit de sheet weglaten). Standaard: `sleutelKolom` zelf.
+   */
+  vereisteKolom?: string;
   /**
    * Van sheetkolom naar databasekolom. Kolommen die hier niet in staan worden genegeerd,
    * wat meteen de manier is om velden die de AI niet hoeft te zien buiten de database te
@@ -31,8 +49,58 @@ export interface Bron {
   kolommen: Record<string, string>;
 }
 
-/** Nog leeg: hier komen de echte sheets in zodra de links bekend zijn. */
-export const BRONNEN: Bron[] = [];
+/**
+ * Beide bronnen zijn tabbladen van dezelfde spreadsheet als de Campagnes-tab
+ * (zie SHEET_ID in lib/sheet.ts) — alleen leest deze sync ze naar Postgres in plaats van
+ * live in te laden, zodat de chat er SQL op kan draaien.
+ *
+ * Geen van beide tabbladen heeft een natuurlijke unieke sleutel (geen lead- of
+ * order-ID), dus beide gebruiken de gegenereerde "regelnummer"-sleutel (zie
+ * sleutelKolom in bronnen.ts en de toelichting daar).
+ */
+export const BRONNEN: Bron[] = [
+  {
+    naam: "Data leads",
+    sheetId: "15v1fCY976qQ0vVSiAmyXqYoGJvAnismE66IQzrVuZKk",
+    tabblad: "Data leads",
+    doeltabel: "leads_raw",
+    sleutelKolom: "regelnummer",
+    // De sheet exporteert daarnaast tienduizenden volledig lege paddingrijen (geen
+    // kanaal, merk of datum). "Kanaal" is leeg, is de rij géén echte lead.
+    vereisteKolom: "Kanaal",
+    kolommen: {
+      regelnummer: "regelnummer",
+      Kanaal: "kanaal",
+      Kanaalgroep: "kanaalgroep",
+      Ordersoort: "ordersoort",
+      Onderwerp: "onderwerp",
+      Merk: "merk",
+      Model: "model",
+      Sluitreden: "sluitreden",
+      Klantsoort: "klantsoort",
+      Aangelegd: "aangelegd_ruw",
+      Campagnes: "campagne",
+      "Lead Type": "lead_type",
+      Orders: "order_geworden_ruw",
+    },
+  },
+  {
+    naam: "Data orders 2",
+    sheetId: "15v1fCY976qQ0vVSiAmyXqYoGJvAnismE66IQzrVuZKk",
+    tabblad: "Data orders 2",
+    doeltabel: "orders_raw",
+    sleutelKolom: "regelnummer",
+    kolommen: {
+      regelnummer: "regelnummer",
+      "Nieuw / gebruikt": "ordersoort",
+      Merk: "merk",
+      Model: "model",
+      "Aantal auto's": "aantal_ruw",
+      Aangelegd: "aangelegd_ruw",
+      Campagnes: "campagne",
+    },
+  },
+];
 
 export function csvUrl(bron: Bron): string {
   return (

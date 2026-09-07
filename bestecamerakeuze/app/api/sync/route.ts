@@ -38,13 +38,27 @@ async function syncBron(client: Client, bron: Bron): Promise<SyncResultaat> {
 
   try {
     const rijen = await haalSheetOp(bron);
+    // Voor bronnen zonder natuurlijke sleutel (geen lead- of order-ID in de sheet) doet
+    // sleutelKolom "regelnummer" mee — die vult de sync hier zelf, uit het rijnummer dat
+    // haalSheetOp toch al bijhoudt. Bestaat de sheetkolom al (toekomstige bron met een
+    // eigen "regelnummer"-kolom), dan overschrijft dit hem; dat risico is verwaarloosbaar.
+    for (const rij of rijen) {
+      rij.waarden.regelnummer = String(rij.rijnummer);
+    }
+
     const goed: GeparsteRij[] = [];
     const afgekeurd: { rij: GeparsteRij; reden: string }[] = [];
 
+    const controleKolom = bron.vereisteKolom ?? bron.sleutelKolom;
     for (const rij of rijen) {
       const sleutel = rij.waarden[bron.sleutelKolom];
       if (!sleutel || !sleutel.trim()) {
         afgekeurd.push({ rij, reden: `Lege sleutelkolom "${bron.sleutelKolom}"` });
+        continue;
+      }
+      const controleWaarde = rij.waarden[controleKolom];
+      if (!controleWaarde || !controleWaarde.trim()) {
+        afgekeurd.push({ rij, reden: `Lege verplichte kolom "${controleKolom}"` });
         continue;
       }
       goed.push(rij);

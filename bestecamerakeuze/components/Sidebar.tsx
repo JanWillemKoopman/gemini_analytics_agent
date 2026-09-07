@@ -3,16 +3,7 @@
 import GebruikersMenu from "@/components/GebruikersMenu";
 import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
-import {
-  IconBook,
-  IconCalendar,
-  IconChat,
-  IconCoin,
-  IconMegaphone,
-  IconPin,
-  IconSettings,
-  IconTable,
-} from "@/components/icons";
+import { IconBook, IconCalendar, IconChat, IconMegaphone, IconPin, IconTable } from "@/components/icons";
 
 export type DashboardView =
   | "campagnes"
@@ -112,19 +103,10 @@ export default function Sidebar({
         </nav>
       </div>
 
-      <div className="flex flex-col gap-0.5 border-t border-sidebar-line pt-3">
-        <NavigationItem
-          icon={<IconCoin />}
-          label="Kosten"
-          active={actief === "kosten"}
-          onClick={() => onNavigate("kosten")}
-        />
-        <NavigationItem
-          icon={<IconSettings />}
-          label="Instellingen"
-          active={actief === "instellingen"}
-          onClick={() => onNavigate("instellingen")}
-        />
+      {/* Kosten en Instellingen staan niet meer als losse navigatie-items hier — ze
+          zitten nu als snelkoppelingen in het uitklapmenu van GebruikersMenu, zodat er
+          geen dubbele ingang naar dezelfde pagina's is. */}
+      <div className="border-t border-sidebar-line pt-3">
         <GebruikersMenu
           naam={weergavenaam}
           email={gebruikerEmail}

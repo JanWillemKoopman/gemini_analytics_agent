@@ -7,10 +7,17 @@ import {
   IconChevronUpDown,
   IconCoin,
   IconMegaphone,
+  IconPin,
   IconSettings,
 } from "@/components/icons";
 
-export type DashboardView = "campagnes" | "chat" | "kennis" | "kosten" | "instellingen";
+export type DashboardView =
+  | "campagnes"
+  | "prikbord"
+  | "chat"
+  | "kennis"
+  | "kosten"
+  | "instellingen";
 
 type Props = {
   actief: DashboardView;
@@ -59,6 +66,12 @@ export default function Sidebar({
             label="Campagnes"
             active={actief === "campagnes"}
             onClick={() => onNavigate("campagnes")}
+          />
+          <NavigationItem
+            icon={<IconPin />}
+            label="Prikbord"
+            active={actief === "prikbord"}
+            onClick={() => onNavigate("prikbord")}
           />
 
           <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">

@@ -11,7 +11,7 @@ Onderstaande stappen zijn eenmalig.
 Voer in volgorde uit in de Supabase SQL-editor:
 `supabase/migrations/0001_dataloket.sql`, dan `0002_gesprekken.sql`, dan
 `0003_kennisbank.sql`, dan `0004_claude_kosten.sql`, dan `0005_campagne_notities.sql`,
-dan `0006_profielen.sql`.
+dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -21,7 +21,10 @@ historie van ervoor), de vijfde de aantekeningen/learnings per campagne (voedt d
 aantekeningen-pop-up op het campagnedashboard — die knop verschijnt pas zodra Supabase
 geconfigureerd is, ongeacht de andere twee dataloket-variabelen hieronder), de zesde de
 naam + avatarfoto per collega (inclusief de `avatars`-bucket in Supabase Storage) — voedt
-zowel Instellingen als de naam/foto bij elke aantekening.
+zowel Instellingen als de naam/foto bij elke aantekening. De zevende maakt van de
+aantekeningen een besluitenlogboek (soort + gekoppelde metriek per aantekening), voegt
+het prikbord toe (vastgepinde grafieken uit de chat) en de view
+`v_populaire_vragen` waar de vraagbibliotheek op het chat-startscherm uit leest.
 
 Dat maakt het `dataloket`-schema aan met:
 
@@ -155,6 +158,24 @@ kennis die nog niet in het woordenboek staat.
 | Kopiëren, opnieuw beantwoorden, stoppen tijdens het antwoord | `components/DataChat.tsx` |
 | Exporteren naar CSV voor Excel | `lib/csv.ts` |
 | "Klopt / klopt niet" per antwoord | `app/api/feedback/route.ts` |
+| Verantwoording (query + rijen + duur) onder élk antwoord | `Verantwoording` in `components/DataChat.tsx` |
+| Antwoord vastpinnen op het prikbord | `lib/prikbord.ts`, `app/api/prikbord/` |
+| Vraagbibliotheek: waar het team het vaakst naar vraagt | `lib/vraagbibliotheek.ts`, `app/api/vragen/` |
+
+### Het prikbord
+
+Een vastgepind antwoord bewaart zijn eigen query én de uitkomst van dat moment. Het
+prikbord-tabblad toont die momentopname met de datum erbij; "verversen" draait dezelfde
+SQL opnieuw — langs dezelfde drie grenzen als de chat (guard, read-only rol, read-only
+transactie met timeout, zie `lib/dataQuery.ts`), want SQL uit de database is niet
+vertrouwder dan SQL uit het model. Het bord is gedeeld: iedereen ziet hetzelfde.
+
+### De vraagbibliotheek
+
+De querylog blijft per gebruiker afgeschermd; de bibliotheek leest alleen de
+geaggregeerde view `dataloket.v_populaire_vragen` (vraag, aantal, laatst gesteld — geen
+gebruiker-id). Het doel is dat nieuwe collega's zien welke vragen zinvol zijn, niet dat
+iemand kan meekijken.
 
 ### Feedback is je werklijst
 

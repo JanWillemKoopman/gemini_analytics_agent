@@ -39,9 +39,10 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   wordmark "Udenhout" en profielnaam faden/schuiven mee in, via Tailwind
   `group`/`group-hover` — geen JS-state nodig) en overlayt hij de content in plaats van
   hem te verschuiven (de aside is absoluut gepositioneerd binnen een vaste 72px-kolom in
-  `AppShell.tsx`). Navigatie: Campagnes, Vraag het je data, Kennisbank, Kosten, onderaan
-  Instellingen en het gebruikersprofiel. Eén actieve state, subtiel gemarkeerd — geen
-  felle kleuren.
+  `AppShell.tsx`). Navigatie: Campagnes, Prikbord, Vraag het je data, Kennisbank, Kosten,
+  onderaan Instellingen en het gebruikersprofiel. Het prikbord staat bewust direct onder
+  Campagnes: het hoort bij het wekelijks kijken naar cijfers, niet bij de chat. Eén
+  actieve state, subtiel gemarkeerd — geen felle kleuren.
 - **Geen dubbele navigatie**: de tabbladtitels staan alleen in de sidebar, nooit ook nog
   eens als een rij tabs boven de content.
 - **Page header**: paginatitel + korte subtitel links; rechts contextuele status (bv.
@@ -71,13 +72,27 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   van tekst, zodra het merk herkend wordt. Onbekende of niet-specifieke waarden (zoals
   "Alle") blijven gewoon tekst. Logo's zijn altijd één kleur (`currentColor`), nooit
   multicolor.
-- Elke campagnekop heeft een subtiel "aantekeningen"-knopje (zie
-  `components/CampaignNotes.tsx`) dat een pop-up opent met learnings voor die campagne
-  als oplopende lijst van punten (toevoegen/bewerken/verwijderen). Elk punt toont een
-  rond avatarfotootje + naam van wie het toevoegde (`components/Avatar.tsx`,
-  `lib/profielen.ts`) — herleidbaarheid is het hele punt van deze feature. Dit knopje
-  wordt alleen getoond als Supabase geconfigureerd is — zonder database is er niets om
-  in op te slaan.
+- Elke campagnekop heeft een subtiel "logboek"-knopje (`components/CampaignNotes.tsx`)
+  dat een pop-up opent met `components/notities/NotitieLijst.tsx` erin. Dat is het
+  **besluitenlogboek** van die campagne: elke regel is een observatie, hypothese,
+  besluit of actie (`lib/notities.ts`), met een avatarfotootje + naam van wie hem
+  toevoegde (`components/Avatar.tsx`, `lib/profielen.ts`) — herleidbaarheid is het hele
+  punt. Bij een hypothese of besluit vraagt de UI om de metriek die erdoor moet
+  veranderen en legt hij de stand van dat cijfer op dát moment vast; de regel eronder
+  toont later "toen → nu" met het verschil. Zonder dat nulpunt (oudere aantekeningen)
+  wordt er niets verzonnen, dan blijft alleen de metrieknaam staan. Acties zijn af te
+  vinken. Het knopje verschijnt alleen als Supabase geconfigureerd is — zonder database
+  is er niets om in op te slaan.
+- **Focusmodus** (`components/CampagneFocus.tsx`): klikken op een campagnenaam in de
+  kolomkop zet die campagne in focus. De andere kolommen worden gedempt (opacity, ze
+  verdwijnen niet) en onder de tabel verschijnt één paneel met de kerncijfers, alle
+  kenmerken uit de sheet en rechts het logboek — zodat wat in het overleg besproken
+  wordt meteen vastgelegd kan worden. Escape of "Focus verlaten" sluit hem; de focus
+  wordt afgeleid uit de gefilterde lijst, dus wegfilteren sluit hem vanzelf.
+- **"Zo lees je dit"** (knop in de filterbalk, standaard uit): zet een leeswijzer boven
+  de tabel en een zin in gewone taal onder elk metriclabel. Die uitleg staat als veld
+  `uitleg` op elke metric in `CampaignTable.tsx` — een nieuwe rij toevoegen zonder
+  uitleg valt daardoor meteen op.
 - Pop-ups (`components/Modal.tsx`) renderen via een React-portal naar `<body>`, niet op
   hun eigen plek in de boom. Reden: een knop die vanuit een sticky tabelkop opent (zoals
   de aantekeningen-knop) zit zelf in een sticky stacking context, en dan wint een hoge
@@ -170,7 +185,8 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
-  `StatusIndicator`, `Modal`, `CampaignNotes`, `Avatar`, `brandLogos`. Voeg nieuwe UI
+  `StatusIndicator`, `Modal`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
+  `Prikbord`, `Avatar`, `brandLogos`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
 - Het oogje voor de themes hangt `fixed` rechtsboven in het scherm (niet in de
@@ -200,3 +216,26 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   die daar bovenop komen (aantekeningen, kosten) koppelen op de campagnenaam of draaien
   los ernaast — er komt geen eigen "campagne"-tabel in de database zolang de sheet de
   bron blijft.
+
+## Het weekoverleg als uitgangspunt
+
+Het dashboard bestaat niet om mooi te zijn maar om één ritueel te dragen: het team kijkt
+wekelijks samen naar de campagneresultaten en beslist op basis daarvan. Nieuwe
+functionaliteit hoort die cyclus te versterken — beeld → besluit → terugblik → zichtbare
+verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat:
+
+- **Besluitenlogboek** per campagne (soort + gekoppelde metriek + nulpunt), zodat een
+  besluit volgende week naast het cijfer staat dat het moest raken.
+- **Focusmodus**, omdat het overleg per campagne gaat en niet per metric.
+- **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
+  team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.
+  Zo groeit het dashboard uit de vragen die er echt leven.
+- **Vraagbibliotheek** op het chat-startscherm (`lib/vraagbibliotheek.ts`): de vragen die
+  collega's het vaakst stelden, geaggregeerd en zonder namen — leermiddel, geen ranglijst.
+- **Verantwoording onder elk antwoord** (query, rijen, duur, kopieerknop): vertrouwen in
+  de cijfers is de voorwaarde om er beslissingen op te durven baseren.
+- **"Zo lees je dit"**: data-gedreven werken struikelt vaker over onbegrip dan over onwil.
+
+Nieuwe features die hierbij horen (weekbriefing, terugblik op vorige week, vergelijking
+met vorige week, anomaliedetectie) passen in ditzelfde patroon: de sheet blijft de bron,
+Supabase draagt wat het team zelf vastlegt.

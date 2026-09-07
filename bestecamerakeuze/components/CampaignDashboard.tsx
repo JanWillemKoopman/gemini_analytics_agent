@@ -150,7 +150,7 @@ export default function CampaignDashboard({ campagnes, notitiesBeschikbaar, inge
             Zo lees je dit
           </button>
         </div>
-        <UpdateButton variant="inline" label="Bijwerken" />
+        <UpdateButton variant="inline" label="Data updaten" />
       </FilterBar>
 
       {uitlegAan && <Leeswijzer />}

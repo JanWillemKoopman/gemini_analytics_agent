@@ -1,5 +1,4 @@
 import LiveStatus from "@/components/LiveStatus";
-import UpdateButton from "@/components/UpdateButton";
 
 type Props = {
   title: string;
@@ -23,7 +22,6 @@ export default function PageHeader({ title, subtitle, meta }: Props) {
           <LiveStatus liveCount={meta.liveCount} />
           <span aria-hidden="true" className="h-3 w-px bg-line" />
           <span className="text-sm text-ink-muted">Laatst bijgewerkt {meta.updatedAt}</span>
-          <UpdateButton />
         </div>
       )}
     </div>

@@ -30,15 +30,34 @@ const MAX_RONDES = 6;
  * Staat tijdens de testfase bewust op Haiku 4.5 in plaats van Opus 5: vijf keer
  * goedkoper per token ($1/$5 per miljoen tegen $5/$25), wat scheelt zolang er vooral
  * geoefend wordt in plaats van gewerkt. Haiku is minder sterk in het schrijven van SQL
- * over een groot woordenboek — zie je antwoorden die de verkeerde kolommen pakken of
- * bedrijfsregels missen, dan is dat de eerste plek om terug te zetten. Dat kan zonder
- * deploy via CHAT_MODEL; de kostenregistratie kent beide modellen (lib/kosten.ts).
+ * over een groot woordenboek; daarvoor is ESCALATIE_MODEL hieronder het vangnet — elke
+ * vraag begint goedkoop en stapt pas over als dat aantoonbaar niet volstaat.
+ *
+ * Zie je in het Kosten-tabblad dat vrijwel elke beurt escaleert, dan kost die eerste
+ * goedkope poging alleen maar geld: zet CHAT_MODEL dan op het sterkere model. Dat kan
+ * zonder deploy; de kostenregistratie kent alle drie de modellen (lib/kosten.ts).
  *
  * Let op: Haiku 4.5 heeft een contextvenster van 200K in plaats van 1M. Het woordenboek
  * plus de kennisbank passen daar ruim in, maar een kennisbank die eindeloos groeit loopt
  * hier eerder tegen een grens aan (PROMPT_BUDGET in lib/kennisbank.ts bewaakt dat).
  */
 const MODEL = process.env.CHAT_MODEL || "claude-haiku-4-5";
+
+/**
+ * Het model waarop wordt overgestapt zodra Haiku het niet redt.
+ *
+ * Sonnet 5 kost $2/$10 per miljoen tokens: tweeënhalf keer Haiku, maar nog altijd
+ * tweeënhalf keer goedkoper dan Opus 5 — en het schrijft merkbaar betrouwbaarder SQL
+ * over een groot woordenboek. De goedkope beurt is dan al betaald, maar dat is een paar
+ * cent tegenover een antwoord dat wél klopt.
+ *
+ * Er wordt op drie momenten overgestapt (zie de lus hieronder):
+ *  - een query van Haiku loopt vast op een databasefout;
+ *  - de aanroep zelf mislukt (bv. het model geeft ongeldige toolinvoer terug);
+ *  - de gebruiker klikt op "opnieuw beantwoorden" — dan was het eerste antwoord blijkbaar
+ *    niet goed genoeg, dus die beurt begint meteen op het sterkere model.
+ */
+const ESCALATIE_MODEL = process.env.CHAT_MODEL_ESCALATIE || "claude-sonnet-5";
 
 const QUERY_TOOL: Anthropic.Tool = {
   name: "query_data",
@@ -227,7 +246,8 @@ export async function POST(request: Request) {
 
   // Bij "opnieuw proberen" verdwijnt de vorige beurt, anders staat de vraag straks
   // dubbel in de geschiedenis.
-  if (body.opnieuw === true) {
+  const opnieuwProberen = body.opnieuw === true;
+  if (opnieuwProberen) {
     await verwijderLaatsteBeurt(supabase, gesprekId);
   }
 
@@ -272,11 +292,24 @@ export async function POST(request: Request) {
 
       const verslagen: QueryVerslag[] = [];
       let antwoord = "";
+      // Begint op het goedkope model; escaleert binnen dezelfde beurt zodra blijkt dat
+      // dat niet volstaat. Een keer overgestapt blijft de rest van de beurt op het
+      // sterkere model — heen en weer springen levert alleen maar cache-misses op.
+      let actiefModel = opnieuwProberen ? ESCALATIE_MODEL : MODEL;
+      if (actiefModel !== MODEL) send({ type: "model", model: actiefModel });
+
+      const escaleer = (reden: string, herstart = false): boolean => {
+        if (actiefModel === ESCALATIE_MODEL) return false;
+        actiefModel = ESCALATIE_MODEL;
+        send({ type: "model", model: actiefModel, reden, herstart });
+        return true;
+      };
+      const escaleerMetHerstart = (reden: string) => escaleer(reden, true);
 
       try {
         for (let ronde = 0; ronde < MAX_RONDES; ronde++) {
           const runner = client.messages.stream({
-            model: MODEL,
+            model: actiefModel,
             max_tokens: 8000,
             // Het woordenboek is een grote, stabiele prefix. Het cachebreekpunt staat er
             // achteraan, zodat elke vervolgvraag in hetzelfde gesprek de instructie plus
@@ -309,10 +342,21 @@ export async function POST(request: Request) {
           });
           runner.on("text", (delta) => send({ type: "tekst", tekst: delta }));
 
-          const response = await runner.finalMessage();
+          let response: Anthropic.Message;
+          try {
+            response = await runner.finalMessage();
+          } catch (err) {
+            // Mislukt de aanroep zelf (ongeldige toolinvoer, een overbelast model), dan
+            // is dat op het snelle model reden om over te stappen en de beurt opnieuw te
+            // beginnen. `herstart` vertelt de browser dat hij het halve antwoord dat hij
+            // misschien al binnen had moet weggooien. Lukt het op het sterkere model ook
+            // niet, dan hoort de fout gewoon bij de gebruiker terecht te komen.
+            if (!escaleerMetHerstart(err instanceof Error ? err.message : String(err))) throw err;
+            continue;
+          }
 
           await logClaudeGebruik(supabase, {
-            model: MODEL,
+            model: actiefModel,
             doel: "chat",
             gebruikerId: gebruiker.id,
             inputTokens: response.usage.input_tokens,
@@ -408,6 +452,13 @@ export async function POST(request: Request) {
           }
 
           messages.push({ role: "user", content: resultaten });
+
+          // Een query die stukloopt is het duidelijkste signaal dat het snelle model de
+          // datastructuur niet goed genoeg doorheeft. De foutmelding staat al in de
+          // geschiedenis; het sterkere model leest hem en herstelt de query zelf.
+          if (resultaten.some((r) => r.is_error)) {
+            escaleer("een query liep vast");
+          }
 
           if (ronde === MAX_RONDES - 1) {
             antwoord =

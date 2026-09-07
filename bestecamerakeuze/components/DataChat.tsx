@@ -44,6 +44,8 @@ interface Bericht {
   tekst: string;
   queries?: QueryVerslag[];
   oordeel?: "goed" | "fout" | null;
+  /** Gezet zodra de server halverwege naar het sterkere model is overgestapt. */
+  escalatie?: { model: string; reden?: string };
 }
 
 /** Vangnet zolang de vraagbibliotheek (nog) leeg is — zie VraagBibliotheek hieronder. */
@@ -544,6 +546,7 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
           if (!regel.trim()) continue;
           const g = JSON.parse(regel) as
             | { type: "fase"; fase: string }
+            | { type: "model"; model: string; reden?: string; herstart?: boolean }
             | { type: "tekst"; tekst: string }
             | ({ type: "query" } & QueryVerslag)
             | {
@@ -558,6 +561,15 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
 
           if (g.type === "fase") {
             setFase(g.fase);
+          } else if (g.type === "model") {
+            // De server is overgestapt op een sterker model. Bij `herstart` was de vorige
+            // poging mislukt en begint het antwoord opnieuw — dan moet de tekst die al
+            // binnen was weg, anders staat er straks een half antwoord bovenop een heel.
+            if (g.herstart) {
+              lopendAntwoord = "";
+              lopendeQueries.splice(0, lopendeQueries.length);
+            }
+            werkBij({ escalatie: { model: g.model, reden: g.reden } });
           } else if (g.type === "tekst") {
             lopendAntwoord += g.tekst;
             werkBij();
@@ -695,6 +707,13 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
                             rijen={q.rijen}
                           />
                         ))}
+
+                      {bericht.escalatie && (
+                        <p className="mb-2 text-xs text-ink-faint">
+                          Overgestapt op een sterker model
+                          {bericht.escalatie.reden ? ` — ${bericht.escalatie.reden}` : ""}.
+                        </p>
+                      )}
 
                       {bericht.tekst ? (
                         <Markdown tekst={bericht.tekst} />

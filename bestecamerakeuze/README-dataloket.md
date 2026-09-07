@@ -63,6 +63,7 @@ In Vercel (of `.env.local` voor lokaal):
 | `DATAQUERY_DATABASE_URL` | de read-only verbinding uit stap 2 |
 | `ANTHROPIC_API_KEY` | de Claude API |
 | `CHAT_MODEL` | optioneel: het model van de chat (standaard `claude-haiku-4-5`) |
+| `CHAT_MODEL_ESCALATIE` | optioneel: het model waarop wordt overgestapt als dat niet lukt (standaard `claude-sonnet-5`) |
 | `SYNC_DATABASE_URL` | schrijvende verbinding, alleen voor de sync-job |
 | `CRON_SECRET` | beschermt `/api/sync` tegen aanroepen van buiten |
 | `SUPABASE_SERVICE_ROLE_KEY` | alleen voor `scripts/maak-gebruiker.ts`, nooit in de app zelf — zie hieronder |
@@ -162,6 +163,23 @@ kennis die nog niet in het woordenboek staat.
 | Verantwoording (query + rijen + duur) onder élk antwoord | `Verantwoording` in `components/DataChat.tsx` |
 | Antwoord vastpinnen op het prikbord | `lib/prikbord.ts`, `app/api/prikbord/` |
 | Vraagbibliotheek: waar het team het vaakst naar vraagt | `lib/vraagbibliotheek.ts`, `app/api/vragen/` |
+
+### Goedkoop beginnen, duur worden als het moet
+
+Elke vraag start op Haiku 4.5 ($1/$5 per miljoen tokens). De chat stapt binnen dezelfde
+beurt over op Sonnet 5 ($2/$10) zodra blijkt dat dat niet volstaat:
+
+- een query van het snelle model loopt vast op een databasefout;
+- de aanroep zelf mislukt (ongeldige toolinvoer, model overbelast) — de beurt begint dan
+  opnieuw op het sterkere model;
+- de gebruiker klikt op "opnieuw beantwoorden" — dan was het eerste antwoord blijkbaar
+  niet goed genoeg, dus die beurt begint meteen sterker.
+
+Eenmaal overgestapt blijft de rest van de beurt op het sterkere model; heen en weer
+springen levert alleen cache-misses op. De gebruiker ziet een klein regeltje boven het
+antwoord dat er is overgestapt, en het Kosten-tabblad splitst de uitgaven per model —
+dáár lees je af of de goedkope eerste poging zich nog terugverdient. Escaleert bijna elke
+vraag, zet `CHAT_MODEL` dan gewoon op het sterkere model.
 
 ### Het prikbord
 

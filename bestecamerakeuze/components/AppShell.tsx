@@ -29,8 +29,8 @@ const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
     subtitle: "De grafieken die het team uit de chat heeft vastgepind.",
   },
   chat: {
-    title: "Start gesprek",
-    subtitle: "Stel een vraag in gewone taal en krijg antwoord uit je eigen data.",
+    title: "Chatbot",
+    subtitle: "Praat met je data in gewone taal",
   },
   kennis: {
     title: "Kennisbank",
@@ -90,11 +90,13 @@ export default function AppShell({
       {/* pr-16: ruimte voor het vaste oogje rechtsboven, zodat de status-/updateknop
           in de PageHeader er niet onder verdwijnt. */}
       <main className="min-w-0 flex-1 py-6 pl-8 pr-16">
-        <PageHeader
-          title={title}
-          subtitle={subtitle}
-          meta={actief === "campagnes" ? { liveCount, updatedAt } : undefined}
-        />
+        {actief !== "chat" && (
+          <PageHeader
+            title={title}
+            subtitle={subtitle}
+            meta={actief === "campagnes" ? { liveCount, updatedAt } : undefined}
+          />
+        )}
 
         <div className="mt-6" role="tabpanel" hidden={actief !== "campagnes"}>
           {campagnes}
@@ -102,7 +104,7 @@ export default function AppShell({
         <div className="mt-6" role="tabpanel" hidden={actief !== "prikbord"}>
           {prikbord}
         </div>
-        <div className="mt-6" role="tabpanel" hidden={actief !== "chat"}>
+        <div role="tabpanel" hidden={actief !== "chat"}>
           {chat}
         </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "kennis"}>

@@ -9,6 +9,7 @@ import PrikbordPaneel from "@/components/prikbord/PrikbordPaneel";
 import CampagneTijdlijn from "@/components/tijdlijn/CampagneTijdlijn";
 import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
+import { CampagneFilterProvider } from "@/lib/campagneFilterContext";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
 import { formatUpdatedAt } from "@/lib/format";
 import { haalProfiel } from "@/lib/profielen";
@@ -35,49 +36,47 @@ export default async function DashboardPage() {
   const updatedAt = formatUpdatedAt(new Date());
 
   return (
-    <AppShell
-      gebruikerEmail={gebruiker?.email ?? null}
-      profielNaam={profiel?.naam ?? null}
-      profielAvatarUrl={profiel?.avatarUrl ?? null}
-      liveCount={liveCount}
-      updatedAt={updatedAt}
-      campagnes={
-        <CampaignDashboard
-          campagnes={campagnes}
-          notitiesBeschikbaar={isSupabaseGeconfigureerd()}
-          ingelogd={ingelogd}
-        />
-      }
-      tijdlijn={<CampagneTijdlijn campagnes={campagnes} />}
-      prikbord={
-        gereed.gereed ? (
-          <PrikbordPaneel ingelogd={ingelogd} />
-        ) : (
-          <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
-        )
-      }
-      chat={
-        gereed.gereed ? (
-          <ChatPaneel ingelogd={ingelogd} />
-        ) : (
-          <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
-        )
-      }
-      kennis={
-        gereed.gereed ? (
-          <KennisPaneel ingelogd={ingelogd} />
-        ) : (
-          <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
-        )
-      }
-      kosten={
-        gereed.gereed ? (
-          <KostenPaneel ingelogd={ingelogd} />
-        ) : (
-          <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
-        )
-      }
-      instellingen={<InstellingenPaneel ingelogd={ingelogd} />}
-    />
+    <CampagneFilterProvider campagnes={campagnes}>
+      <AppShell
+        gebruikerEmail={gebruiker?.email ?? null}
+        profielNaam={profiel?.naam ?? null}
+        profielAvatarUrl={profiel?.avatarUrl ?? null}
+        liveCount={liveCount}
+        updatedAt={updatedAt}
+        campagnes={
+          <CampaignDashboard notitiesBeschikbaar={isSupabaseGeconfigureerd()} ingelogd={ingelogd} />
+        }
+        tijdlijn={<CampagneTijdlijn />}
+        prikbord={
+          gereed.gereed ? (
+            <PrikbordPaneel ingelogd={ingelogd} />
+          ) : (
+            <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
+          )
+        }
+        chat={
+          gereed.gereed ? (
+            <ChatPaneel ingelogd={ingelogd} />
+          ) : (
+            <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
+          )
+        }
+        kennis={
+          gereed.gereed ? (
+            <KennisPaneel ingelogd={ingelogd} />
+          ) : (
+            <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
+          )
+        }
+        kosten={
+          gereed.gereed ? (
+            <KostenPaneel ingelogd={ingelogd} />
+          ) : (
+            <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
+          )
+        }
+        instellingen={<InstellingenPaneel ingelogd={ingelogd} />}
+      />
+    </CampagneFilterProvider>
   );
 }

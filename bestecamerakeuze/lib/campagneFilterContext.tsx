@@ -36,6 +36,9 @@ type CampagneFilterContextValue = {
    * volledige serverrefresh (en dus een nieuwe ophaal van de hele sheet) te wachten —
    * de schrijfbare velden in de tabel gebruiken dit voor directe feedback na opslaan. */
   werkVeldBij: (campagneNaam: string, patch: Partial<Campagne>) => void;
+  /** Voegt een net in de sheet aangemaakte campagne ook lokaal toe, zodat hij meteen
+   * zichtbaar is in de tabel, tijdlijn en het beheeroverzicht zonder serverrefresh. */
+  voegCampagneToe: (campagne: Campagne) => void;
 };
 
 const CampagneFilterContext = createContext<CampagneFilterContextValue | null>(null);
@@ -75,6 +78,10 @@ export function CampagneFilterProvider({
     setCampagnes((huidig) =>
       huidig.map((c) => (c.naam === campagneNaam ? { ...c, ...patch } : c)),
     );
+  }
+
+  function voegCampagneToe(campagne: Campagne) {
+    setCampagnes((huidig) => [...huidig, campagne]);
   }
 
   const options = useMemo<Opties>(
@@ -125,6 +132,7 @@ export function CampagneFilterProvider({
     activeFilterCount,
     clearAll,
     werkVeldBij,
+    voegCampagneToe,
   };
 
   return <CampagneFilterContext.Provider value={value}>{children}</CampagneFilterContext.Provider>;

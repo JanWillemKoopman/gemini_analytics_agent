@@ -1,5 +1,6 @@
 import AppShell from "@/components/AppShell";
 import CampaignDashboard from "@/components/CampaignDashboard";
+import CampagneBeheer from "@/components/beheer/CampagneBeheer";
 import ChatPaneel from "@/components/chat/ChatPaneel";
 import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
 import KennisPaneel from "@/components/kennis/KennisPaneel";
@@ -43,10 +44,12 @@ export default async function DashboardPage() {
         profielAvatarUrl={profiel?.avatarUrl ?? null}
         liveCount={liveCount}
         updatedAt={updatedAt}
+        ingelogd={ingelogd}
         campagnes={
           <CampaignDashboard notitiesBeschikbaar={isSupabaseGeconfigureerd()} ingelogd={ingelogd} />
         }
         tijdlijn={<CampagneTijdlijn />}
+        campagnebeheer={<CampagneBeheer ingelogd={ingelogd} />}
         prikbord={
           gereed.gereed ? (
             <PrikbordPaneel ingelogd={ingelogd} />

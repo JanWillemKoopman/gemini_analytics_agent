@@ -4,6 +4,7 @@ import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import Sidebar, { type DashboardView } from "@/components/Sidebar";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import NieuweCampagneKnop from "@/components/NieuweCampagneKnop";
 
 type Props = {
   gebruikerEmail: string | null;
@@ -11,14 +12,19 @@ type Props = {
   profielAvatarUrl: string | null;
   liveCount: number;
   updatedAt: string;
+  ingelogd: boolean;
   campagnes: React.ReactNode;
   tijdlijn: React.ReactNode;
+  campagnebeheer: React.ReactNode;
   prikbord: React.ReactNode;
   chat: React.ReactNode;
   kennis: React.ReactNode;
   kosten: React.ReactNode;
   instellingen: React.ReactNode;
 };
+
+/** Tabbladen uit de sidebargroep "Campagnes" — hier blijft het ronde "+"-knopje zichtbaar. */
+const CAMPAGNE_GROEP_VIEWS: DashboardView[] = ["campagnes", "tijdlijn", "campagnebeheer"];
 
 const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   campagnes: {
@@ -28,6 +34,10 @@ const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   tijdlijn: {
     title: "Tijdlijn",
     subtitle: "De looptijd van alle campagnes in één jaaroverzicht.",
+  },
+  campagnebeheer: {
+    title: "Campagnebeheer",
+    subtitle: "Campagnes toevoegen en alle velden bewerken — direct in sync met de sheet.",
   },
   prikbord: {
     title: "Prikbord",
@@ -66,8 +76,10 @@ export default function AppShell({
   profielAvatarUrl,
   liveCount,
   updatedAt,
+  ingelogd,
   campagnes,
   tijdlijn,
+  campagnebeheer,
   prikbord,
   chat,
   kennis,
@@ -114,6 +126,9 @@ export default function AppShell({
         <div className="mt-6" role="tabpanel" hidden={actief !== "tijdlijn"}>
           {tijdlijn}
         </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "campagnebeheer"}>
+          {campagnebeheer}
+        </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "prikbord"}>
           {prikbord}
         </div>
@@ -130,6 +145,11 @@ export default function AppShell({
           {instellingen}
         </div>
       </main>
+
+      {/* Het ronde "+"-knopje rechtsonder: alleen op de tabbladen uit de sidebargroep
+          "Campagnes" (Campagnes, Tijdlijn, Campagnebeheer), niet op Chatbot/Kosten/
+          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard. */}
+      {CAMPAGNE_GROEP_VIEWS.includes(actief) && <NieuweCampagneKnop ingelogd={ingelogd} />}
     </div>
   );
 }

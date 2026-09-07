@@ -10,6 +10,8 @@ type Kolom = {
   label: string;
   veld: keyof Campagne & string;
   type?: "getal" | "tekst";
+  /** Smallere kolommen (bv. Budget, Startdatum) mogen minder ruimte krijgen dan de standaard 150px. */
+  breedte?: number;
   huidigeWaarde: (c: Campagne) => string;
   render: (c: Campagne) => ReactNode;
 };
@@ -37,6 +39,7 @@ const KOLOMMEN: Kolom[] = [
     label: "Budget",
     veld: "budget",
     type: "getal",
+    breedte: 96,
     huidigeWaarde: (c) => (c.budget !== null ? String(c.budget) : ""),
     render: (c) => formatCurrency(c.budget),
   },
@@ -44,6 +47,7 @@ const KOLOMMEN: Kolom[] = [
     label: "Uitgaven",
     veld: "uitgaven",
     type: "getal",
+    breedte: 96,
     huidigeWaarde: (c) => (c.uitgaven !== null ? String(c.uitgaven) : ""),
     render: (c) => formatCurrency(c.uitgaven),
   },
@@ -51,6 +55,7 @@ const KOLOMMEN: Kolom[] = [
     label: "Doel leads",
     veld: "doelLeads",
     type: "getal",
+    breedte: 90,
     huidigeWaarde: (c) => (c.doelLeads !== null ? String(c.doelLeads) : ""),
     render: (c) => formatNumber(c.doelLeads),
   },
@@ -58,18 +63,21 @@ const KOLOMMEN: Kolom[] = [
     label: "Doel orders",
     veld: "doelOrders",
     type: "getal",
+    breedte: 90,
     huidigeWaarde: (c) => (c.doelOrders !== null ? String(c.doelOrders) : ""),
     render: (c) => formatNumber(c.doelOrders),
   },
   {
     label: "Startdatum",
     veld: "startdatum",
+    breedte: 100,
     huidigeWaarde: (c) => c.startdatum ?? "",
     render: (c) => formatDate(c.startdatum),
   },
   {
     label: "Einddatum",
     veld: "einddatum",
+    breedte: 100,
     huidigeWaarde: (c) => c.einddatum ?? "",
     render: (c) => formatDate(c.einddatum),
   },
@@ -109,8 +117,10 @@ type Props = {
 export default function CampagneBeheer({ ingelogd }: Props) {
   const { campagnes } = useCampagneFilters();
 
+  // Nieuwste startdatum eerst, net als het tabblad Campagnes (zie sortByStartdatumDesc
+  // in CampaignDashboard.tsx) — campagnes zonder startdatum staan onderaan.
   const gesorteerd = useMemo(
-    () => [...campagnes].sort((a, b) => a.naam.localeCompare(b.naam, "nl")),
+    () => [...campagnes].sort((a, b) => (b.startdatum ?? "").localeCompare(a.startdatum ?? "")),
     [campagnes],
   );
 
@@ -147,9 +157,9 @@ export default function CampagneBeheer({ ingelogd }: Props) {
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-separate border-spacing-0 text-left">
           <colgroup>
-            <col className="w-[200px]" />
+            <col style={{ width: 200 }} />
             {KOLOMMEN.map((kolom) => (
-              <col key={kolom.veld} className="w-[150px]" />
+              <col key={kolom.veld} style={{ width: kolom.breedte ?? 150 }} />
             ))}
           </colgroup>
           <thead>
@@ -176,14 +186,14 @@ export default function CampagneBeheer({ ingelogd }: Props) {
               <tr key={campagne.naam}>
                 <th
                   scope="row"
-                  className="sticky left-0 z-10 border-b border-line-soft bg-card px-4 py-3 text-left align-top text-sm font-medium text-ink"
+                  className="sticky left-0 z-10 border-b border-line-soft bg-card px-4 py-3 text-left align-top text-xs font-medium text-ink"
                 >
                   <BewerkbaarVeld campagneNaam={campagne.naam} veld="naam" initieleWaarde={campagne.naam}>
                     {campagne.naam}
                   </BewerkbaarVeld>
                 </th>
                 {KOLOMMEN.map((kolom) => (
-                  <td key={kolom.veld} className="border-b border-line-soft px-3 py-3 align-top text-sm text-ink">
+                  <td key={kolom.veld} className="border-b border-line-soft px-3 py-3 align-top text-xs text-ink">
                     <BewerkbaarVeld
                       campagneNaam={campagne.naam}
                       veld={kolom.veld}

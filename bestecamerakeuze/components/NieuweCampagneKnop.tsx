@@ -23,9 +23,9 @@ export default function NieuweCampagneKnop({ ingelogd }: Props) {
         onClick={() => setOpen(true)}
         aria-label="Nieuwe campagne toevoegen"
         title="Nieuwe campagne toevoegen"
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary shadow-dropdown transition-colors duration-150 hover:bg-primary-dark"
+        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-150 hover:opacity-100"
       >
-        <IconPlus className="h-6 w-6" />
+        <IconPlus className="h-5 w-5" />
       </button>
 
       {open && <NieuweCampagneModal ingelogd={ingelogd} onClose={() => setOpen(false)} />}

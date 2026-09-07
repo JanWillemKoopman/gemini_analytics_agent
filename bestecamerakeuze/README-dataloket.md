@@ -62,6 +62,7 @@ In Vercel (of `.env.local` voor lokaal):
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | idem |
 | `DATAQUERY_DATABASE_URL` | de read-only verbinding uit stap 2 |
 | `ANTHROPIC_API_KEY` | de Claude API |
+| `CHAT_MODEL` | optioneel: het model van de chat (standaard `claude-haiku-4-5`) |
 | `SYNC_DATABASE_URL` | schrijvende verbinding, alleen voor de sync-job |
 | `CRON_SECRET` | beschermt `/api/sync` tegen aanroepen van buiten |
 | `SUPABASE_SERVICE_ROLE_KEY` | alleen voor `scripts/maak-gebruiker.ts`, nooit in de app zelf — zie hieronder |

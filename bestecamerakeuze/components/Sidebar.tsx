@@ -10,11 +10,13 @@ import {
   IconMegaphone,
   IconPin,
   IconSettings,
+  IconTable,
 } from "@/components/icons";
 
 export type DashboardView =
   | "campagnes"
   | "tijdlijn"
+  | "campagnebeheer"
   | "prikbord"
   | "chat"
   | "kennis"
@@ -77,6 +79,12 @@ export default function Sidebar({
             label="Tijdlijn"
             active={actief === "tijdlijn"}
             onClick={() => onNavigate("tijdlijn")}
+          />
+          <NavigationItem
+            icon={<IconTable />}
+            label="Campagnebeheer"
+            active={actief === "campagnebeheer"}
+            onClick={() => onNavigate("campagnebeheer")}
           />
 
           <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">

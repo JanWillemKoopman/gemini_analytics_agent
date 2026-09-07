@@ -225,6 +225,16 @@ export function IconCalendar({ className }: IconProps) {
   );
 }
 
+export function IconTable({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="3.5" y="4.5" width="17" height="15" rx="2" />
+      <path d="M3.5 9.5h17" />
+      <path d="M9.5 9.5v10" />
+    </svg>
+  );
+}
+
 export function IconPin({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden="true">

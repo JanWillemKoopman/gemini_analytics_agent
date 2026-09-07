@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import type { Campagne } from "@/lib/sheet";
 import { useCampagneFilters } from "@/lib/campagneFilterContext";
+import { normaliseerGetal } from "@/lib/getallen";
 
 type Props = {
   campagneNaam: string;
@@ -14,19 +15,6 @@ type Props = {
   type?: "getal" | "tekst";
   children: ReactNode;
 };
-
-/**
- * Normaliseert een getal-invoer naar de NL-notatie (komma als decimaal) waarin de
- * sheet zelf ook getallen verwacht, ongeacht of iemand een punt of komma typte.
- * Lege invoer is toegestaan (maakt de cel leeg).
- */
-function normaliseerGetal(input: string): string | null {
-  const trimmed = input.trim();
-  if (trimmed === "") return "";
-  const numeriek = Number(trimmed.replace(",", "."));
-  if (!Number.isFinite(numeriek)) return null;
-  return numeriek.toString().replace(".", ",");
-}
 
 /**
  * Klik-om-te-bewerken cel: toont normaal de bestaande weergave (`children`), en

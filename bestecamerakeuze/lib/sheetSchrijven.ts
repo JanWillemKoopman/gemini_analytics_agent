@@ -8,12 +8,18 @@ import { SHEET_ID, SHEET_TAB } from "@/lib/sheet";
  * anders vandaan en horen niet handmatig overschreven te worden.
  */
 const SCHRIJFBARE_VELDEN: Record<string, string> = {
+  naam: "Campagne naam",
   startdatum: "Startdatum",
   einddatum: "Einddatum",
   budget: "Budget",
   uitgaven: "Uitgaven",
   doelLeads: "Doel leads",
   doelOrders: "Doel orders",
+  merk: "Merk",
+  model: "Model",
+  leadType: "Lead type",
+  ordersoort: "Ordersoort",
+  klantgroepOrders: "Klantgroep orders (indien van toepassing)",
 };
 
 export function isSchrijfbaarVeld(veld: string): boolean {
@@ -139,6 +145,73 @@ export async function schrijfVeld(campagneNaam: string, veld: string, waarde: st
       range: `${SHEET_TAB}!${cel}`,
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [[waarde]] },
+    });
+  } catch (err) {
+    throw vertaalAuthFout(err);
+  }
+}
+
+/** Alle velden die het nieuwe-campagneformulier mag invullen, min de naam (die heeft een eigen verplichte plek). */
+export type NieuweCampagneVelden = {
+  naam: string;
+} & Partial<Record<Exclude<keyof typeof SCHRIJFBARE_VELDEN, "naam">, string>>;
+
+/**
+ * Voegt een nieuwe campagne toe als rij in de sheet, in de eerste lege rij na de
+ * bestaande data — net als handmatig een rij onderaan invullen. Kolommen worden op
+ * kolomkop gezocht (dezelfde aanpak als `schrijfVeld`), zodat de volgorde van kolommen
+ * in de sheet er niet toe doet. Velden die niet zijn ingevuld blijven leeg; kolommen die
+ * niet vanuit het dashboard te schrijven zijn (Leads, Order totaal, Status, …) blijven
+ * ook leeg totdat iemand of iets anders ze vult.
+ */
+export async function voegCampagneToe(velden: NieuweCampagneVelden): Promise<void> {
+  const naam = velden.naam.trim();
+  if (!naam) {
+    throw new Error("Campagnenaam is verplicht.");
+  }
+
+  const auth = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+
+  try {
+    const { data } = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:Z`,
+    });
+    const rows = data.values ?? [];
+    if (rows.length === 0) {
+      throw new Error("Tabblad “Campagnes” lijkt leeg.");
+    }
+
+    const header = rows[0];
+    const campagneKolomIndex = header.indexOf("Campagne naam");
+    if (campagneKolomIndex === -1) {
+      throw new Error('Kolom "Campagne naam" niet gevonden in de sheet.');
+    }
+
+    const bestaatAl = rows.some(
+      (row, i) => i > 0 && row[campagneKolomIndex]?.trim().toLowerCase() === naam.toLowerCase(),
+    );
+    if (bestaatAl) {
+      throw new Error(`Er bestaat al een campagne met de naam "${naam}".`);
+    }
+
+    const rij = new Array(header.length).fill("");
+    rij[campagneKolomIndex] = naam;
+    for (const [veld, kolomNaam] of Object.entries(SCHRIJFBARE_VELDEN)) {
+      if (veld === "naam") continue;
+      const waarde = velden[veld as keyof NieuweCampagneVelden];
+      if (!waarde) continue;
+      const kolomIndex = header.indexOf(kolomNaam);
+      if (kolomIndex !== -1) rij[kolomIndex] = waarde;
+    }
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:Z`,
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: { values: [rij] },
     });
   } catch (err) {
     throw vertaalAuthFout(err);

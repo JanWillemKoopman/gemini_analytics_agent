@@ -6,8 +6,8 @@ import Papa from "papaparse";
  * Overschrijfbaar via GOOGLE_SHEET_ID mocht het dashboard ooit naar een andere sheet
  * moeten wijzen (bv. een kopie voor een tweede vestiging).
  */
-const SHEET_ID = process.env.GOOGLE_SHEET_ID ?? "15v1fCY976qQ0vVSiAmyXqYoGJvAnismE66IQzrVuZKk";
-const SHEET_TAB = "Campagnes";
+export const SHEET_ID = process.env.GOOGLE_SHEET_ID ?? "15v1fCY976qQ0vVSiAmyXqYoGJvAnismE66IQzrVuZKk";
+export const SHEET_TAB = "Campagnes";
 
 function csvUrl(): string {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_TAB)}`;

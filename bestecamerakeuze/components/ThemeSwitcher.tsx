@@ -44,7 +44,7 @@ export default function ThemeSwitcher() {
         aria-expanded={open}
         aria-label="Vormgeving kiezen"
         title="Vormgeving kiezen"
-        className={`flex h-9 w-9 items-center justify-center rounded-control border border-line bg-card text-ink-muted shadow-card transition-colors duration-150 hover:text-ink ${
+        className={`flex h-9 w-9 items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink ${
           open ? "text-ink" : ""
         }`}
       >

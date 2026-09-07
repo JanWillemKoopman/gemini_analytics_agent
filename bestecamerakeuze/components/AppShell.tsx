@@ -12,6 +12,7 @@ type Props = {
   liveCount: number;
   updatedAt: string;
   campagnes: React.ReactNode;
+  tijdlijn: React.ReactNode;
   prikbord: React.ReactNode;
   chat: React.ReactNode;
   kennis: React.ReactNode;
@@ -23,6 +24,10 @@ const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   campagnes: {
     title: "Campagnes",
     subtitle: "In één overzicht de prestaties van al je actieve campagnes.",
+  },
+  tijdlijn: {
+    title: "Tijdlijn",
+    subtitle: "De looptijd van alle campagnes in één jaaroverzicht.",
   },
   prikbord: {
     title: "Prikbord",
@@ -62,6 +67,7 @@ export default function AppShell({
   liveCount,
   updatedAt,
   campagnes,
+  tijdlijn,
   prikbord,
   chat,
   kennis,
@@ -100,6 +106,9 @@ export default function AppShell({
 
         <div className="mt-6" role="tabpanel" hidden={actief !== "campagnes"}>
           {campagnes}
+        </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "tijdlijn"}>
+          {tijdlijn}
         </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "prikbord"}>
           {prikbord}

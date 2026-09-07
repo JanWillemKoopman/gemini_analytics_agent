@@ -6,6 +6,7 @@ import KennisPaneel from "@/components/kennis/KennisPaneel";
 import KostenPaneel from "@/components/kosten/KostenPaneel";
 import NietGeconfigureerd from "@/components/NietGeconfigureerd";
 import PrikbordPaneel from "@/components/prikbord/PrikbordPaneel";
+import CampagneTijdlijn from "@/components/tijdlijn/CampagneTijdlijn";
 import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
@@ -47,6 +48,7 @@ export default async function DashboardPage() {
           ingelogd={ingelogd}
         />
       }
+      tijdlijn={<CampagneTijdlijn campagnes={campagnes} />}
       prikbord={
         gereed.gereed ? (
           <PrikbordPaneel ingelogd={ingelogd} />

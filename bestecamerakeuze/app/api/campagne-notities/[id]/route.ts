@@ -16,16 +16,22 @@ export async function PATCH(request: Request, { params }: Ctx) {
 
   const { id } = await params;
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
-  const tekst = typeof body.tekst === "string" ? body.tekst.trim() : "";
+  const tekst = typeof body.tekst === "string" ? body.tekst.trim() : undefined;
+  const afgerond = typeof body.afgerond === "boolean" ? body.afgerond : undefined;
 
-  if (!tekst) return NextResponse.json({ fout: "Tekst mag niet leeg zijn." }, { status: 400 });
-  if (tekst.length > MAX_TEKST_LENGTE) {
+  if (tekst === undefined && afgerond === undefined) {
+    return NextResponse.json({ fout: "Niets om te wijzigen." }, { status: 400 });
+  }
+  if (tekst !== undefined && !tekst) {
+    return NextResponse.json({ fout: "Tekst mag niet leeg zijn." }, { status: 400 });
+  }
+  if (tekst !== undefined && tekst.length > MAX_TEKST_LENGTE) {
     return NextResponse.json({ fout: "Aantekening is te lang." }, { status: 400 });
   }
 
   try {
     const supabase = await createClient();
-    await wijzigNotitie(supabase, gebruiker.id, id, tekst);
+    await wijzigNotitie(supabase, gebruiker.id, id, { tekst, afgerond });
     return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(

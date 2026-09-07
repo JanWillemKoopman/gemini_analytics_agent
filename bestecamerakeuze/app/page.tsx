@@ -5,6 +5,7 @@ import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
 import KennisPaneel from "@/components/kennis/KennisPaneel";
 import KostenPaneel from "@/components/kosten/KostenPaneel";
 import NietGeconfigureerd from "@/components/NietGeconfigureerd";
+import PrikbordPaneel from "@/components/prikbord/PrikbordPaneel";
 import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
@@ -45,6 +46,13 @@ export default async function DashboardPage() {
           notitiesBeschikbaar={isSupabaseGeconfigureerd()}
           ingelogd={ingelogd}
         />
+      }
+      prikbord={
+        gereed.gereed ? (
+          <PrikbordPaneel ingelogd={ingelogd} />
+        ) : (
+          <NietGeconfigureerd ontbreekt={gereed.ontbreekt} />
+        )
       }
       chat={
         gereed.gereed ? (

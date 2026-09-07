@@ -9,6 +9,7 @@ import {
   IconCheck,
   IconCopy,
   IconDownload,
+  IconPin,
   IconRefresh,
   IconThumbDown,
   IconThumbUp,
@@ -45,6 +46,7 @@ interface Bericht {
   oordeel?: "goed" | "fout" | null;
 }
 
+/** Vangnet zolang de vraagbibliotheek (nog) leeg is — zie VraagBibliotheek hieronder. */
 const VOORBEELDVRAGEN = [
   "Hoeveel auto's van het merk DAF zijn verkocht in week 40 van 2025?",
   "Wat was de omzet per merk vorig kwartaal?",
@@ -92,17 +94,51 @@ function ResultaatTabel({ verslag }: { verslag: QueryVerslag }) {
 }
 
 function Verantwoording({ queries }: { queries: QueryVerslag[] }) {
+  const [gekopieerd, setGekopieerd] = useState<number | null>(null);
   if (queries.length === 0) return null;
+
+  const totaalRijen = queries.reduce((som, q) => som + (q.aantalRijen ?? 0), 0);
+
   return (
     <details className="mt-3 rounded-card border border-line bg-surface px-4 py-3">
+      {/* Deze verantwoording staat onder élk antwoord, ook als alles goed ging.
+          Vertrouwen in de cijfers is de voorwaarde om er beslissingen op te baseren, en
+          een antwoord dat je niet kunt narekenen krijgt dat vertrouwen nooit. */}
       <summary className="cursor-pointer text-sm font-medium text-ink-muted">
-        Verantwoording — {queries.length} {queries.length === 1 ? "query" : "queries"}{" "}
-        uitgevoerd
+        Zo is dit antwoord berekend — {queries.length}{" "}
+        {queries.length === 1 ? "query" : "queries"}, {totaalRijen}{" "}
+        {totaalRijen === 1 ? "rij" : "rijen"}
       </summary>
       <div className="mt-3 flex flex-col gap-4">
         {queries.map((q, i) => (
           <div key={i}>
-            <p className="text-sm text-ink-muted">{q.toelichting}</p>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm text-ink-muted">
+                {q.weergave.vorm === "verberg" && (
+                  <span className="label-theme mr-1.5 rounded-control bg-card px-1.5 py-0.5 text-label text-ink-faint">
+                    Verkennend
+                  </span>
+                )}
+                {q.toelichting}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard.writeText(q.sql);
+                  setGekopieerd(i);
+                  setTimeout(() => setGekopieerd(null), 2000);
+                }}
+                title="Query kopiëren"
+                aria-label="Query kopiëren"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-ink-faint transition-colors hover:bg-card hover:text-ink"
+              >
+                {gekopieerd === i ? (
+                  <IconCheck className="h-3.5 w-3.5" />
+                ) : (
+                  <IconCopy className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
             <pre className="mt-1.5 overflow-x-auto rounded-card bg-card p-3 text-xs leading-relaxed text-ink">
               {q.sql}
             </pre>
@@ -115,11 +151,56 @@ function Verantwoording({ queries }: { queries: QueryVerslag[] }) {
                 </>
               )}
             </p>
-            {!q.fout && q.weergave.vorm !== "tabel" && <ResultaatTabel verslag={q} />}
+            {!q.fout &&
+              (q.weergave.vorm === "tabel" ? (
+                <p className="mt-1.5 text-xs text-ink-faint">
+                  De tabel hierboven is het volledige resultaat van deze query.
+                </p>
+              ) : (
+                <ResultaatTabel verslag={q} />
+              ))}
           </div>
         ))}
       </div>
     </details>
+  );
+}
+
+/**
+ * De vraagbibliotheek: waar collega's dit jaar het vaakst naar vroegen.
+ *
+ * Nieuwe gebruikers leren zo welke vragen zinvol zijn — de goedkoopste manier om
+ * datageletterdheid te verspreiden die er is. Geaggregeerd en zonder namen: het is een
+ * leermiddel, geen kijkje in andermans zoekgeschiedenis (zie lib/vraagbibliotheek.ts).
+ */
+function VraagBibliotheek({
+  vragen,
+  onKies,
+}: {
+  vragen: { vraag: string; aantal: number }[];
+  onKies: (vraag: string) => void;
+}) {
+  if (vragen.length === 0) return null;
+  return (
+    <div className="w-full max-w-[640px] text-left">
+      <p className="label-theme mb-2 text-label text-ink-faint">Waar het team het vaakst naar vraagt</p>
+      <ul className="flex flex-col gap-1">
+        {vragen.map((v) => (
+          <li key={v.vraag}>
+            <button
+              type="button"
+              onClick={() => onKies(v.vraag)}
+              className="flex w-full items-center justify-between gap-3 rounded-control border border-line bg-card px-4 py-2.5 text-left text-sm text-ink transition-colors hover:border-primary/40 hover:bg-primary-light"
+            >
+              <span className="min-w-0 flex-1 truncate">{v.vraag}</span>
+              <span className="shrink-0 text-xs text-ink-faint tabular-nums">
+                {v.aantal}× gevraagd
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -157,6 +238,8 @@ function AntwoordActies({
   onKopieer,
   onOpnieuw,
   onOordeel,
+  onPin,
+  gepind,
   gekopieerd,
   kanOpnieuw,
 }: {
@@ -164,10 +247,15 @@ function AntwoordActies({
   onKopieer: () => void;
   onOpnieuw: () => void;
   onOordeel: (oordeel: "goed" | "fout") => void;
+  onPin: (query: QueryVerslag) => void;
+  /** SQL van de queries die al op het prikbord staan — voorkomt dubbel pinnen. */
+  gepind: string[];
   gekopieerd: boolean;
   kanOpnieuw: boolean;
 }) {
   const metRijen = (bericht.queries ?? []).filter((q) => !q.fout && q.rijen.length > 0);
+  // Verkennende queries zijn geen antwoord en horen dus niet op een bord.
+  const pinbaar = metRijen.filter((q) => q.weergave.vorm !== "verberg");
   return (
     <div className="mt-2 flex flex-wrap items-center gap-0.5">
       <IconActieKnop onClick={onKopieer} titel="Antwoord kopiëren">
@@ -195,6 +283,36 @@ function AntwoordActies({
         <IconActieKnop onClick={onOpnieuw} titel="Opnieuw beantwoorden">
           <IconRefresh className="h-4 w-4" />
         </IconActieKnop>
+      )}
+      {pinbaar.length > 0 && (
+        <>
+          <span aria-hidden="true" className="mx-1 h-4 w-px bg-line" />
+          {pinbaar.map((q, i) => {
+            const staatErAl = gepind.includes(q.sql);
+            return (
+              <button
+                key={`pin-${i}`}
+                type="button"
+                onClick={() => onPin(q)}
+                disabled={staatErAl}
+                title={
+                  staatErAl
+                    ? "Staat al op het prikbord"
+                    : "Op het prikbord zetten, zodat het team hem elke week terugziet"
+                }
+                className={`flex items-center gap-1 rounded-control px-2 py-1.5 text-xs transition-colors ${
+                  staatErAl
+                    ? "text-primary"
+                    : "text-ink-faint hover:bg-surface hover:text-ink"
+                }`}
+              >
+                <IconPin className="h-3.5 w-3.5" />
+                {staatErAl ? "Vastgepind" : "Prikbord"}
+                {pinbaar.length > 1 ? ` ${i + 1}` : ""}
+              </button>
+            );
+          })}
+        </>
       )}
       {metRijen.length > 0 && (
         <>
@@ -230,6 +348,8 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
   const [fout, setFout] = useState<string | null>(null);
   const [vervolgvragen, setVervolgvragen] = useState<string[]>([]);
   const [gekopieerd, setGekopieerd] = useState<number | null>(null);
+  const [populaireVragen, setPopulaireVragen] = useState<{ vraag: string; aantal: number }[]>([]);
+  const [gepind, setGepind] = useState<string[]>([]);
 
   const onderkant = useRef<HTMLDivElement>(null);
   const invoerveld = useRef<HTMLTextAreaElement>(null);
@@ -248,6 +368,46 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
     if (!ingelogd) return;
     void laadGesprekken(zoek);
   }, [ingelogd, zoek, laadGesprekken]);
+
+  // De vraagbibliotheek is opsmuk op het startscherm: lukt het ophalen niet, dan blijven
+  // gewoon de voorbeeldvragen staan en merkt niemand er iets van.
+  useEffect(() => {
+    if (!ingelogd) return;
+    let genegeerd = false;
+    fetch("/api/vragen")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (!genegeerd && json?.vragen) setPopulaireVragen(json.vragen);
+      })
+      .catch(() => {
+        // Stil: zonder bibliotheek is het startscherm nog steeds bruikbaar.
+      });
+    return () => {
+      genegeerd = true;
+    };
+  }, [ingelogd]);
+
+  async function pinVast(query: QueryVerslag, vraag: string) {
+    setFout(null);
+    try {
+      const res = await fetch("/api/prikbord", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titel: query.weergave.titel || vraag,
+          vraag,
+          sql: query.sql,
+          weergave: query.weergave,
+          kolommen: query.kolommen,
+          rijen: query.rijen,
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).fout ?? "Kon niet vastpinnen.");
+      setGepind((prev) => [...prev, query.sql]);
+    } catch (err) {
+      setFout(err instanceof Error ? err.message : "Kon niet vastpinnen.");
+    }
+  }
 
   async function openGesprek(id: string) {
     setActiefId(id);
@@ -492,7 +652,13 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
                   antwoord zie je welke query is gedraaid, zodat je het kunt narekenen.
                 </p>
               </div>
+
+              <VraagBibliotheek vragen={populaireVragen} onKies={(v) => void verstuur(v)} />
+
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-center">
+                {populaireVragen.length > 0 && (
+                  <p className="w-full text-xs text-ink-faint">Of begin met een voorbeeld:</p>
+                )}
                 {VOORBEELDVRAGEN.map((v) => (
                   <button
                     key={v}
@@ -545,6 +711,15 @@ export default function DataChat({ ingelogd }: { ingelogd: boolean }) {
                           bericht={bericht}
                           gekopieerd={gekopieerd === i}
                           kanOpnieuw={i === berichten.length - 1}
+                          gepind={gepind}
+                          onPin={(q) =>
+                            void pinVast(
+                              q,
+                              // De vraag die tot dit antwoord leidde staat er direct boven.
+                              [...berichten.slice(0, i)].reverse().find((b) => b.rol === "gebruiker")
+                                ?.tekst ?? "",
+                            )
+                          }
                           onKopieer={() => {
                             void navigator.clipboard.writeText(bericht.tekst);
                             setGekopieerd(i);

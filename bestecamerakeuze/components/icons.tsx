@@ -213,3 +213,12 @@ export function IconEye({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconPin({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M9.5 3.5h5l-.6 5.2 3.1 3.1v1.7H7v-1.7l3.1-3.1Z" />
+      <path d="M12 13.5V20.5" />
+    </svg>
+  );
+}

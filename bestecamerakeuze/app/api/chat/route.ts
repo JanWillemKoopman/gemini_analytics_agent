@@ -24,7 +24,21 @@ export const maxDuration = 120;
 /** Hoeveel queries het model maximaal mag draaien voor één vraag. */
 const MAX_RONDES = 6;
 
-const MODEL = "claude-opus-5";
+/**
+ * Het model waarop de chat draait.
+ *
+ * Staat tijdens de testfase bewust op Haiku 4.5 in plaats van Opus 5: vijf keer
+ * goedkoper per token ($1/$5 per miljoen tegen $5/$25), wat scheelt zolang er vooral
+ * geoefend wordt in plaats van gewerkt. Haiku is minder sterk in het schrijven van SQL
+ * over een groot woordenboek — zie je antwoorden die de verkeerde kolommen pakken of
+ * bedrijfsregels missen, dan is dat de eerste plek om terug te zetten. Dat kan zonder
+ * deploy via CHAT_MODEL; de kostenregistratie kent beide modellen (lib/kosten.ts).
+ *
+ * Let op: Haiku 4.5 heeft een contextvenster van 200K in plaats van 1M. Het woordenboek
+ * plus de kennisbank passen daar ruim in, maar een kennisbank die eindeloos groeit loopt
+ * hier eerder tegen een grens aan (PROMPT_BUDGET in lib/kennisbank.ts bewaakt dat).
+ */
+const MODEL = process.env.CHAT_MODEL || "claude-haiku-4-5";
 
 const QUERY_TOOL: Anthropic.Tool = {
   name: "query_data",

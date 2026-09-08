@@ -2,20 +2,20 @@
 
 import { useEffect } from "react";
 import NotitieLijst from "@/components/notities/NotitieLijst";
-import ProgressBar from "@/components/ProgressBar";
 import StatusIndicator from "@/components/StatusIndicator";
 import { getBrandLogo } from "@/components/brandLogos";
 import { IconClose } from "@/components/icons";
-import { formatCurrency, formatDate, formatNumber, isCampagneLive, ratio } from "@/lib/format";
+import { formatDate, isCampagneLive } from "@/lib/format";
 import type { Campagne } from "@/lib/sheet";
 
 /**
- * Focusmodus: alles over één campagne op één plek.
+ * Focusmodus: het logboek van één campagne, groot genoeg om er meteen in te werken.
  *
- * Het weekoverleg gaat per campagne, niet per metric — dus zodra iemand op een
- * campagnenaam klikt treedt de rest van de tabel terug en verschijnt hier het volledige
- * beeld: de kerncijfers groot, de kenmerken uit de sheet eronder en rechts het logboek,
- * zodat wat er besproken wordt meteen vastgelegd kan worden zonder een pop-up te openen.
+ * De cijfers en kenmerken staan al in de tabel erboven (die blijft zichtbaar, alleen
+ * gedempt) — dit paneel dupliceert ze bewust niet meer. Zodra iemand op een
+ * campagnenaam klikt, treedt de rest terug en krijgt het logboek de volle breedte,
+ * zodat wat er in het overleg besproken wordt daar meteen bij kan zonder een pop-up
+ * te openen.
  */
 
 type Props = {
@@ -24,45 +24,6 @@ type Props = {
   ingelogd: boolean;
   onSluit: () => void;
 };
-
-function Kerncijfer({
-  label,
-  waarde,
-  onder,
-  toon = "neutraal",
-  voortgang,
-}: {
-  label: string;
-  waarde: string;
-  onder?: string;
-  toon?: "neutraal" | "positief" | "negatief";
-  voortgang?: number;
-}) {
-  const kleur =
-    toon === "positief" ? "text-positive" : toon === "negatief" ? "text-negative" : "text-ink-faint";
-  return (
-    <div className="rounded-card border border-line px-4 py-3">
-      <p className="label-theme text-label text-ink-faint">{label}</p>
-      <p className="mt-1 font-sans-w7 text-title font-bold tabular-nums text-ink">{waarde}</p>
-      {onder && <p className={`mt-0.5 text-xs ${kleur}`}>{onder}</p>}
-      {voortgang !== undefined && (
-        <div className="mt-2">
-          <ProgressBar percent={voortgang} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Kenmerk({ label, waarde }: { label: string; waarde: string }) {
-  if (!waarde) return null;
-  return (
-    <div className="min-w-0">
-      <dt className="label-theme text-label text-ink-faint">{label}</dt>
-      <dd className="mt-0.5 text-sm text-ink">{waarde}</dd>
-    </div>
-  );
-}
 
 export default function CampagneFocus({
   campagne,
@@ -80,7 +41,6 @@ export default function CampagneFocus({
   }, [onSluit]);
 
   const BrandLogo = campagne.merk ? getBrandLogo(campagne.merk) : null;
-  const budgetBenut = ratio(campagne.uitgaven, campagne.budget);
 
   return (
     <section
@@ -114,61 +74,15 @@ export default function CampagneFocus({
         </button>
       </header>
 
-      <div className="mt-5 grid grid-cols-[minmax(0,1fr)_380px] gap-6">
-        <div className="min-w-0">
-          <div className="grid grid-cols-4 gap-3">
-            <Kerncijfer
-              label="Budget"
-              waarde={formatCurrency(campagne.budget)}
-              onder={budgetBenut !== null ? `${Math.round(budgetBenut)}% benut` : undefined}
-              voortgang={budgetBenut ?? undefined}
-            />
-            <Kerncijfer label="Leads totaal" waarde={formatNumber(campagne.leads)} />
-            <Kerncijfer label="Leads online" waarde={formatNumber(campagne.leadsMarketing)} />
-            <Kerncijfer label="Orders totaal" waarde={formatNumber(campagne.orderTotaal)} />
-          </div>
-
-          <dl className="mt-5 grid grid-cols-3 gap-4 border-t border-line-soft pt-5">
-            <Kenmerk label="Merk" waarde={campagne.merk} />
-            <Kenmerk label="Model" waarde={campagne.model} />
-            <Kenmerk label="Lead type" waarde={campagne.leadType} />
-            <Kenmerk label="Ordersoort" waarde={campagne.ordersoort} />
-            <Kenmerk label="Klantgroep" waarde={campagne.klantgroepOrders} />
-            <Kenmerk label="Doel leads online" waarde={formatNumber(campagne.doelLeads)} />
-            <Kenmerk label="Doel orders totaal" waarde={formatNumber(campagne.doelOrders)} />
-            <Kenmerk label="Uitgaven" waarde={formatCurrency(campagne.uitgaven)} />
-            <Kenmerk label="Resultaat" waarde={campagne.resultaat} />
-          </dl>
-
-          {campagne.definitieLead && (
-            <p className="mt-5 rounded-card border border-line-soft bg-surface px-4 py-3 text-sm text-ink-muted">
-              <span className="label-theme mr-2 text-label text-ink-faint">Definitie lead</span>
-              {campagne.definitieLead}
-            </p>
-          )}
-
-          {campagne.campagnepagina && (
-            <a
-              href={campagne.campagnepagina}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
-            >
-              Campagnepagina openen
-            </a>
-          )}
-        </div>
-
-        <div className="min-w-0 border-l border-line-soft pl-6">
-          <p className="label-theme mb-3 text-label text-ink-faint">Logboek</p>
-          {notitiesBeschikbaar ? (
-            <NotitieLijst campagne={campagne} ingelogd={ingelogd} />
-          ) : (
-            <p className="text-sm text-ink-faint">
-              Het logboek heeft een database nodig; die is hier niet geconfigureerd.
-            </p>
-          )}
-        </div>
+      <div className="mt-5 border-t border-line-soft pt-5">
+        <p className="label-theme mb-3 text-label text-ink-faint">Logboek</p>
+        {notitiesBeschikbaar ? (
+          <NotitieLijst campagne={campagne} ingelogd={ingelogd} />
+        ) : (
+          <p className="text-sm text-ink-faint">
+            Het logboek heeft een database nodig; die is hier niet geconfigureerd.
+          </p>
+        )}
       </div>
     </section>
   );

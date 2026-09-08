@@ -88,10 +88,11 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   is er niets om in op te slaan.
 - **Focusmodus** (`components/CampagneFocus.tsx`): klikken op een campagnenaam in de
   kolomkop zet die campagne in focus. De andere kolommen worden gedempt (opacity, ze
-  verdwijnen niet) en onder de tabel verschijnt één paneel met de kerncijfers, alle
-  kenmerken uit de sheet en rechts het logboek — zodat wat in het overleg besproken
-  wordt meteen vastgelegd kan worden. Escape of "Focus verlaten" sluit hem; de focus
-  wordt afgeleid uit de gefilterde lijst, dus wegfilteren sluit hem vanzelf.
+  verdwijnen niet) en onder de tabel verschijnt één paneel dat volledig aan het logboek
+  is gewijd — de cijfers en kenmerken staan al in de tabel erboven, dus die worden hier
+  niet nogmaals getoond. Zo krijgt het invoerveld en de lijst de volle breedte, in
+  plaats van een smalle kolom naast kerncijfers. Escape of "Focus verlaten" sluit hem;
+  de focus wordt afgeleid uit de gefilterde lijst, dus wegfilteren sluit hem vanzelf.
 - **"Zo lees je dit"** (knop in de filterbalk, standaard uit): zet een leeswijzer boven
   de tabel en een zin in gewone taal onder elk metriclabel. Die uitleg staat als veld
   `uitleg` op elke metric in `CampaignTable.tsx` — een nieuwe rij toevoegen zonder

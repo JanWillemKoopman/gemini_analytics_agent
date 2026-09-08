@@ -12,7 +12,7 @@ import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
 import { CampagneFilterProvider } from "@/lib/campagneFilterContext";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
-import { formatUpdatedAt } from "@/lib/format";
+import { formatUpdatedAt, isCampagneLive } from "@/lib/format";
 import { haalProfiel } from "@/lib/profielen";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     ? await haalProfiel(await createClient(), gebruiker.id).catch(() => null)
     : null;
 
-  const liveCount = campagnes.filter((c) => c.status.trim().toLowerCase() === "online").length;
+  const liveCount = campagnes.filter((c) => isCampagneLive(c)).length;
   const updatedAt = formatUpdatedAt(new Date());
 
   return (

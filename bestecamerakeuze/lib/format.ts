@@ -94,6 +94,27 @@ export function percentOfTarget(actual: number | null, target: number | null): s
   return percent ? `${percent} van doel` : null;
 }
 
+/** Vandaag als "YYYY-MM-DD" in Europe/Amsterdam, zodat de vergelijking met de ISO-
+ *  datums uit de sheet los staat van de tijdzone van de server. */
+function vandaagISO(vandaag: Date): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(vandaag);
+}
+
+/**
+ * Of een campagne op dit moment live staat, afgeleid van start- en einddatum in plaats
+ * van de handmatig ingevulde kolom "Status" in de sheet — die loopt in de praktijk
+ * achter. Live = vandaag ligt op of tussen start- en einddatum; zonder een van beide
+ * datums is er niets om op te rekenen, dus dan telt de campagne als offline.
+ */
+export function isCampagneLive(
+  campagne: { startdatum: string | null; einddatum: string | null },
+  vandaag: Date = new Date(),
+): boolean {
+  if (!campagne.startdatum || !campagne.einddatum) return false;
+  const vandaagIso = vandaagISO(vandaag);
+  return campagne.startdatum <= vandaagIso && vandaagIso <= campagne.einddatum;
+}
+
 export function formatUpdatedAt(date: Date): string {
   return new Intl.DateTimeFormat("nl-NL", {
     hour: "2-digit",

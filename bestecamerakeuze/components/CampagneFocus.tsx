@@ -6,7 +6,7 @@ import ProgressBar from "@/components/ProgressBar";
 import StatusIndicator from "@/components/StatusIndicator";
 import { getBrandLogo } from "@/components/brandLogos";
 import { IconClose } from "@/components/icons";
-import { formatCurrency, formatDate, formatNumber, ratio } from "@/lib/format";
+import { formatCurrency, formatDate, formatNumber, isCampagneLive, ratio } from "@/lib/format";
 import type { Campagne } from "@/lib/sheet";
 
 /**
@@ -97,7 +97,7 @@ export default function CampagneFocus({
               {campagne.naam}
             </h2>
             <p className="mt-0.5 flex items-center gap-2 text-xs text-ink-faint">
-              <StatusIndicator status={campagne.status} />
+              <StatusIndicator live={isCampagneLive(campagne)} />
               <span>
                 {formatDate(campagne.startdatum)} — {formatDate(campagne.einddatum)}
               </span>

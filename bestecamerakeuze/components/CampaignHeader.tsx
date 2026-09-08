@@ -2,6 +2,7 @@ import type { Campagne } from "@/lib/sheet";
 import StatusIndicator from "@/components/StatusIndicator";
 import { getBrandLogo } from "@/components/brandLogos";
 import CampaignNotes from "@/components/CampaignNotes";
+import { isCampagneLive } from "@/lib/format";
 
 type Props = {
   campagne: Campagne;
@@ -48,7 +49,7 @@ export default function CampaignHeader({
           ) : (
             <span className="min-w-0 truncate text-xs text-ink-faint">{campagne.merk}</span>
           ))}
-        <StatusIndicator status={campagne.status} />
+        <StatusIndicator live={isCampagneLive(campagne)} />
       </span>
     </div>
   );

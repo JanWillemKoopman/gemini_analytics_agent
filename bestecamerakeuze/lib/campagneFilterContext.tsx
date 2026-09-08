@@ -1,17 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { isCampagneLive } from "@/lib/format";
 import type { Campagne } from "@/lib/sheet";
 
 function uniqueSorted(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, "nl"));
 }
 
-/** Zoekt de exacte schrijfwijze van "Online" op zoals die in de sheet staat, zodat de
- * default-filter altijd matcht met de waardes in `options.status`. */
-function vindOnlineWaarde(campagnes: Campagne[]): string | null {
-  const gevonden = campagnes.find((c) => c.status.trim().toLowerCase() === "online");
-  return gevonden ? gevonden.status.trim() : null;
+/** Zelfde twee waardes als StatusIndicator toont — afgeleid van start-/einddatum, niet
+ *  van de kolom "Status" in de sheet. */
+const STATUS_OPTIES = ["Online", "Offline"] as const;
+
+function statusLabel(campagne: Campagne): (typeof STATUS_OPTIES)[number] {
+  return isCampagneLive(campagne) ? "Online" : "Offline";
 }
 
 type Opties = { status: string[]; merk: string[]; ordersoort: string[]; klantgroep: string[] };
@@ -65,10 +67,8 @@ export function CampagneFilterProvider({
     setCampagnes(campagnesProp);
   }, [campagnesProp]);
 
-  const [status, setStatus] = useState<string[]>(() => {
-    const online = vindOnlineWaarde(campagnesProp);
-    return online ? [online] : [];
-  });
+  // Standaard alleen "Online" tonen, net als voorheen — nu berekend i.p.v. uit de sheet gelezen.
+  const [status, setStatus] = useState<string[]>(["Online"]);
   const [merk, setMerk] = useState<string[]>([]);
   const [ordersoort, setOrdersoort] = useState<string[]>([]);
   const [klantgroep, setKlantgroep] = useState<string[]>([]);
@@ -86,7 +86,7 @@ export function CampagneFilterProvider({
 
   const options = useMemo<Opties>(
     () => ({
-      status: uniqueSorted(campagnes.map((c) => c.status)),
+      status: [...STATUS_OPTIES],
       merk: uniqueSorted(campagnes.map((c) => c.merk)),
       ordersoort: uniqueSorted(campagnes.map((c) => c.ordersoort)),
       klantgroep: uniqueSorted(campagnes.map((c) => c.klantgroepOrders)),
@@ -98,7 +98,7 @@ export function CampagneFilterProvider({
     () =>
       campagnes.filter(
         (c) =>
-          (status.length === 0 || status.includes(c.status)) &&
+          (status.length === 0 || status.includes(statusLabel(c))) &&
           (merk.length === 0 || merk.includes(c.merk)) &&
           (ordersoort.length === 0 || ordersoort.includes(c.ordersoort)) &&
           (klantgroep.length === 0 || klantgroep.includes(c.klantgroepOrders)),

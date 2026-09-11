@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Campagne } from "@/lib/sheet";
 import CampagneFilterBalk from "@/components/CampagneFilterBalk";
+import { getBrandLogo } from "@/components/brandLogos";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { useCampagneFilters } from "@/lib/campagneFilterContext";
 
@@ -17,6 +18,8 @@ const MIN_KOLOMBREEDTE = 14;
 const MAX_KOLOMBREEDTE = 44;
 const STANDAARD_KOLOMBREEDTE = 24;
 const NAAMKOLOM = 220;
+/** Merkkolom staat direct naast Campagne, ongeveer half zo breed. */
+const MERKKOLOM = Math.round(NAAMKOLOM / 2);
 const RIJHOOGTE = 40;
 const MAANDRIJHOOGTE = 22;
 const WEEKRIJHOOGTE = 34;
@@ -266,44 +269,62 @@ export default function CampagneTijdlijn() {
           <p className="px-5 py-6 text-sm text-ink-muted">Geen campagnes voor deze filters.</p>
         ) : (
           <div ref={scrollRef} className="overflow-x-auto" onScroll={() => setHover(null)}>
-            <div className="relative" style={{ width: NAAMKOLOM + weken.length * kolombreedte }}>
-              {/* Kop: maandenrij (oriëntatie) boven de weeknummers (precisie). */}
-              <div className="sticky top-0 z-20 flex flex-col border-b border-line bg-card">
-                <div className="flex" style={{ height: MAANDRIJHOOGTE }}>
-                  <div className="sticky left-0 z-30 shrink-0 border-r border-line bg-card" style={{ width: NAAMKOLOM }} />
-                  {maandBlokken.map((blok, blokIndex) => (
-                    <div
-                      key={blok.sleutel}
-                      className={`flex shrink-0 items-center justify-center border-r border-line-soft text-[11px] uppercase tracking-wide text-ink-faint ${
-                        blokIndex % 2 === 1 ? "bg-surface" : ""
-                      } ${blokIndex > 0 ? "border-l border-line" : ""}`}
-                      style={{ width: blok.aantalWeken * kolombreedte }}
-                    >
-                      {blok.label}
-                    </div>
-                  ))}
+            <div className="relative" style={{ width: NAAMKOLOM + MERKKOLOM + weken.length * kolombreedte }}>
+              {/* Kop: maandenrij (oriëntatie) boven de weeknummers (precisie), met de sticky
+                  Campagne/Merk-kop over de volle koptekst-hoogte ervoor. */}
+              <div className="sticky top-0 z-20 flex border-b border-line bg-card">
+                <div
+                  className="sticky left-0 z-30 flex shrink-0 border-r border-line bg-card"
+                  style={{ width: NAAMKOLOM + MERKKOLOM, height: KOPHOOGTE }}
+                >
+                  <span
+                    className="label-theme flex items-center border-r border-line px-3 text-label text-ink-faint"
+                    style={{ width: NAAMKOLOM }}
+                  >
+                    Campagne
+                  </span>
+                  <span
+                    className="label-theme flex items-center px-3 text-label text-ink-faint"
+                    style={{ width: MERKKOLOM }}
+                  >
+                    Merk
+                  </span>
                 </div>
-                <div className="flex" style={{ height: WEEKRIJHOOGTE }}>
-                  <div className="sticky left-0 z-30 shrink-0 border-r border-line bg-card" style={{ width: NAAMKOLOM }} />
-                  {weken.map((week, i) => {
-                    const huidigeWeek = vandaagPositie !== null && Math.floor(vandaagPositie) === week.nummer - 1;
-                    return (
+                <div className="flex flex-col" style={{ width: weken.length * kolombreedte }}>
+                  <div className="flex" style={{ height: MAANDRIJHOOGTE }}>
+                    {maandBlokken.map((blok, blokIndex) => (
                       <div
-                        key={week.nummer}
-                        className={`flex shrink-0 items-end justify-center border-r border-line-soft pb-1.5 ${
-                          weekMaandPariteit[i] === 1 ? "bg-surface" : ""
-                        } ${maandGrensKolommen.has(i) ? "border-l border-line" : ""}`}
-                        style={{ width: kolombreedte }}
+                        key={blok.sleutel}
+                        className={`flex shrink-0 items-center justify-center border-r border-line-soft text-[11px] uppercase tracking-wide text-ink-faint ${
+                          blokIndex % 2 === 1 ? "bg-surface" : ""
+                        } ${blokIndex > 0 ? "border-l border-line" : ""}`}
+                        style={{ width: blok.aantalWeken * kolombreedte }}
                       >
-                        <span
-                          className={`text-[10px] leading-none ${huidigeWeek ? "font-sans-w7 text-primary" : "text-ink-faint"}`}
-                          style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                        >
-                          {week.nummer}
-                        </span>
+                        {blok.label}
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+                  <div className="flex" style={{ height: WEEKRIJHOOGTE }}>
+                    {weken.map((week, i) => {
+                      const huidigeWeek = vandaagPositie !== null && Math.floor(vandaagPositie) === week.nummer - 1;
+                      return (
+                        <div
+                          key={week.nummer}
+                          className={`flex shrink-0 items-end justify-center border-r border-line-soft pb-1.5 ${
+                            weekMaandPariteit[i] === 1 ? "bg-surface" : ""
+                          } ${maandGrensKolommen.has(i) ? "border-l border-line" : ""}`}
+                          style={{ width: kolombreedte }}
+                        >
+                          <span
+                            className={`text-[10px] leading-none ${huidigeWeek ? "font-sans-w7 text-primary" : "text-ink-faint"}`}
+                            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                          >
+                            {week.nummer}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -312,6 +333,7 @@ export default function CampagneTijdlijn() {
                 {rijen.map(({ campagne, balk }) => {
                   const stijl = balk ? STATUS_STYLE[balk.status] : null;
                   const breedte = balk ? (balk.totKolom - balk.vanKolom + 1) * kolombreedte - 4 : 0;
+                  const BrandLogo = campagne.merk ? getBrandLogo(campagne.merk) : null;
                   return (
                     <div
                       key={campagne.naam}
@@ -319,11 +341,27 @@ export default function CampagneTijdlijn() {
                       style={{ height: RIJHOOGTE }}
                     >
                       <div
-                        className="sticky left-0 z-20 flex shrink-0 items-center border-r border-line bg-card px-3"
-                        style={{ width: NAAMKOLOM }}
+                        className="sticky left-0 z-20 flex shrink-0 items-center border-r border-line bg-card"
+                        style={{ width: NAAMKOLOM + MERKKOLOM }}
                       >
-                        <span className="truncate text-sm text-ink" title={campagne.naam}>
+                        <span
+                          className="truncate px-3 text-sm text-ink"
+                          style={{ width: NAAMKOLOM }}
+                          title={campagne.naam}
+                        >
                           {campagne.naam}
+                        </span>
+                        <span
+                          className="flex min-w-0 items-center gap-1.5 border-l border-line px-3"
+                          style={{ width: MERKKOLOM }}
+                          title={campagne.merk || undefined}
+                        >
+                          {campagne.merk &&
+                            (BrandLogo ? (
+                              <BrandLogo role="img" aria-label={campagne.merk} className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
+                            ) : (
+                              <span className="truncate text-xs text-ink-faint">{campagne.merk}</span>
+                            ))}
                         </span>
                       </div>
 
@@ -370,7 +408,7 @@ export default function CampagneTijdlijn() {
                 <div
                   className="pointer-events-none absolute z-10 w-px bg-primary/60"
                   style={{
-                    left: NAAMKOLOM + vandaagPositie * kolombreedte,
+                    left: NAAMKOLOM + MERKKOLOM + vandaagPositie * kolombreedte,
                     top: KOPHOOGTE,
                     height: rijen.length * RIJHOOGTE,
                   }}

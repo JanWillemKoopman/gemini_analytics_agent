@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Modal from "@/components/Modal";
+import Drawer from "@/components/Drawer";
 import NotitieLijst from "@/components/notities/NotitieLijst";
 import { IconNotes } from "@/components/icons";
 import type { Campagne } from "@/lib/sheet";
@@ -34,9 +34,9 @@ export default function CampaignNotes({
       </button>
 
       {open && (
-        <Modal title={`Logboek — ${campagne.naam}`} onClose={() => setOpen(false)}>
+        <Drawer title={`Logboek — ${campagne.naam}`} onClose={() => setOpen(false)}>
           <NotitieLijst campagne={campagne} ingelogd={ingelogd} />
-        </Modal>
+        </Drawer>
       )}
     </>
   );

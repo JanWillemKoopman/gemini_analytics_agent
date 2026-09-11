@@ -77,16 +77,19 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   zijn altijd één kleur (`currentColor`), nooit
   multicolor.
 - Elke campagnekop heeft een subtiel "logboek"-knopje (`components/CampaignNotes.tsx`)
-  dat een pop-up opent met `components/notities/NotitieLijst.tsx` erin. Dat is het
-  **besluitenlogboek** van die campagne: elke regel is een observatie, hypothese,
-  besluit of actie (`lib/notities.ts`), met een avatarfotootje + naam van wie hem
-  toevoegde (`components/Avatar.tsx`, `lib/profielen.ts`) — herleidbaarheid is het hele
-  punt. Bij een hypothese of besluit vraagt de UI om de metriek die erdoor moet
-  veranderen en legt hij de stand van dat cijfer op dát moment vast; de regel eronder
-  toont later "toen → nu" met het verschil. Zonder dat nulpunt (oudere aantekeningen)
-  wordt er niets verzonnen, dan blijft alleen de metrieknaam staan. Acties zijn af te
-  vinken. Het knopje verschijnt alleen als Supabase geconfigureerd is — zonder database
-  is er niets om in op te slaan.
+  dat een zijbalk (`components/Drawer.tsx`) van rechts laat uitklappen, over de volle
+  schermhoogte en ongeveer een derde van de breedte, met `components/notities/
+  NotitieLijst.tsx` erin. Dat is het **besluitenlogboek** van die campagne: elke regel
+  is een observatie, hypothese, besluit of actie (`lib/notities.ts`), met een
+  avatarfotootje + naam van wie hem toevoegde (`components/Avatar.tsx`,
+  `lib/profielen.ts`) — herleidbaarheid is het hele punt. Het invoerveld staat bovenaan
+  (bewust duidelijk: dat is waar je typt), de lijst eronder toont nieuw-naar-oud. Bij
+  een hypothese of besluit vraagt de UI om de metriek die erdoor moet veranderen en
+  legt hij de stand van dat cijfer op dát moment vast; de regel eronder toont later
+  "toen → nu" met het verschil. Zonder dat nulpunt (oudere aantekeningen) wordt er niets
+  verzonnen, dan blijft alleen de metrieknaam staan. Acties zijn af te vinken. Het
+  knopje verschijnt alleen als Supabase geconfigureerd is — zonder database is er niets
+  om in op te slaan.
 - **Focusmodus** (`components/CampagneFocus.tsx`): klikken op een campagnenaam in de
   kolomkop zet die campagne in focus. De andere kolommen worden gedempt (opacity, ze
   verdwijnen niet) en onder de tabel verschijnt één paneel dat volledig aan het logboek
@@ -98,15 +101,16 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   de tabel en een zin in gewone taal onder elk metriclabel. Die uitleg staat als veld
   `uitleg` op elke metric in `CampaignTable.tsx` — een nieuwe rij toevoegen zonder
   uitleg valt daardoor meteen op.
-- Pop-ups (`components/Modal.tsx`) renderen via een React-portal naar `<body>`, niet op
-  hun eigen plek in de boom. Reden: een knop die vanuit een sticky tabelkop opent (zoals
-  de aantekeningen-knop) zit zelf in een sticky stacking context, en dan wint een hoge
-  z-index niet meer van een andere sticky cel elders in de tabel — stacking contexts
-  worden alleen met siblings vergeleken, niet globaal. Iets vergelijkbaars gold eerder
-  al voor `FilterSelect`'s dropdown (die moest naar `z-40` boven de tabel's `z-30`) en
-  voor de tabel zelf (`border-separate` i.p.v. `border-collapse`, zie hieronder) — kom
-  je een derde keer zoiets tegen, denk dan eerst aan een portal in plaats van weer een
-  hogere z-index te proberen.
+- Pop-ups (`components/Modal.tsx`) en de uitklapbare zijbalk (`components/Drawer.tsx`)
+  renderen via een React-portal naar `<body>`, niet op hun eigen plek in de boom. Reden:
+  een knop die vanuit een sticky tabelkop opent (zoals de aantekeningen-knop) zit zelf
+  in een sticky stacking context, en dan wint een hoge z-index niet meer van een andere
+  sticky cel elders in de tabel — stacking contexts worden alleen met siblings
+  vergeleken, niet globaal. Iets vergelijkbaars gold eerder al voor `FilterSelect`'s
+  dropdown (die moest naar `z-40` boven de tabel's `z-30`) en voor de tabel zelf
+  (`border-separate` i.p.v. `border-collapse`, zie hieronder) — kom je een derde keer
+  zoiets tegen, denk dan eerst aan een portal in plaats van weer een hogere z-index te
+  proberen.
 
 ### Databestand van de tabel
 
@@ -190,7 +194,7 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
-  `StatusIndicator`, `Modal`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
+  `StatusIndicator`, `Modal`, `Drawer`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
   `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.

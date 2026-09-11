@@ -134,7 +134,7 @@ export default function Scorebord({ berichten, profielen, periode, onPeriode }: 
           {opNaam.map((profiel) => {
             const stand = standen[profiel.id] ?? legeStand(periode);
             return (
-              <li key={profiel.id} className="flex flex-col items-center gap-1.5 px-1 text-center">
+              <li key={profiel.id} className="flex flex-col items-center gap-1.5 text-center">
                 <span className="relative inline-flex">
                   <Avatar naam={profiel.naam} avatarUrl={profiel.avatarUrl} size={48} />
                   {medailles[profiel.id] && <Medaillelabel plek={medailles[profiel.id]} />}

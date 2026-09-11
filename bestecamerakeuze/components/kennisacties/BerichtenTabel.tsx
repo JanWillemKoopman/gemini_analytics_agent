@@ -66,7 +66,7 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
               <th
                 key={kop}
                 scope="col"
-                className="label-theme border-b border-line px-4 py-2.5 text-label font-medium text-ink-faint"
+                className="label-theme border-b border-line px-2 py-2.5 text-label font-medium text-ink-faint"
               >
                 {kop}
               </th>
@@ -79,10 +79,10 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
             const vrijOnderwerp = !bekendeCampagnes.has(bericht.campagneNaam);
             return (
               <tr key={bericht.id} className="align-top">
-                <td className="whitespace-nowrap border-b border-line-soft px-4 py-3 text-sm tabular-nums text-ink-muted">
+                <td className="whitespace-nowrap border-b border-line-soft px-2 py-3 text-sm tabular-nums text-ink-muted">
                   {formatDatum(bericht.aangemaaktOp)}
                 </td>
-                <td className="whitespace-nowrap border-b border-line-soft px-4 py-3">
+                <td className="whitespace-nowrap border-b border-line-soft px-2 py-3">
                   {/* De foto alleen als er een foto is: zonder avatar toont het rondje
                       zelf al de initialen, en dan zou je ze twee keer naast elkaar zien. */}
                   <span className="flex items-center gap-2" title={profiel?.naam ?? "Onbekend"}>
@@ -94,7 +94,7 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
                     </span>
                   </span>
                 </td>
-                <td className="border-b border-line-soft px-4 py-3 text-sm text-ink">
+                <td className="border-b border-line-soft px-2 py-3 text-sm text-ink">
                   <span className="block max-w-[220px] truncate" title={bericht.campagneNaam}>
                     {bericht.campagneNaam}
                   </span>
@@ -102,14 +102,14 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
                     <span className="mt-0.5 block text-xs text-ink-faint">Vrij onderwerp</span>
                   )}
                 </td>
-                <td className="whitespace-nowrap border-b border-line-soft px-4 py-3">
+                <td className="whitespace-nowrap border-b border-line-soft px-2 py-3">
                   <span
                     className={`label-theme rounded-control px-1.5 py-0.5 text-label ${SOORT_STIJL[bericht.soort]}`}
                   >
                     {SOORT_LABEL[bericht.soort]}
                   </span>
                 </td>
-                <td className="border-b border-line-soft px-4 py-3 text-sm whitespace-pre-wrap text-ink">
+                <td className="border-b border-line-soft px-2 py-3 text-sm whitespace-pre-wrap text-ink">
                   {bericht.tekst}
                 </td>
               </tr>

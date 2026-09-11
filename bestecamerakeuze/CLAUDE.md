@@ -39,11 +39,13 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   wordmark "Udenhout" en profielnaam faden/schuiven mee in, via Tailwind
   `group`/`group-hover` — geen JS-state nodig) en overlayt hij de content in plaats van
   hem te verschuiven (de aside is absoluut gepositioneerd binnen een vaste 72px-kolom in
-  `AppShell.tsx`). Navigatie staat in twee groepen onder een klein, uppercase
-  groepskopje (net als de "Planning"/"Budget"-groepskoppen in de campagnetabel):
-  **Campagnes** (Campagnes, Tijdlijn) en **Chatbot** (Start gesprek, Prikbord,
-  Kennisbank) — het Prikbord staat bewust onder Chatbot, want het is een functie van de
-  chat (grafieken die je daaruit vastpint), niet van het wekelijkse cijferoverzicht.
+  `AppShell.tsx`). Bovenaan staat, los en zonder groepskopje, **Kennis en acties** —
+  wat het team zelf vastlegt komt vóór de cijfers. Daaronder staat de navigatie in twee
+  groepen onder een klein, uppercase groepskopje (net als de "Planning"/"Budget"-
+  groepskoppen in de campagnetabel): **Campagnes** (Campagnes, Tijdlijn) en **Chatbot**
+  (Start gesprek, Prikbord, Kennisbank) — het Prikbord staat bewust onder Chatbot, want
+  het is een functie van de chat (grafieken die je daaruit vastpint), niet van het
+  wekelijkse cijferoverzicht.
   Onderaan, buiten de groepen: Kosten, Instellingen en het gebruikersprofiel. Eén actieve
   state, subtiel gemarkeerd — geen felle kleuren.
 - **Geen dubbele navigatie**: de tabbladtitels staan alleen in de sidebar, nooit ook nog
@@ -191,7 +193,7 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
   `StatusIndicator`, `Modal`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
-  `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`. Voeg nieuwe UI
+  `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`, `kennisacties/*`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
 - Het oogje voor de themes hangt `fixed` rechtsboven in het scherm (niet in de
@@ -231,6 +233,24 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
 
 - **Besluitenlogboek** per campagne (soort + gekoppelde metriek + nulpunt), zodat een
   besluit volgende week naast het cijfer staat dat het moest raken.
+- **Kennis en acties** (`components/kennisacties/`, `lib/punten.ts`, bovenste tabblad):
+  hetzelfde logboek, maar dan over alle campagnes heen — datum, initialen, campagne,
+  soort en de tekst in één tabel, met daarboven dezelfde velden als filter. Het logboek
+  in de kolomkop is voor tijdens het kijken naar één campagne; dit tabblad is voor de
+  vraag "wat hebben we de afgelopen weken eigenlijk geleerd?".
+  - Er komt **geen tweede tabel** voor in de database: het leest en schrijft
+    `dataloket.campagne_notities` via dezelfde POST-route als het logboek zelf.
+  - Een bericht hoeft niet aan een campagne te hangen. In het uitklapmenu staat naast de
+    campagnes uit de sheet één extra optie ("Eigen onderwerp") met een vrij tekstveld;
+    zo'n naam bestaat niet in de sheet en komt daardoor nergens bij de campagnes te
+    staan — in de tabel is hij herkenbaar als "vrij onderwerp". Geen extra kolom, geen
+    vlag: de koppeling op naam regelt het al.
+  - Bovenaan staat over de volle breedte een rij met alle collega's (profielfoto of
+    initialen) en daaronder hun **punten**: observatie 10, hypothese 20, besluit 10,
+    actie 5, standaard over de laatste 30 dagen met het verschil t.o.v. de 30 dagen
+    daarvóór. Bewust geen ranglijst met een nummer één — vaste alfabetische volgorde, en
+    iedereen staat erop, ook wie nog niets heeft vastgelegd. Zonder vorige periode staat
+    er "nieuw" en geen verzonnen oneindig percentage (zie `lib/punten.test.ts`).
 - **Focusmodus**, omdat het overleg per campagne gaat en niet per metric.
 - **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
   team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.

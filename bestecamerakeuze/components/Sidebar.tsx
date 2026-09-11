@@ -3,9 +3,18 @@
 import GebruikersMenu from "@/components/GebruikersMenu";
 import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
-import { IconBook, IconCalendar, IconChat, IconMegaphone, IconPin, IconSettings } from "@/components/icons";
+import {
+  IconBook,
+  IconCalendar,
+  IconChat,
+  IconMegaphone,
+  IconNotes,
+  IconPin,
+  IconSettings,
+} from "@/components/icons";
 
 export type DashboardView =
+  | "kennisacties"
   | "campagnes"
   | "tijdlijn"
   | "campagnebeheer"
@@ -61,7 +70,17 @@ export default function Sidebar({
         </div>
 
         <nav aria-label="Hoofdnavigatie" className="mt-6 flex flex-col gap-0.5">
-          <p className="label-theme mb-1 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
+          {/* Staat bewust bóven de groep "Campagnes" en zonder eigen groepskopje: dit is
+              wat het team zelf vastlegt en het eerste waar je 's ochtends naar kijkt —
+              de cijfers eronder vertellen wat er gebeurde, dit waarom. */}
+          <NavigationItem
+            icon={<IconNotes />}
+            label="Kennis en acties"
+            active={actief === "kennisacties"}
+            onClick={() => onNavigate("kennisacties")}
+          />
+
+          <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
             Campagnes
           </p>
           <NavigationItem

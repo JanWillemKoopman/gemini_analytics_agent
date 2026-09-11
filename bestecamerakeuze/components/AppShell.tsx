@@ -13,6 +13,7 @@ type Props = {
   liveCount: number;
   updatedAt: string;
   ingelogd: boolean;
+  kennisacties: React.ReactNode;
   campagnes: React.ReactNode;
   tijdlijn: React.ReactNode;
   campagnebeheer: React.ReactNode;
@@ -27,6 +28,11 @@ type Props = {
 const CAMPAGNE_GROEP_VIEWS: DashboardView[] = ["campagnes", "tijdlijn", "campagnebeheer"];
 
 const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
+  kennisacties: {
+    title: "Kennis en acties",
+    subtitle:
+      "Wat het team opviel, verwacht, besloot en oppakt — over alle campagnes heen.",
+  },
   campagnes: {
     title: "Campagnes",
     subtitle: "In één overzicht de prestaties van al je actieve campagnes.",
@@ -77,6 +83,7 @@ export default function AppShell({
   liveCount,
   updatedAt,
   ingelogd,
+  kennisacties,
   campagnes,
   tijdlijn,
   campagnebeheer,
@@ -120,6 +127,9 @@ export default function AppShell({
           />
         )}
 
+        <div className="mt-6" role="tabpanel" hidden={actief !== "kennisacties"}>
+          {kennisacties}
+        </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "campagnes"}>
           {campagnes}
         </div>
@@ -148,7 +158,9 @@ export default function AppShell({
 
       {/* Het ronde "+"-knopje rechtsonder: alleen op de tabbladen uit de sidebargroep
           "Campagnes" (Campagnes, Tijdlijn, Campagnebeheer), niet op Chatbot/Kosten/
-          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard. */}
+          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard.
+          "Kennis en acties" heeft een eigen "+" op dezelfde plek, maar die hangt in dat
+          paneel zelf: een net vastgelegd bericht moet meteen in de tabel erboven staan. */}
       {CAMPAGNE_GROEP_VIEWS.includes(actief) && <NieuweCampagneKnop ingelogd={ingelogd} />}
     </div>
   );

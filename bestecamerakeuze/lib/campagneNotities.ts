@@ -70,6 +70,29 @@ export async function lijstNotities(
   return (data ?? []).map(naarItem);
 }
 
+/**
+ * Alle aantekeningen over alle campagnes heen, nieuwste eerst — de bron van het tabblad
+ * "Kennis en acties". Dezelfde rijen als `lijstNotities`, alleen niet op één campagne
+ * gefilterd: het overzicht bestaat juist om te zien wat er teamsbreed is vastgelegd.
+ *
+ * Bewust begrensd (default 500). Het scorebord kijkt maximaal 60 dagen terug en de tabel
+ * is een leeslijst, geen archief; een ongelimiteerde select wordt met de jaren vanzelf
+ * een trage pagina.
+ */
+export async function lijstAlleNotities(
+  supabase: SupabaseClient,
+  limiet = 500,
+): Promise<CampagneNotitie[]> {
+  const { data, error } = await supabase
+    .schema(SCHEMA)
+    .from(TABEL)
+    .select(KOLOMMEN)
+    .order("aangemaakt_op", { ascending: false })
+    .limit(limiet);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(naarItem);
+}
+
 export async function maakNotitie(
   supabase: SupabaseClient,
   gebruikerId: string,

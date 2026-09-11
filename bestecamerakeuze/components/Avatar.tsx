@@ -1,3 +1,5 @@
+import { initialenVoor } from "@/lib/initialen";
+
 type Props = {
   naam: string | null;
   avatarUrl: string | null;
@@ -5,14 +7,6 @@ type Props = {
   size?: number;
   className?: string;
 };
-
-function initialenVoor(naam: string | null): string {
-  if (!naam) return "?";
-  const delen = naam.trim().split(/\s+/).filter(Boolean);
-  if (delen.length === 0) return "?";
-  if (delen.length === 1) return delen[0].slice(0, 2).toUpperCase();
-  return (delen[0][0] + delen[delen.length - 1][0]).toUpperCase();
-}
 
 /** Rond profielfotootje, met initialen als fallback zolang er geen avatar is ingesteld. */
 export default function Avatar({ naam, avatarUrl, size = 20, className = "" }: Props) {

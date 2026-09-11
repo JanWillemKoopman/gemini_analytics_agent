@@ -60,6 +60,21 @@ export async function haalProfielen(
   return resultaat;
 }
 
+/**
+ * Alle profielen — nodig voor het scorebord op "Kennis en acties", dat iedere collega op
+ * de rij zet en niet alleen wie deze maand iets heeft vastgelegd. Een lege plek op dat
+ * rijtje is precies de zachte duw die de functie moet geven.
+ */
+export async function haalAlleProfielen(supabase: SupabaseClient): Promise<Profiel[]> {
+  const { data, error } = await supabase
+    .schema(SCHEMA)
+    .from(TABEL)
+    .select(KOLOMMEN)
+    .order("naam", { ascending: true });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(naarProfiel);
+}
+
 export async function wijzigEigenProfiel(
   supabase: SupabaseClient,
   gebruikerId: string,

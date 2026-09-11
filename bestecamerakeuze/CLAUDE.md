@@ -71,9 +71,10 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
 - **Geen hover-kleurverandering** in de tabel (bewust verwijderd op verzoek) — de tabel
   reageert niet visueel op muisbeweging.
 - Merk wordt getoond als monochroom logo (Volkswagen Groep-merken: Audi, Volkswagen,
-  Volkswagen Bedrijfswagens, Škoda, SEAT — zie `components/brandLogos.tsx`) in plaats
-  van tekst, zodra het merk herkend wordt. Onbekende of niet-specifieke waarden (zoals
-  "Alle") blijven gewoon tekst. Logo's zijn altijd één kleur (`currentColor`), nooit
+  Volkswagen Bedrijfswagens, Škoda, SEAT, plus Porsche en Bentley — zie
+  `components/brandLogos.tsx`) in plaats van tekst, zodra het merk herkend wordt.
+  Onbekende of niet-specifieke waarden (zoals "Alle") blijven gewoon tekst. Logo's
+  zijn altijd één kleur (`currentColor`), nooit
   multicolor.
 - Elke campagnekop heeft een subtiel "logboek"-knopje (`components/CampaignNotes.tsx`)
   dat een pop-up opent met `components/notities/NotitieLijst.tsx` erin. Dat is het

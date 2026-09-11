@@ -39,6 +39,10 @@ export default function Sidebar({
 }: Props) {
   const weergavenaam = profielNaam || naamVoor(gebruikerEmail);
 
+  const CHATBOT_TOEGESTANE_EMAILS = ["koopman.janwillem@gmail.com", "jkoopman@udenhout.nl"];
+  const toontChatbot =
+    !!gebruikerEmail && CHATBOT_TOEGESTANE_EMAILS.includes(gebruikerEmail.toLowerCase());
+
   return (
     // Staat standaard ingeklapt op een smalle icoon-rail (72px); bij hover klapt hij uit
     // tot 240px. De rail zelf reserveert de ruimte in AppShell (sticky, w-[72px]) en dit
@@ -79,27 +83,31 @@ export default function Sidebar({
             onClick={() => onNavigate("campagnebeheer")}
           />
 
-          <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
-            Chatbot
-          </p>
-          <NavigationItem
-            icon={<IconChat />}
-            label="Start gesprek"
-            active={actief === "chat"}
-            onClick={() => onNavigate("chat")}
-          />
-          <NavigationItem
-            icon={<IconPin />}
-            label="Prikbord"
-            active={actief === "prikbord"}
-            onClick={() => onNavigate("prikbord")}
-          />
-          <NavigationItem
-            icon={<IconBook />}
-            label="Kennisbank"
-            active={actief === "kennis"}
-            onClick={() => onNavigate("kennis")}
-          />
+          {toontChatbot && (
+            <>
+              <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
+                Chatbot
+              </p>
+              <NavigationItem
+                icon={<IconChat />}
+                label="Start gesprek"
+                active={actief === "chat"}
+                onClick={() => onNavigate("chat")}
+              />
+              <NavigationItem
+                icon={<IconPin />}
+                label="Prikbord"
+                active={actief === "prikbord"}
+                onClick={() => onNavigate("prikbord")}
+              />
+              <NavigationItem
+                icon={<IconBook />}
+                label="Kennisbank"
+                active={actief === "kennis"}
+                onClick={() => onNavigate("kennis")}
+              />
+            </>
+          )}
         </nav>
       </div>
 

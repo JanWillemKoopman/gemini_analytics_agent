@@ -220,8 +220,10 @@ export default function Instellingen({
   }
 
   return (
-    <>
-    <div className="max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+    <div className="grid max-w-6xl grid-cols-2 items-start gap-8">
+    <div className="flex flex-col gap-6">
+    <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Mijn profiel</p>
+    <div className="rounded-panel border border-line bg-card p-6 shadow-card">
       <p className="font-sans-w7 text-base font-bold text-ink">Profiel</p>
       <p className="mt-1 text-sm text-ink-muted">
         Je naam en foto zijn zichtbaar voor collega&apos;s, onder andere bij
@@ -300,7 +302,7 @@ export default function Instellingen({
       </form>
     </div>
 
-    <div className="mt-6 max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+    <div className="rounded-panel border border-line bg-card p-6 shadow-card">
       <p className="font-sans-w7 text-base font-bold text-ink">Account</p>
 
       <div className="mt-5 flex flex-col gap-1">
@@ -380,8 +382,12 @@ export default function Instellingen({
         </button>
       </form>
     </div>
+    </div>
 
+    <div className="flex flex-col gap-6">
+    <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Team</p>
     <GebruikersBeheer isWachtwoordEigenaar={isWachtwoordEigenaar(email)} />
-    </>
+    </div>
+    </div>
   );
 }

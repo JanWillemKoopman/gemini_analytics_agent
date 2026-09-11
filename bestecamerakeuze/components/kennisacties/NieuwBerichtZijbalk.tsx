@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
-import Modal from "@/components/Modal";
+import Drawer from "@/components/Drawer";
 import { SOORTEN, type NotitieSoort } from "@/lib/notities";
 import { puntenVoor } from "@/lib/punten";
 import type { Bericht, Profiel } from "@/components/kennisacties/types";
@@ -23,6 +23,11 @@ type Props = {
 /**
  * Een bericht vastleggen vanaf het tabblad "Kennis en acties".
  *
+ * Schuift als zijbalk van rechts in (`Drawer.tsx`), net als het logboek bij Campagnes —
+ * dezelfde handeling hoort overal dezelfde beweging te maken. Een gecentreerde pop-up legt
+ * zich bovendien over de tabel heen, en juist daar sta je vaak nog even in te kijken
+ * terwijl je je bericht typt.
+ *
  * Over de campagnekeuze: een uitklapmenu met de campagnes uit de sheet plus één extra optie
  * ("Eigen onderwerp"), die een tekstveld eronder opent. Bewust een echte `select` en geen
  * invoerveld met suggestielijst: Chromium laat bij zo'n lijst niets zien waaruit blijkt dát
@@ -35,7 +40,7 @@ type Props = {
  * campagnes terecht — hij blijft een los inzicht in dit overzicht, gemarkeerd als
  * "vrij onderwerp". De sheet blijft de bron.
  */
-export default function NieuwBerichtModal({
+export default function NieuwBerichtZijbalk({
   ingelogd,
   campagnes,
   eigenNaam,
@@ -96,7 +101,7 @@ export default function NieuwBerichtModal({
 
   if (!ingelogd) {
     return (
-      <Modal title="Nieuw bericht" onClose={onClose}>
+      <Drawer title="Nieuw bericht" onClose={onClose}>
         <p className="text-sm text-ink-muted">Log in om een bericht vast te leggen.</p>
         <a
           href="/login"
@@ -104,12 +109,12 @@ export default function NieuwBerichtModal({
         >
           Inloggen
         </a>
-      </Modal>
+      </Drawer>
     );
   }
 
   return (
-    <Modal title="Nieuw bericht" onClose={onClose}>
+    <Drawer title="Nieuw bericht" onClose={onClose}>
       <form onSubmit={opslaan} className="flex flex-col gap-4">
         {/* Wie het vastlegt staat er als eerste, niet als kleine lettertjes onderaan:
             herleidbaarheid is het punt van het logboek. */}
@@ -223,6 +228,6 @@ export default function NieuwBerichtModal({
           </button>
         </div>
       </form>
-    </Modal>
+    </Drawer>
   );
 }

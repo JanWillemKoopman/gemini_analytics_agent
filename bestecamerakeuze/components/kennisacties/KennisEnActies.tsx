@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import BerichtFilterBalk, { type BerichtFilters } from "@/components/kennisacties/BerichtFilterBalk";
 import BerichtenTabel from "@/components/kennisacties/BerichtenTabel";
-import NieuwBerichtModal from "@/components/kennisacties/NieuwBerichtModal";
+import NieuwBerichtZijbalk from "@/components/kennisacties/NieuwBerichtZijbalk";
 import Scorebord from "@/components/kennisacties/Scorebord";
 import type { Bericht, Profiel } from "@/components/kennisacties/types";
 import { IconPlus } from "@/components/icons";
@@ -62,7 +62,7 @@ export default function KennisEnActies({ ingelogd, eigenNaam, eigenAvatarUrl }: 
   const [fout, setFout] = useState<string | null>(null);
   const [filters, setFilters] = useState<BerichtFilters>(LEGE_FILTERS);
   const [periode, setPeriode] = useState<PuntenPeriode>(30);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [zijbalkOpen, setZijbalkOpen] = useState(false);
 
   useEffect(() => {
     if (!ingelogd) return;
@@ -198,7 +198,7 @@ export default function KennisEnActies({ ingelogd, eigenNaam, eigenAvatarUrl }: 
           vaste plek in het scherm, ongeacht scrollpositie. */}
       <button
         type="button"
-        onClick={() => setModalOpen(true)}
+        onClick={() => setZijbalkOpen(true)}
         aria-label="Bericht toevoegen"
         title="Bericht toevoegen"
         className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-150 hover:opacity-100"
@@ -206,13 +206,13 @@ export default function KennisEnActies({ ingelogd, eigenNaam, eigenAvatarUrl }: 
         <IconPlus className="h-5 w-5" />
       </button>
 
-      {modalOpen && (
-        <NieuwBerichtModal
+      {zijbalkOpen && (
+        <NieuwBerichtZijbalk
           ingelogd={ingelogd}
           campagnes={sorteerNL(campagnes.map((c) => c.naam))}
           eigenNaam={eigenNaam}
           eigenAvatarUrl={eigenAvatarUrl}
-          onClose={() => setModalOpen(false)}
+          onClose={() => setZijbalkOpen(false)}
           onToegevoegd={verwerkNieuw}
         />
       )}

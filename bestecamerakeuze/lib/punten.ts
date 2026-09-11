@@ -106,3 +106,36 @@ export function berekenPuntenstanden(
 export function legeStand(periode: PuntenPeriode): Puntenstand {
   return { punten: 0, vorige: periode === null ? null : 0, verandering: null, aantal: 0 };
 }
+
+/* ------------------------------------------------------------------ medailles */
+
+/** Goud, zilver of brons — de plek op het scorebord, niet de volgorde waarin je staat. */
+export type Medaille = 1 | 2 | 3;
+
+/**
+ * Wie krijgt er een medaille?
+ *
+ * De rij collega's blijft op naam gesorteerd (A–Z); een medaille is het enige wat de
+ * stand zichtbaar maakt. Gelijk aantal punten geeft dezelfde medaille — twee keer goud
+ * en daarna brons overslaan zou een verschil suggereren dat er niet is. Alleen de drie
+ * hoogste puntentotalen tellen mee, en nul punten levert nooit een medaille op: een
+ * rustige maand hoort niet bekroond te worden.
+ */
+export function bepaalMedailles(standen: Record<string, Puntenstand>): Record<string, Medaille> {
+  const totalen = Array.from(
+    new Set(
+      Object.values(standen)
+        .map((stand) => stand.punten)
+        .filter((punten) => punten > 0),
+    ),
+  )
+    .sort((a, b) => b - a)
+    .slice(0, 3);
+
+  const medailles: Record<string, Medaille> = {};
+  for (const [id, stand] of Object.entries(standen)) {
+    const plek = totalen.indexOf(stand.punten);
+    if (plek !== -1) medailles[id] = (plek + 1) as Medaille;
+  }
+  return medailles;
+}

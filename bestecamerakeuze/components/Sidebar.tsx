@@ -5,10 +5,10 @@ import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
 import {
   IconBook,
+  IconBrain,
   IconCalendar,
   IconChat,
   IconMegaphone,
-  IconNotes,
   IconPin,
   IconSettings,
 } from "@/components/icons";
@@ -74,8 +74,8 @@ export default function Sidebar({
               wat het team zelf vastlegt en het eerste waar je 's ochtends naar kijkt —
               de cijfers eronder vertellen wat er gebeurde, dit waarom. */}
           <NavigationItem
-            icon={<IconNotes />}
-            label="Kennis en acties"
+            icon={<IconBrain />}
+            label="Team intelligence"
             active={actief === "kennisacties"}
             onClick={() => onNavigate("kennisacties")}
           />

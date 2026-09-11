@@ -402,7 +402,7 @@ export default function Kennisbank({ ingelogd }: { ingelogd: boolean }) {
           {zichtbaar.map((item) => (
             <li
               key={item.id}
-              className={`rounded-panel border border-line bg-card p-5 ${
+              className={`kaart-hover rounded-panel border border-line bg-card p-5 ${
                 item.actief ? "" : "opacity-60"
               }`}
             >

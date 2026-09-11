@@ -68,8 +68,26 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const kiesTheme = useCallback((id: ThemeId) => {
-    setTheme(id);
-    document.documentElement.dataset.theme = id;
+    const toepassen = () => {
+      setTheme(id);
+      document.documentElement.dataset.theme = id;
+    };
+
+    // Een themewissel verzet het hele scherm in één keer; zonder overgang is dat een
+    // flits. `startViewTransition` laat de browser het oude beeld over het nieuwe
+    // uitvloeien — een paar honderd milliseconden, verder niets aan te sturen. Niet
+    // elke browser kent het (en wie minder beweging wil, hoort het niet te krijgen),
+    // dus het blijft een toevoeging op het gewone pad: valt het weg, dan wisselt het
+    // theme gewoon direct zoals voorheen.
+    const kanOvervloeien =
+      typeof document.startViewTransition === "function" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (kanOvervloeien) {
+      document.startViewTransition(toepassen);
+    } else {
+      toepassen();
+    }
     try {
       window.localStorage.setItem(THEME_OPSLAG_SLEUTEL, id);
     } catch {

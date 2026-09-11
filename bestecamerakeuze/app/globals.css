@@ -129,6 +129,7 @@
      oogt als hetzelfde materiaal, een grijze niet. */
   --shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
+  --shadow-raised: 0 2px 4px rgba(15, 23, 42, 0.06), 0 10px 26px rgba(15, 23, 42, 0.1);
   --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.12);
   --shadow-modal: 0 24px 60px rgba(15, 23, 42, 0.18);
 
@@ -188,6 +189,9 @@
   --focus-ring-kleur: var(--color-primary);
 
   --scrollbar-dikte: 8px;
+
+  /* Het tempo waarin de "live"-stip ademt. Hoort bij hetzelfde ritme als --duur-*. */
+  --duur-adem: 6s;
 
   /* De ondergrond van het merk: één textuur per theme op het paginavlak — een
      technisch raster (Porsche), een diagonaal (CUPRA), een ruitpatroon (Bentley), een
@@ -344,6 +348,51 @@ body {
   }
 }
 
+/* De overgang bij het wisselen van theme (zie ThemeProvider): het oude beeld vloeit
+   over het nieuwe uit in plaats van eroverheen te knipperen. Bewust wat trager dan een
+   gewone hover en met de merkcurve van het theme waar je náártoe gaat. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-merk);
+}
+
+/* Een kaart die onder de muis een fractie omhoogkomt. Bewust niet in de campagnetabel
+   (die reageert bewust niet op muisbeweging, zie CLAUDE.md) maar op de losse kaarten:
+   het prikbord en de kennisbank. */
+.kaart-hover {
+  transition:
+    transform var(--duur-snel) var(--ease-merk),
+    box-shadow var(--duur-snel) var(--ease-merk);
+}
+.kaart-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Laadvlak met een trage glans eroverheen, in de merkkleuren in plaats van het
+   gebruikelijke grijs: ook wachten hoort bij de vormgeving. */
+@keyframes glans {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 250% 0;
+  }
+}
+
+.laadvlak {
+  background-image: linear-gradient(
+    90deg,
+    transparent 20%,
+    var(--color-accent) 50%,
+    transparent 80%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: glans 1.8s var(--ease-merk) infinite;
+}
+
 /* Ademende statusdot voor een open campagne: heel langzaam en subtiel van lichtgroen
    naar donkergroen en weer terug, zodat "live" voelt zonder de aandacht te trekken.
    Geen los keyframe-pakket nodig voor dit ene effect. */
@@ -358,12 +407,17 @@ body {
 }
 
 .status-dot-ademen {
-  animation: status-dot-ademen 6s ease-in-out infinite;
+  animation: status-dot-ademen var(--duur-adem) ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .status-dot-ademen {
+  .status-dot-ademen,
+  .laadvlak {
     animation: none;
+  }
+
+  .kaart-hover:hover {
+    transform: none;
   }
 }
 
@@ -465,6 +519,8 @@ body {
 
   /* Volkswagen navigeert in pilvormen — dezelfde vorm als zijn knoppen. */
   --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 4px rgba(0, 30, 80, 0.07), 0 12px 30px rgba(0, 30, 80, 0.12);
+  --duur-adem: 6s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -573,6 +629,8 @@ body {
   /* Audi zet Progressive Red spaarzaam in: één lijn bovenop het paneel is genoeg. */
   --theme-kaart-accent: var(--color-primary);
   --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --duur-adem: 7s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -669,6 +727,8 @@ body {
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(120, 250, 174, 0.12), transparent 40%);
 
   --theme-nav-radius: var(--radius-button);
+  --shadow-raised: 0 2px 4px rgba(14, 58, 47, 0.07), 0 12px 30px rgba(14, 58, 47, 0.12);
+  --duur-adem: 5s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -766,6 +826,7 @@ body {
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(228, 0, 43, 0.12), transparent 36%);
 
   --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 4px rgba(17, 17, 17, 0.07), 0 12px 30px rgba(17, 17, 17, 0.12);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -881,6 +942,8 @@ body {
   /* Hoekig en strak: geen vlak dat oplicht maar een koperen streep ernaast. */
   --theme-nav-radius: 0px;
   --theme-nav-streep: 2px;
+  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.5), 0 14px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --duur-adem: 4s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -990,6 +1053,9 @@ body {
   --theme-nav-streep: 2px;
   /* Maatstreepjes op 25/50/75% — de schaalverdeling van een instrument. */
   --theme-progress-maatstreep: rgba(1, 2, 5, 0.22);
+  --shadow-raised: 0 2px 4px rgba(1, 2, 5, 0.08), 0 10px 26px rgba(1, 2, 5, 0.14);
+  /* Strak en kort, in hetzelfde ritme als de rest van dit theme. */
+  --duur-adem: 4s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -1105,4 +1171,6 @@ body {
   --theme-nav-radius: var(--radius-control);
   --theme-nav-streep: 1px;
   --theme-nav-streep-kleur: var(--color-orange);
+  --shadow-raised: 0 3px 6px rgba(26, 43, 35, 0.07), 0 16px 38px rgba(26, 43, 35, 0.14);
+  --duur-adem: 9s;
 }

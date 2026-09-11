@@ -122,6 +122,11 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
 - **Progress bars** alleen tonen als er een echte doelwaarde is; anders een neutrale
   "—". Bars zijn klein, dun, afgeronde uiteinden.
 - Nederlandse getalnotatie overal (`nl-NL`, punt als duizendtal, komma als decimaal).
+  Cijfers in een tabel lijnen uit: `font-variant-numeric: tabular-nums` staat in
+  `globals.css` op `table` — bewust niet op `body`, want in lopende tekst zijn
+  tabellaire cijfers juist te wijd.
+- De ondersteunende regel onder een waarde gebruikt `text-meta` (eigen maat plus
+  regelafstand), niet `text-xs`.
 
 ### Kleuren, typografie, spacing
 
@@ -142,8 +147,9 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   Udenhout/Volkswagen, 4px bij Porsche, 0 bij CUPRA), `--radius-card` (16px) voor
   cards, `--radius-panel` (20px) voor grotere panelen, `--radius-pill` alleen waar een
   vorm echt altijd een pil is (de progress bar) — niet overal pillvormig maken.
-  Shadows zijn subtiel (`--shadow-card`, `--shadow-dropdown`), nooit een zware
-  drop-shadow.
+  `--radius-avatar` voor avatars en het beeldmerk (rond bij de merken met een ronde
+  vormtaal, hoekig bij Porsche/CUPRA/Bentley). Shadows zijn subtiel en lopen in vier
+  hoogtes (zie "Themes" hieronder), nooit een zware drop-shadow.
 - Typografie: `TheSansB` (huisstijl) met Inter als geladen fallback via
   `next/font/google`. Sectiekoppen (zoals "PLANNING") zijn klein, uppercase, met iets
   verhoogde letter-spacing en gedempt — ondersteunend, niet dominant. Lettergroottes
@@ -184,6 +190,45 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   ziet er niet uit als dat merk. De typografische eigenschappen die geen Tailwind-
   utility hebben (`--theme-title-*`, `--theme-label-*`, `--theme-body-tracking`) worden
   toegepast via de classes `.titel-theme` en `.label-theme`.
+- **Ook ondergrond, beweging en vorm zijn merkeigen.** Naast kleur en typografie verzet
+  een theme:
+  - `--theme-page-patroon` (+ `-maat`): één textuur op het paginavlak — een technisch
+    raster bij Porsche, diagonale hairlines bij CUPRA, het knurling-ruitje bij Bentley,
+    een licht verloop bij Volkswagen/Audi/Škoda, drukkorrel (inline SVG-ruis) bij
+    Udenhout en SEAT. Houd het bij **één** signaal per merk: patroon én korrel én
+    verloop tegelijk maakt het onrustig in plaats van rijk. De class staat zowel op
+    `body` als op `.pagina-vlak` (de schil in `AppShell` legt een eigen achtergrond over
+    de body heen).
+  - `--theme-sidebar-verloop` (`.sidebar-vlak`): verloop over de donkere navigatieschil.
+  - `--duur-snel` / `--duur` / `--duur-traag` + de utility `ease-merk`: beweging hoort
+    bij het merk (Porsche en CUPRA kort en abrupt, Bentley traag en zwaar). Gebruik
+    `duration-[var(--duur-snel)] ease-merk` in plaats van een vaste `duration-150`.
+    `--duur-adem` doet hetzelfde voor de ademende statusdot.
+  - Vier schaduwhoogtes: `--shadow-subtle` (rustend paneel) → `--shadow-card` (het
+    dragende paneel) → `--shadow-raised` (onder de muis) → `--shadow-dropdown` /
+    `--shadow-modal`. Op de donkere themes zit in die tokens een inset-haarlijn licht
+    op de bovenrand: op zwart komt diepte van licht, niet van schaduw — en omdat het in
+    de token zelf zit, hoeft geen enkel component ervan te weten.
+  - `.kaart-accent` (accentlijn bovenop een dragend paneel; een **border**, want die kan
+    niet door een sticky tabelkop worden overdekt), `.kaart-omlijst` (de gouden
+    binnenlijn van Bentley, elders transparent), `.kaart-hover` (een fractie omhoog bij
+    hover — nooit in de campagnetabel, die reageert bewust niet op muisbeweging) en
+    `.laadvlak` (glans over een laadvlak in de merkkleur).
+  - `--theme-nav-radius` / `--theme-nav-streep`: de vorm van het actieve item in de
+    sidebar (pil bij Volkswagen, streep links bij Porsche en CUPRA, gouden haarlijn bij
+    Bentley) en `--theme-progress-maatstreep` voor de maatstreepjes in de progress bar.
+  - `--color-selectie` (geselecteerde tekst), `--focus-ring*`, `--radius-avatar` en
+    `--scrollbar-dikte`: kleine dingen die in élk theme kloppen moeten, anders valt juist
+    daar het browserblauw of een ronde avatar uit de toon.
+- **Het merklogo staat in beeld.** Staat het dashboard in de vormgeving van een automerk,
+  dan toont `LogoMark` in de sidebar het logo van dat merk (opgezocht in
+  `brandLogos.tsx`, want de theme-id's zijn dezelfde sleutels) in plaats van het
+  auto-icoon; hetzelfde logo staat in het themamenu. Udenhout en CUPRA houden het
+  auto-icoon — voor CUPRA zit er (nog) geen logo in de set.
+- **De themewissel vloeit over.** `kiesTheme` draait de wissel door
+  `document.startViewTransition` als de browser dat kent en de gebruiker geen
+  `prefers-reduced-motion` heeft staan; anders wisselt het theme gewoon direct. Het is
+  dus altijd een toevoeging op het gewone pad, nooit een voorwaarde.
 - **Twee donkere themes** (Audi en CUPRA) draaien het hele scherm om. Controleer bij
   nieuwe UI dus altijd even één van die twee: een vlak dat alleen op wit getest is,
   valt daar door de mand.
@@ -194,7 +239,10 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   font van zijn eigen theme binnenhaalt.
 - **Grafieken** kunnen geen CSS-variabelen lezen (Recharts zet kleuren als
   SVG-attribuut), dus het palet per theme staat in `lib/themes.ts` en wordt opgehaald
-  met `useGrafiekKleuren()`. Nieuw theme = een blok in globals.css + een regel in
+  met `useGrafiekKleuren()`. Daar staat niet alleen kleur maar ook vorm: `lijndikte`,
+  `lijnvorm` (vloeiend of recht), `punt` (gevuld, open of vierkant) en `staafradius` —
+  Bentley tekent een haarlijn met een open ring, Porsche en CUPRA recht met een vierkant
+  punt, Volkswagen dikke pilvormige staven. Nieuw theme = een blok in globals.css + een regel in
   `lib/themes.ts`; verder hoeft er niets te veranderen.
 
 ### Component- en codepatronen

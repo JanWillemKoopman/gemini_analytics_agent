@@ -23,7 +23,7 @@ export default function MetricCell({ primary, secondary, tone = "neutral", progr
   return (
     <div className="flex flex-col gap-1">
       <span className="text-sm font-semibold tabular-nums text-ink">{primary}</span>
-      {secondary && <span className={`text-xs ${toneClass[tone]}`}>{secondary}</span>}
+      {secondary && <span className={`text-meta ${toneClass[tone]}`}>{secondary}</span>}
       {progress !== undefined && <ProgressBar percent={progress} />}
     </div>
   );

@@ -57,7 +57,7 @@ export default function Sidebar({
     // tot 240px. De rail zelf reserveert de ruimte in AppShell (sticky, w-[72px]) en dit
     // element is daarbinnen absoluut gepositioneerd, zodat uitklappen over de content
     // heen valt in plaats van hem opzij te duwen — geen layoutshift op hover.
-    <aside className="group absolute inset-y-0 left-0 flex w-[72px] flex-col justify-between overflow-x-hidden overflow-y-auto border-r border-sidebar-line bg-sidebar px-4 py-5 transition-[width] duration-[var(--duur)] ease-merk hover:z-40 hover:w-[240px] hover:shadow-dropdown">
+    <aside className="group absolute inset-y-0 left-0 flex w-[72px] flex-col justify-between overflow-x-hidden overflow-y-auto border-r border-sidebar-line sidebar-vlak px-4 py-5 transition-[width] duration-[var(--duur)] ease-merk hover:z-40 hover:w-[240px] hover:shadow-dropdown">
       <div>
         <div className="flex items-center gap-2.5 px-0.5">
           <LogoMark className="h-9 w-9 text-[13px]" />

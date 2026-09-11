@@ -142,6 +142,11 @@
      plekken in dit dashboard. */
   --text-label: 11px; /* kleine kapitalen: PLANNING, STATUS, MERK, … */
   --text-cell: 15px; /* campagnenaam in de tabelkop, naam in de sidebar */
+  /* De ondersteunende regel onder een waarde ("+445 boven doel", "12% benut") en de
+     subtitel in de PageHeader. Eigen maat in plaats van text-xs, zodat de tweede regel
+     duidelijk ondergeschikt is aan de eerste in plaats van alleen kleiner. */
+  --text-meta: 12px;
+  --text-meta--line-height: 1.4;
   --text-title: 28px; /* de paginatitel in de PageHeader */
 
   /* TheSansB (W5 Plain body / W7 koppen) is de huisstijlfont van udenhout.nl, maar niet
@@ -183,14 +188,48 @@
   --focus-ring-kleur: var(--color-primary);
 
   --scrollbar-dikte: 8px;
+
+  /* De ondergrond van het merk: één textuur per theme op het paginavlak — een
+     technisch raster (Porsche), een diagonaal (CUPRA), een ruitpatroon (Bentley), een
+     licht verloop (Volkswagen, Audi, Škoda) of drukkorrel (Udenhout, SEAT). Bewust
+     één signaal per merk: patroon én korrel én verloop tegelijk maakt het onrustig in
+     plaats van rijk. */
+  /* Udenhout: fijne drukkorrel, zoals het zand/beige uit de huisstijl op papier. */
+  --theme-page-patroon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)' opacity='0.11'/%3E%3C/svg%3E");
+  --theme-page-patroon-maat: 160px 160px;
+
+  /* Verloop over de donkere navigatieschil, zodat hij niet als één vlak ingevuld oogt. */
+  --theme-sidebar-verloop: none;
 }
 
 body {
   background-color: var(--color-page);
+  background-image: var(--theme-page-patroon);
+  background-size: var(--theme-page-patroon-maat);
+  /* Vast aan het venster: de textuur is het canvas waar de pagina op ligt, hij hoort
+     niet met de inhoud mee te schuiven. Meteen ook de reden dat een verloop op
+     `auto` precies één keer het scherm vult in plaats van te herhalen. */
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
   letter-spacing: var(--theme-body-tracking);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Het paginavlak zelf. De schil in `AppShell` legt een eigen `bg-page` over de body
+   heen; zonder deze class zou de merktextuur daar volledig achter verdwijnen. */
+.pagina-vlak {
+  background-color: var(--color-page);
+  background-image: var(--theme-page-patroon);
+  background-size: var(--theme-page-patroon-maat);
+  background-attachment: fixed;
+}
+
+/* De donkere navigatieschil. Als `bg-sidebar` met daarbovenop, per merk, een verloop —
+   zo blijft de kleur één token en is het verloop optioneel. */
+.sidebar-vlak {
+  background-color: var(--color-sidebar);
+  background-image: var(--theme-sidebar-verloop);
 }
 
 /* De paginatitel van elk tabblad. Per merk verschilt niet alleen de grootte maar ook
@@ -363,6 +402,11 @@ body {
   --duur-snel: 160ms;
   --duur: 240ms;
   --duur-traag: 360ms;
+
+  /* Volkswagen: één rustig verloop in helderblauw vanuit de rechterbovenhoek — geen
+     lijnen, want de vormtaal is glad en geometrisch. */
+  --theme-page-patroon: radial-gradient(1100px 620px at 92% -12%, rgba(0, 176, 240, 0.13), transparent 68%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(0, 176, 240, 0.14), transparent 42%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -428,7 +472,7 @@ body {
   --radius-control: 12px;
   --radius-button: 999px;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.6);
 
   --text-xs: 0.8125rem; /* 13px */
@@ -449,7 +493,10 @@ body {
   --theme-label-weight: 500;
   --theme-label-tracking: 0.08em;
 
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45);
+  /* Een haarlijn licht op de bovenrand tilt een vlak op een donker canvas op —
+     een drop-shadow doet daar niets. Zit in de schaduwtoken zelf, dus elk
+     bestaand `shadow-card`/`shadow-subtle` krijgt hem vanzelf. */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.7);
 
   --color-selectie: rgba(245, 5, 55, 0.32);
@@ -459,6 +506,11 @@ body {
   --duur-snel: 180ms;
   --duur: 260ms;
   --duur-traag: 380ms;
+
+  /* Audi: geen patroon maar diepte — een lichtval van linksboven over het bijna-zwarte
+     canvas, precies zoals hun eigen interface het donker opbouwt. */
+  --theme-page-patroon: radial-gradient(1300px 780px at 18% -14%, rgba(255, 255, 255, 0.05), transparent 66%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(245, 5, 55, 0.1), transparent 34%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -549,6 +601,10 @@ body {
   --duur-snel: 150ms;
   --duur: 210ms;
   --duur-traag: 320ms;
+
+  /* Škoda: een gloed van Electric Green tegen het groenwitte canvas. */
+  --theme-page-patroon: radial-gradient(1000px 560px at 90% -12%, rgba(120, 250, 174, 0.22), transparent 66%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(120, 250, 174, 0.12), transparent 40%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -639,6 +695,11 @@ body {
   --duur-snel: 150ms;
   --duur: 200ms;
   --duur-traag: 300ms;
+
+  /* SEAT: warme drukkorrel op het zandwitte vlak — mediterraan papier, geen koel grijs. */
+  --theme-page-patroon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)' opacity='0.12'/%3E%3C/svg%3E");
+  --theme-page-patroon-maat: 160px 160px;
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(228, 0, 43, 0.12), transparent 36%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -704,7 +765,7 @@ body {
   --radius-control: 2px;
   --radius-button: 0px;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 22px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 22px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.62);
 
   --text-xs: 0.75rem;
@@ -724,7 +785,10 @@ body {
   --theme-label-tracking: 0.14em;
   --theme-body-tracking: 0.01em;
 
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45);
+  /* Een haarlijn licht op de bovenrand tilt een vlak op een donker canvas op —
+     een drop-shadow doet daar niets. Zit in de schaduwtoken zelf, dus elk
+     bestaand `shadow-card`/`shadow-subtle` krijgt hem vanzelf. */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-modal: 0 30px 76px rgba(0, 0, 0, 0.72);
 
   --color-selectie: rgba(181, 129, 80, 0.38);
@@ -738,6 +802,14 @@ body {
   --radius-avatar: 2px;
   --focus-ring: 1px;
   --scrollbar-dikte: 6px;
+
+  /* CUPRA: schuine koperen hairlines, de diagonaal uit het logo. */
+  --theme-page-patroon: repeating-linear-gradient(
+    115deg,
+    rgba(181, 129, 80, 0.05) 0 1px,
+    transparent 1px 28px
+  );
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(181, 129, 80, 0.14), transparent 38%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -834,6 +906,13 @@ body {
   --radius-avatar: 4px;
   --focus-ring-offset: 1px;
   --scrollbar-dikte: 6px;
+
+  /* Porsche: een fijn technisch raster, zoals millimeterpapier onder een tekening. */
+  --theme-page-patroon:
+    linear-gradient(rgba(1, 2, 5, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 2, 5, 0.035) 1px, transparent 1px);
+  --theme-page-patroon-maat: 32px 32px, 32px 32px;
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(213, 0, 28, 0.12), transparent 34%);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -936,4 +1015,11 @@ body {
   --focus-ring-offset: 3px;
   --focus-ring-kleur: var(--color-orange);
   --scrollbar-dikte: 4px;
+
+  /* Bentley: knurling — het geruite patroon van de gekartelde metalen knoppen in hun
+     interieur, in goud en zo licht dat je het eerder voelt dan ziet. */
+  --theme-page-patroon:
+    repeating-linear-gradient(45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(-45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(176, 141, 69, 0.14), transparent 40%);
 }

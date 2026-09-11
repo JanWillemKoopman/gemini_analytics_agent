@@ -97,7 +97,7 @@ export default function AppShell({
   const { title, subtitle } = TITLES[actief];
 
   return (
-    <div className="flex min-h-screen bg-page">
+    <div className="flex min-h-screen pagina-vlak">
       {/* Het oogje staat helemaal rechtsboven in het scherm en blijft daar op elk
           tabblad staan — het hoort bij het venster, niet bij één pagina. */}
       <ThemeSwitcher />

@@ -14,7 +14,7 @@ export default function PageHeader({ title, subtitle, meta }: Props) {
         <h1 className="titel-theme text-ink">
           {title}
         </h1>
-        <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
+        <p className="mt-1.5 text-meta text-ink-muted">{subtitle}</p>
       </div>
 
       {meta && (

@@ -4,7 +4,7 @@ function Skeleton({ className }: { className?: string }) {
 
 export default function Loading() {
   return (
-    <div className="flex min-h-screen bg-page">
+    <div className="flex min-h-screen pagina-vlak">
       <div className="w-[240px] shrink-0 border-r border-sidebar-line bg-sidebar" />
 
       <main className="min-w-0 flex-1 px-8 py-6">

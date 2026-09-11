@@ -2,7 +2,14 @@
 
 import Avatar from "@/components/Avatar";
 import { SOORTEN } from "@/lib/notities";
-import { PUNTEN_PER_SOORT, berekenPuntenstanden, legeStand, type PuntenPeriode } from "@/lib/punten";
+import {
+  PUNTEN_PER_SOORT,
+  bepaalMedailles,
+  berekenPuntenstanden,
+  legeStand,
+  type Medaille,
+  type PuntenPeriode,
+} from "@/lib/punten";
 import { formatNumber } from "@/lib/format";
 import type { Bericht, Profiel } from "@/components/kennisacties/types";
 
@@ -18,6 +25,34 @@ const PERIODES: { waarde: PuntenPeriode; label: string }[] = [
   { waarde: 90, label: "90 dagen" },
   { waarde: null, label: "Alles" },
 ];
+
+const MEDAILLE_STIJL: Record<Medaille, string> = {
+  1: "bg-goud",
+  2: "bg-zilver",
+  3: "bg-brons",
+};
+
+const MEDAILLE_LABEL: Record<Medaille, string> = {
+  1: "Eerste plaats",
+  2: "Tweede plaats",
+  3: "Derde plaats",
+};
+
+/**
+ * Het medaillelabel dat over de rand van het avatar valt. Een klein, plat pilletje in
+ * plaats van een glimmend medaille-icoon: de rij collega's moet rustig blijven, en het
+ * cijfer is precies wat je wilt weten.
+ */
+function Medaillelabel({ plek }: { plek: Medaille }) {
+  return (
+    <span
+      title={MEDAILLE_LABEL[plek]}
+      className={`absolute -bottom-1 -right-1 rounded-pill px-1.5 py-px font-sans-w7 text-label font-bold tabular-nums text-on-medaille ring-2 ring-card ${MEDAILLE_STIJL[plek]}`}
+    >
+      <span className="sr-only">{MEDAILLE_LABEL[plek]}: </span>#{plek}
+    </span>
+  );
+}
 
 /** "+25%" / "−10%" / "nieuw" — nooit een oneindig percentage als er niets was om mee te vergelijken. */
 function Verandering({ verandering, punten }: { verandering: number | null; punten: number }) {
@@ -50,6 +85,12 @@ function Verandering({ verandering, punten }: { verandering: number | null; punt
  */
 export default function Scorebord({ berichten, profielen, periode, onPeriode }: Props) {
   const standen = berekenPuntenstanden(berichten, periode);
+  const medailles = bepaalMedailles(standen);
+  // De volgorde is en blijft alfabetisch — je vindt een collega op naam, niet op stand.
+  // Wie goed bezig is, valt op aan de medaille, niet aan zijn plek in de rij.
+  const opNaam = [...profielen].sort((a, b) =>
+    (a.naam ?? "").localeCompare(b.naam ?? "", "nl", { sensitivity: "base" }),
+  );
   const periodeLabel =
     periode === null ? "sinds het begin" : `in de laatste ${periode} dagen`;
 
@@ -90,11 +131,14 @@ export default function Scorebord({ berichten, profielen, periode, onPeriode }: 
         // breedte van de kaart (en wrappen netjes zodra het er veel worden), in plaats
         // van links samen te klonteren met een leeg vlak ernaast.
         <ul className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(84px,1fr))] gap-y-5">
-          {profielen.map((profiel) => {
+          {opNaam.map((profiel) => {
             const stand = standen[profiel.id] ?? legeStand(periode);
             return (
               <li key={profiel.id} className="flex flex-col items-center gap-1.5 px-1 text-center">
-                <Avatar naam={profiel.naam} avatarUrl={profiel.avatarUrl} size={48} />
+                <span className="relative inline-flex">
+                  <Avatar naam={profiel.naam} avatarUrl={profiel.avatarUrl} size={48} />
+                  {medailles[profiel.id] && <Medaillelabel plek={medailles[profiel.id]} />}
+                </span>
                 <span className="max-w-full truncate text-xs text-ink-muted" title={profiel.naam ?? ""}>
                   {profiel.naam || "Naamloos"}
                 </span>

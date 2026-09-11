@@ -14,7 +14,7 @@ Voer in volgorde uit in de Supabase SQL-editor:
 dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`, dan
 `0008_leads_orders.sql`, dan `0009_app_instellingen.sql`, dan
 `0010_profiel_theme.sql`, dan `0011_kennis_en_acties.sql`, dan
-`0012_gebruikers_wachtwoorden.sql`.
+`0012_gebruikers_wachtwoorden.sql`, dan `0013_service_role_dataloket.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -42,7 +42,12 @@ heen. De twaalfde zet de tabel `gebruikers_wachtwoorden` neer: het laatst bekend
 wachtwoord per collega-account in leesbare vorm, bewust zonder policies (alleen de
 service-role-routes onder `/api/gebruikers` komen erbij) — voedt de bewerkbare
 naam/foto/wachtwoord-sectie voor koopman.janwillem@gmail.com en jkoopman@udenhout.nl bij
-Instellingen → Gebruikers.
+Instellingen → Gebruikers. De dertiende is een bugfix: `create schema dataloket` gaf
+nooit rechten aan `service_role` (elke migratie deed wel `grant ... to authenticated`,
+maar niemand aan `service_role`), waardoor de service-role-client die
+`/api/gebruikers/*` gebruikt op "permission denied for schema dataloket" liep zodra hij
+`instellingen`, `profielen` of `gebruikers_wachtwoorden` aansprak — geeft `service_role`
+alsnog `usage` op het schema en de nodige tabelrechten.
 
 Dat maakt het `dataloket`-schema aan met:
 

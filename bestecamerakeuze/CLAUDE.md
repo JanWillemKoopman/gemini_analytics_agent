@@ -257,9 +257,12 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
     zo'n naam bestaat niet in de sheet en komt daardoor nergens bij de campagnes te
     staan — in de tabel is hij herkenbaar als "vrij onderwerp". Geen extra kolom, geen
     vlag: de koppeling op naam regelt het al.
-  - Toevoegen gaat via een **zijbalk** die van rechts inschuift (`Drawer.tsx`), dezelfde
-    beweging als het logboek bij Campagnes — niet via een gecentreerde pop-up, die legt
-    zich over de tabel waar je tijdens het typen nog in staat te kijken.
+  - Toevoegen gaat via een **zijbalk** die van rechts inschuift (`Drawer.tsx`), met
+    dezelfde indeling als het logboek bij Campagnes: het invulgedeelte bovenaan, de al
+    vastgelegde berichten eronder. Geen gecentreerde pop-up — die legt zich over de tabel
+    waar je tijdens het typen nog in staat te kijken. Na opslaan blijft de zijbalk open en
+    leegt alleen het tekstveld (campagne en soort blijven staan): het nieuwe bericht
+    verschijnt meteen bovenaan in de lijst eronder, en je kunt er zo nog een kwijt.
   - Bovenaan staat over de volle breedte een rij met alle collega's (profielfoto of
     initialen) en daaronder hun **punten**: observatie 10, hypothese 20, besluit 10,
     actie 5, standaard over de laatste 30 dagen met het verschil t.o.v. de 30 dagen

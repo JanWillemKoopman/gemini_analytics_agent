@@ -210,6 +210,8 @@ export default function KennisEnActies({ ingelogd, eigenNaam, eigenAvatarUrl }: 
         <NieuwBerichtZijbalk
           ingelogd={ingelogd}
           campagnes={sorteerNL(campagnes.map((c) => c.naam))}
+          berichten={alles}
+          profielen={profielPerId}
           eigenNaam={eigenNaam}
           eigenAvatarUrl={eigenAvatarUrl}
           onClose={() => setZijbalkOpen(false)}

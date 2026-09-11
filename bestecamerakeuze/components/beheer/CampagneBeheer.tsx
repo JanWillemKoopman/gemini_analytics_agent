@@ -3,6 +3,7 @@
 import { useMemo, type ReactNode } from "react";
 import type { Campagne } from "@/lib/sheet";
 import BewerkbaarVeld from "@/components/BewerkbaarVeld";
+import CampagneFilterBalk from "@/components/CampagneFilterBalk";
 import { formatCurrency, formatDate, formatNumber } from "@/lib/format";
 import { useCampagneFilters } from "@/lib/campagneFilterContext";
 
@@ -115,13 +116,13 @@ type Props = {
  * sync met de sheet: de sheet is en blijft de bron (zie CLAUDE.md).
  */
 export default function CampagneBeheer({ ingelogd }: Props) {
-  const { campagnes } = useCampagneFilters();
+  const { filtered } = useCampagneFilters();
 
   // Nieuwste startdatum eerst, net als het tabblad Campagnes (zie sortByStartdatumDesc
   // in CampaignDashboard.tsx) — campagnes zonder startdatum staan onderaan.
   const gesorteerd = useMemo(
-    () => [...campagnes].sort((a, b) => (b.startdatum ?? "").localeCompare(a.startdatum ?? "")),
-    [campagnes],
+    () => [...filtered].sort((a, b) => (b.startdatum ?? "").localeCompare(a.startdatum ?? "")),
+    [filtered],
   );
 
   if (!ingelogd) {
@@ -141,74 +142,76 @@ export default function CampagneBeheer({ ingelogd }: Props) {
     );
   }
 
-  if (gesorteerd.length === 0) {
-    return (
-      <div className="rounded-panel border border-line bg-card px-6 py-10 text-center shadow-card">
-        <p className="text-sm text-ink-muted">
-          Nog geen campagnes. Gebruik het &quot;+&quot;-knopje rechtsonder om er een toe te
-          voegen.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-separate border-spacing-0 text-left">
-          <colgroup>
-            <col style={{ width: 200 }} />
-            {KOLOMMEN.map((kolom) => (
-              <col key={kolom.veld} style={{ width: kolom.breedte ?? 150 }} />
-            ))}
-          </colgroup>
-          <thead>
-            <tr>
-              <th
-                scope="col"
-                className="label-theme sticky left-0 top-0 z-20 border-b border-r border-line bg-card px-4 py-3 text-label text-ink-faint"
-              >
-                Campagne naam
-              </th>
-              {KOLOMMEN.map((kolom) => (
-                <th
-                  key={kolom.veld}
-                  scope="col"
-                  className="label-theme sticky top-0 z-10 border-b border-line bg-card px-3 py-3 text-label text-ink-faint"
-                >
-                  {kolom.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {gesorteerd.map((campagne) => (
-              <tr key={campagne.naam}>
-                <th
-                  scope="row"
-                  className="sticky left-0 z-10 border-b border-line-soft bg-card px-4 py-3 text-left align-top text-xs font-medium text-ink"
-                >
-                  <BewerkbaarVeld campagneNaam={campagne.naam} veld="naam" initieleWaarde={campagne.naam}>
-                    {campagne.naam}
-                  </BewerkbaarVeld>
-                </th>
+    <div className="flex flex-col gap-4">
+      <CampagneFilterBalk />
+
+      {gesorteerd.length === 0 ? (
+        <div className="rounded-panel border border-line bg-card px-6 py-10 text-center shadow-card">
+          <p className="text-sm text-ink-muted">
+            Nog geen campagnes. Gebruik het &quot;+&quot;-knopje rechtsonder om er een toe te
+            voegen.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+          <div className="overflow-x-auto">
+            <table className="w-full table-fixed border-separate border-spacing-0 text-left">
+              <colgroup>
+                <col style={{ width: 200 }} />
                 {KOLOMMEN.map((kolom) => (
-                  <td key={kolom.veld} className="border-b border-line-soft px-3 py-3 align-top text-xs text-ink">
-                    <BewerkbaarVeld
-                      campagneNaam={campagne.naam}
-                      veld={kolom.veld}
-                      initieleWaarde={kolom.huidigeWaarde(campagne)}
-                      type={kolom.type}
-                    >
-                      {kolom.render(campagne)}
-                    </BewerkbaarVeld>
-                  </td>
+                  <col key={kolom.veld} style={{ width: kolom.breedte ?? 150 }} />
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    className="label-theme sticky left-0 top-0 z-20 border-b border-r border-line bg-card px-4 py-3 text-label text-ink-faint"
+                  >
+                    Campagne naam
+                  </th>
+                  {KOLOMMEN.map((kolom) => (
+                    <th
+                      key={kolom.veld}
+                      scope="col"
+                      className="label-theme sticky top-0 z-10 border-b border-line bg-card px-3 py-3 text-label text-ink-faint"
+                    >
+                      {kolom.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {gesorteerd.map((campagne) => (
+                  <tr key={campagne.naam}>
+                    <th
+                      scope="row"
+                      className="sticky left-0 z-10 border-b border-line-soft bg-card px-4 py-3 text-left align-top text-xs font-medium text-ink"
+                    >
+                      <BewerkbaarVeld campagneNaam={campagne.naam} veld="naam" initieleWaarde={campagne.naam}>
+                        {campagne.naam}
+                      </BewerkbaarVeld>
+                    </th>
+                    {KOLOMMEN.map((kolom) => (
+                      <td key={kolom.veld} className="border-b border-line-soft px-3 py-3 align-top text-xs text-ink">
+                        <BewerkbaarVeld
+                          campagneNaam={campagne.naam}
+                          veld={kolom.veld}
+                          initieleWaarde={kolom.huidigeWaarde(campagne)}
+                          type={kolom.type}
+                        >
+                          {kolom.render(campagne)}
+                        </BewerkbaarVeld>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

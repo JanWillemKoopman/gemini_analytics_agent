@@ -81,6 +81,31 @@ export async function haalAlleProfielen(supabase: SupabaseClient): Promise<Profi
   return (data ?? []).map(naarProfiel);
 }
 
+/**
+ * Wijzigt naam/avatar van een willekeurige collega — voor de beheerders in
+ * Instellingen → Gebruikers (zie lib/gebruikersbeheer.ts: isBeheerder). Vereist de
+ * service-role-client (lib/supabase/admin.ts) omdat de RLS-policy op deze tabel alleen
+ * de eigenaar zelf laat schrijven; de admin-check zit in de aanroepende API-route.
+ */
+export async function wijzigProfielAlsBeheerder(
+  admin: SupabaseClient,
+  gebruikerId: string,
+  invoer: Partial<Pick<Profiel, "naam" | "avatarUrl">>,
+): Promise<Profiel> {
+  const velden: Record<string, unknown> = {};
+  if (invoer.naam !== undefined) velden.naam = invoer.naam;
+  if (invoer.avatarUrl !== undefined) velden.avatar_url = invoer.avatarUrl;
+
+  const { data, error } = await admin
+    .schema(SCHEMA)
+    .from(TABEL)
+    .upsert({ id: gebruikerId, ...velden }, { onConflict: "id" })
+    .select(KOLOMMEN)
+    .single();
+  if (error) throw new Error(error.message);
+  return naarProfiel(data);
+}
+
 export async function wijzigEigenProfiel(
   supabase: SupabaseClient,
   gebruikerId: string,

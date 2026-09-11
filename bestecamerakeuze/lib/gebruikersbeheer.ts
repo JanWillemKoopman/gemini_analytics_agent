@@ -25,3 +25,11 @@ export function isWachtwoordEigenaar(email: string | null | undefined): boolean 
   if (!email) return false;
   return email.toLowerCase() === WACHTWOORD_EIGENAAR_EMAIL;
 }
+
+// Dezelfde twee accounts als VERGRENDELDE_EMAILS, maar deze naam gaat over een andere
+// bevoegdheid: naam, foto en wachtwoord van willekeurig welke collega mogen bekijken en
+// wijzigen bij Instellingen → Gebruikers. Server-side afgedwongen in de
+// /api/gebruikers-routes, niet alleen verstopt in de UI.
+export function isBeheerder(email: string | null | undefined): boolean {
+  return isVergrendeldeEmail(email);
+}

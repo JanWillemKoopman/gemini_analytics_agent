@@ -42,22 +42,9 @@ const LEGE_FORM: Record<FormVeld, string> = {
 
 const GETALVELDEN: FormVeld[] = ["budget", "uitgaven", "doelLeads", "doelOrders"];
 
-/** Alle velden van het formulier, in dezelfde volgorde als de JSX — gebruikt om te
- * controleren dat niets leeg is gebleven vóór het opslaan. */
-const ALLE_VELDEN: FormVeld[] = [
-  "naam",
-  "budget",
-  "uitgaven",
-  "doelLeads",
-  "doelOrders",
-  "startdatum",
-  "einddatum",
-  "merk",
-  "model",
-  "leadType",
-  "ordersoort",
-  "klantgroepOrders",
-];
+/** De enige velden die verplicht zijn om een campagne aan te maken; de rest mag leeg
+ * blijven en wordt later aangevuld. */
+const VERPLICHTE_VELDEN: FormVeld[] = ["naam", "startdatum", "einddatum", "merk"];
 
 /** Kolomkoppen exact zoals in de sheet, zodat het formulier één op één aansluit. */
 const VELD_LABELS: Record<FormVeld, string> = {
@@ -120,7 +107,7 @@ export default function NieuweCampagneModal({ ingelogd, onClose }: Props) {
     e.preventDefault();
     if (bezig) return;
 
-    const ontbrekendVeld = ALLE_VELDEN.find((veld) => !form[veld].trim());
+    const ontbrekendVeld = VERPLICHTE_VELDEN.find((veld) => !form[veld].trim());
     if (ontbrekendVeld) {
       setFout(`"${VELD_LABELS[ontbrekendVeld]}" is verplicht.`);
       return;
@@ -195,17 +182,26 @@ export default function NieuweCampagneModal({ ingelogd, onClose }: Props) {
     );
   }
 
+  const veldLabel = (veld: FormVeld) => (
+    <span className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+      {VELD_LABELS[veld]}
+      {VERPLICHTE_VELDEN.includes(veld) && (
+        <span className="ml-0.5 text-negative" aria-hidden="true">
+          *
+        </span>
+      )}
+    </span>
+  );
+
   const tekstveld = (veld: FormVeld, opties?: string[]) => (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-        {VELD_LABELS[veld]}
-      </span>
+      {veldLabel(veld)}
       <input
         type="text"
         list={opties ? `${veld}-opties` : undefined}
         value={form[veld]}
         disabled={bezig}
-        required
+        required={VERPLICHTE_VELDEN.includes(veld)}
         onChange={(e) => setVeld(veld, e.target.value)}
         className="rounded-control border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-primary disabled:opacity-60"
       />
@@ -221,15 +217,13 @@ export default function NieuweCampagneModal({ ingelogd, onClose }: Props) {
 
   const getalveld = (veld: FormVeld) => (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-        {VELD_LABELS[veld]}
-      </span>
+      {veldLabel(veld)}
       <input
         type="text"
         inputMode="decimal"
         value={form[veld]}
         disabled={bezig}
-        required
+        required={VERPLICHTE_VELDEN.includes(veld)}
         onChange={(e) => setVeld(veld, e.target.value)}
         className="rounded-control border border-line bg-card px-3 py-2 text-sm tabular-nums text-ink outline-none focus:border-primary disabled:opacity-60"
       />
@@ -238,14 +232,12 @@ export default function NieuweCampagneModal({ ingelogd, onClose }: Props) {
 
   const datumveld = (veld: FormVeld) => (
     <label className="flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-        {VELD_LABELS[veld]}
-      </span>
+      {veldLabel(veld)}
       <input
         type="date"
         value={form[veld]}
         disabled={bezig}
-        required
+        required={VERPLICHTE_VELDEN.includes(veld)}
         onChange={(e) => setVeld(veld, e.target.value)}
         className="rounded-control border border-line bg-card px-3 py-2 text-sm text-ink outline-none focus:border-primary disabled:opacity-60"
       />

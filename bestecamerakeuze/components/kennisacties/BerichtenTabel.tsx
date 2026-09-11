@@ -59,16 +59,22 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
 
   return (
     <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
-      <table className="w-full border-separate border-spacing-0 text-left">
+      <table className="w-full table-fixed border-separate border-spacing-0 text-left">
         <thead>
           <tr className="bg-surface-tint">
-            {["Datum", "Wie", "Campagne", "Type bericht", "Bericht"].map((kop) => (
+            {[
+              { label: "Datum", breedte: "w-28" },
+              { label: "Wie", breedte: "w-16" },
+              { label: "Campagne", breedte: "w-48" },
+              { label: "Type bericht", breedte: "w-32" },
+              { label: "Aantekening", breedte: "" },
+            ].map((kop) => (
               <th
-                key={kop}
+                key={kop.label}
                 scope="col"
-                className="label-theme border-b border-line px-4 py-2.5 text-label font-medium text-ink-faint"
+                className={`label-theme border-b border-line px-4 py-2.5 text-label font-medium text-ink-faint ${kop.breedte}`}
               >
-                {kop}
+                {kop.label}
               </th>
             ))}
           </tr>
@@ -95,7 +101,7 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
                   </span>
                 </td>
                 <td className="border-b border-line-soft px-4 py-3 text-sm text-ink">
-                  <span className="block max-w-[220px] truncate" title={bericht.campagneNaam}>
+                  <span className="block truncate" title={bericht.campagneNaam}>
                     {bericht.campagneNaam}
                   </span>
                   {vrijOnderwerp && (

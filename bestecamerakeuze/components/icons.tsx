@@ -267,6 +267,18 @@ export function IconBrain({ className }: IconProps) {
   );
 }
 
+export function IconCar({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M4.5 16.5v1.75a1 1 0 0 0 1 1H7a1 1 0 0 0 1-1V16.5" />
+      <path d="M16 16.5v1.75a1 1 0 0 0 1 1h1.5a1 1 0 0 0 1-1V16.5" />
+      <path d="M3.5 13 5 8.2A2.5 2.5 0 0 1 7.4 6.5h9.2A2.5 2.5 0 0 1 19 8.2l1.5 4.8" />
+      <path d="M3.5 13h17v2.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1Z" />
+      <path d="M7 10h10" />
+    </svg>
+  );
+}
+
 export function IconLock({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden="true">

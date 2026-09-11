@@ -3,7 +3,7 @@
 import GebruikersMenu from "@/components/GebruikersMenu";
 import LogoMark from "@/components/LogoMark";
 import NavigationItem from "@/components/NavigationItem";
-import { IconBook, IconCalendar, IconChat, IconMegaphone, IconPin, IconTable } from "@/components/icons";
+import { IconBook, IconCalendar, IconChat, IconMegaphone, IconPin, IconSettings } from "@/components/icons";
 
 export type DashboardView =
   | "campagnes"
@@ -73,7 +73,7 @@ export default function Sidebar({
             onClick={() => onNavigate("tijdlijn")}
           />
           <NavigationItem
-            icon={<IconTable />}
+            icon={<IconSettings />}
             label="Campagnebeheer"
             active={actief === "campagnebeheer"}
             onClick={() => onNavigate("campagnebeheer")}

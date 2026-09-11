@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { humanizeError } from "@/lib/humanizeMessage";
 import { GuideModal } from "@/components/GuideModal";
 import type { JobStatus, ProjectStatus } from "@/lib/types";
@@ -210,6 +210,14 @@ export function TopBar({
             verdringen; truncate vangt lange adressen op tablet af. */}
         <span className="hidden max-w-[16rem] truncate font-mono text-xs text-fg-faint sm:inline">{email}</span>
         {guideMarkdown && <GuideModal markdown={guideMarkdown} />}
+        <Link
+          href="/settings"
+          aria-label="Instellingen"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2 py-1 text-fg-muted transition hover:border-border-strong hover:text-fg sm:px-3"
+        >
+          <Settings className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Instellingen</span>
+        </Link>
         <form action="/auth/signout" method="post">
           {/* Op mobiel alleen het icoon (kleinere knop, geen verdringing); tekst
               vanaf sm weer zichtbaar. */}

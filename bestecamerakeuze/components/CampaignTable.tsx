@@ -178,21 +178,11 @@ type Props = {
   campagnes: Campagne[];
   notitiesBeschikbaar: boolean;
   ingelogd: boolean;
-  /** Naam van de campagne in focus; de andere kolommen worden gedempt. */
-  focus: string | null;
-  onFocus: (naam: string | null) => void;
   /** "Zo lees je dit": zet onder elk metriclabel een zin in gewone taal. */
   uitlegAan: boolean;
 };
 
-export default function CampaignTable({
-  campagnes,
-  notitiesBeschikbaar,
-  ingelogd,
-  focus,
-  onFocus,
-  uitlegAan,
-}: Props) {
+export default function CampaignTable({ campagnes, notitiesBeschikbaar, ingelogd, uitlegAan }: Props) {
   if (campagnes.length === 0) {
     return (
       <div className="rounded-panel border border-line bg-card px-6 py-10 text-center shadow-card">
@@ -200,10 +190,6 @@ export default function CampaignTable({
       </div>
     );
   }
-
-  /** In focusmodus blijft alles staan, maar treedt de rest terug — geen kolommen die verdwijnen. */
-  const demping = (naam: string) =>
-    focus && focus !== naam ? "opacity-30 transition-opacity duration-200" : "transition-opacity duration-200";
 
   return (
     <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
@@ -232,15 +218,9 @@ export default function CampaignTable({
                 <th
                   key={c.naam}
                   scope="col"
-                  className={`sticky top-0 z-20 border-b border-line bg-card px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)] ${demping(c.naam)}`}
+                  className="sticky top-0 z-20 border-b border-line bg-card px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)]"
                 >
-                  <CampaignHeader
-                    campagne={c}
-                    notitiesBeschikbaar={notitiesBeschikbaar}
-                    ingelogd={ingelogd}
-                    gefocust={focus === c.naam}
-                    onFocus={() => onFocus(focus === c.naam ? null : c.naam)}
-                  />
+                  <CampaignHeader campagne={c} notitiesBeschikbaar={notitiesBeschikbaar} ingelogd={ingelogd} />
                 </th>
               ))}
             </tr>
@@ -278,7 +258,7 @@ export default function CampaignTable({
                     {campagnes.map((c) => (
                       <td
                         key={c.naam}
-                        className={`border-b border-line-soft px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)] ${demping(c.naam)}`}
+                        className="border-b border-line-soft px-3 py-3 align-top [border-left:1px_dashed_var(--color-line-soft)]"
                       >
                         {metric.bewerken && ingelogd ? (
                           <BewerkbaarVeld

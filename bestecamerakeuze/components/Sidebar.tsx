@@ -23,7 +23,7 @@ type Props = {
   profielAvatarUrl: string | null;
 };
 
-/** Toon alleen het lokale deel van het werkadres als naam; het domein staat al in "Udenhout" eronder. */
+/** Toon alleen het lokale deel van het werkadres als naam; het domein staat al in "Marketing" eronder. */
 function naamVoor(email: string | null): string {
   if (!email) return "Gast";
   return email.split("@")[0] || email;
@@ -50,9 +50,9 @@ export default function Sidebar({
           <LogoMark className="h-9 w-9 text-[13px]" />
           <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
             <span className="block font-sans-w7 text-cell font-bold tracking-[0.04em] text-sidebar-ink">
-              Udenhout
+              Marketing
             </span>
-            <span className="block text-label text-sidebar-ink-muted">AI-dataloket</span>
+            <span className="block text-label text-sidebar-ink-muted">VDU & PGZ</span>
           </span>
         </div>
 

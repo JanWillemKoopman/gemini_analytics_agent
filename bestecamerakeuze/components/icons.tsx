@@ -256,6 +256,17 @@ export function IconEyeOff({ className }: IconProps) {
   );
 }
 
+export function IconBrain({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M9 4.5a2.5 2.5 0 0 0-2.5 2.5c0 .4.08.77.22 1.12A2.5 2.5 0 0 0 5 10.5v.25a2.5 2.5 0 0 0 1 2 2.5 2.5 0 0 0-1 2v.25a2.5 2.5 0 0 0 1.72 2.38A2.5 2.5 0 0 0 9 19.5a2.5 2.5 0 0 0 2.5-2.5V7A2.5 2.5 0 0 0 9 4.5Z" />
+      <path d="M15 4.5a2.5 2.5 0 0 1 2.5 2.5c0 .4-.08.77-.22 1.12A2.5 2.5 0 0 1 19 10.5v.25a2.5 2.5 0 0 1-1 2 2.5 2.5 0 0 1 1 2v.25a2.5 2.5 0 0 1-1.72 2.38A2.5 2.5 0 0 1 15 19.5a2.5 2.5 0 0 1-2.5-2.5V7A2.5 2.5 0 0 1 15 4.5Z" />
+      <path d="M9.5 9.5c.8 0 1.5.5 1.7 1.3" />
+      <path d="M14.5 9.5c-.8 0-1.5.5-1.7 1.3" />
+    </svg>
+  );
+}
+
 export function IconPin({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden="true">

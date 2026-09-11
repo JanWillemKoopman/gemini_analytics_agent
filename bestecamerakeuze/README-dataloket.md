@@ -13,7 +13,8 @@ Voer in volgorde uit in de Supabase SQL-editor:
 `0003_kennisbank.sql`, dan `0004_claude_kosten.sql`, dan `0005_campagne_notities.sql`,
 dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`, dan
 `0008_leads_orders.sql`, dan `0009_app_instellingen.sql`, dan
-`0010_profiel_theme.sql`, dan `0011_kennis_en_acties.sql`.
+`0010_profiel_theme.sql`, dan `0011_kennis_en_acties.sql`, dan
+`0012_gebruikers_wachtwoorden.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -37,7 +38,11 @@ erbij). De tiende bewaart de themekeuze (het oogje rechtsboven) per collega in h
 profiel, zodat die ook geldt op een ander apparaat. De elfde hoort bij het tabblad
 **Kennis en acties**: geen nieuwe tabel, alleen een index op de tijd — dat overzicht
 leest dezelfde aantekeningen, maar dan zonder campagnefilter en over alle campagnes
-heen.
+heen. De twaalfde zet de tabel `gebruikers_wachtwoorden` neer: het laatst bekende
+wachtwoord per collega-account in leesbare vorm, bewust zonder policies (alleen de
+service-role-routes onder `/api/gebruikers` komen erbij) — voedt de bewerkbare
+naam/foto/wachtwoord-sectie voor koopman.janwillem@gmail.com en jkoopman@udenhout.nl bij
+Instellingen → Gebruikers.
 
 Dat maakt het `dataloket`-schema aan met:
 

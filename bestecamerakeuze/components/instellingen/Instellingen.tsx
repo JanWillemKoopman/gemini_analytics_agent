@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import Avatar from "@/components/Avatar";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import GebruikersBeheer from "@/components/instellingen/GebruikersBeheer";
-import { isWachtwoordEigenaar } from "@/lib/gebruikersbeheer";
+import { isBeheerder, isWachtwoordEigenaar } from "@/lib/gebruikersbeheer";
 
 type Profiel = {
   id: string;
@@ -386,7 +386,10 @@ export default function Instellingen({
 
     <div className="flex flex-col gap-6">
     <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">Team</p>
-    <GebruikersBeheer isWachtwoordEigenaar={isWachtwoordEigenaar(email)} />
+    <GebruikersBeheer
+      isWachtwoordEigenaar={isWachtwoordEigenaar(email)}
+      isBeheerder={isBeheerder(email)}
+    />
     </div>
     </div>
   );

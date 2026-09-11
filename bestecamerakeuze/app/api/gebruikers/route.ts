@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getGebruiker } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { STANDAARD_WACHTWOORD_FALLBACK, isVergrendeldeEmail } from "@/lib/gebruikersbeheer";
+import { STANDAARD_WACHTWOORD_FALLBACK, isBeheerder, isVergrendeldeEmail } from "@/lib/gebruikersbeheer";
+import { haalAlleProfielen } from "@/lib/profielen";
+import { haalWachtwoorden, zetWachtwoord } from "@/lib/wachtwoorden";
 
 export const dynamic = "force-dynamic";
 
@@ -25,12 +27,23 @@ export async function GET() {
   const gebruiker = await getGebruiker();
   if (!gebruiker) return NextResponse.json({ fout: "Log eerst in." }, { status: 401 });
 
+  const beheerder = isBeheerder(gebruiker.email);
+
   try {
     const admin = createAdminClient();
     // Supabase Auth heeft geen view op de eigen tabel — via de admin-API lezen; de
     // lijst blijft klein genoeg (collega's, geen klanten) voor één pagina.
     const { data, error } = await admin.auth.admin.listUsers({ perPage: 1000 });
     if (error) return NextResponse.json({ fout: error.message }, { status: 400 });
+
+    const ids = data.users.map((u) => u.id);
+    // Naam/foto en wachtwoord alleen erbij halen voor een beheerder — die mag ze ook
+    // zien/wijzigen; voor iedereen anders blijft de lijst zoals hij was (alleen
+    // e-mailadres, geen wachtwoord in de response).
+    const [profielen, wachtwoorden] = beheerder
+      ? await Promise.all([haalAlleProfielen(admin), haalWachtwoorden(admin, ids)])
+      : [[], {} as Record<string, string>];
+    const profielPerId = Object.fromEntries(profielen.map((p) => [p.id, p]));
 
     const gebruikers = data.users
       .filter((u) => u.email)
@@ -39,6 +52,13 @@ export async function GET() {
         email: u.email as string,
         aangemaaktOp: u.created_at,
         vergrendeld: isVergrendeldeEmail(u.email),
+        ...(beheerder
+          ? {
+              naam: profielPerId[u.id]?.naam ?? null,
+              avatarUrl: profielPerId[u.id]?.avatarUrl ?? null,
+              wachtwoord: wachtwoorden[u.id] ?? null,
+            }
+          : {}),
       }))
       .sort((a, b) => a.email.localeCompare(b.email));
 
@@ -83,7 +103,7 @@ export async function POST(request: Request) {
     const mislukt: { email: string; fout: string }[] = [];
 
     for (const email of emails) {
-      const { error } = await admin.auth.admin.createUser({
+      const { data: aanmaakData, error } = await admin.auth.admin.createUser({
         email,
         password: wachtwoord,
         email_confirm: true, // meteen bruikbaar, geen bevestigingsmail nodig
@@ -98,6 +118,9 @@ export async function POST(request: Request) {
       }
       // dataloket.profielen wordt automatisch aangemaakt door de trigger op
       // auth.users (0006_profielen.sql), dus hier verder niets te doen.
+      // Het gebruikte wachtwoord wel bewaren, zodat een beheerder het later bij
+      // Instellingen → Gebruikers kan tonen (zie 0012_gebruikers_wachtwoorden.sql).
+      await zetWachtwoord(admin, aanmaakData.user.id, wachtwoord);
       aangemaakt.push(email);
     }
 

@@ -39,8 +39,10 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   wordmark "Udenhout" en profielnaam faden/schuiven mee in, via Tailwind
   `group`/`group-hover` — geen JS-state nodig) en overlayt hij de content in plaats van
   hem te verschuiven (de aside is absoluut gepositioneerd binnen een vaste 72px-kolom in
-  `AppShell.tsx`). Bovenaan staat, los en zonder groepskopje, **Kennis en acties** —
-  wat het team zelf vastlegt komt vóór de cijfers. Daaronder staat de navigatie in twee
+  `AppShell.tsx`). Bovenaan staan, los en zonder groepskopje, **Scores** en **Kennis en
+  acties** — wat het team zelf vastlegt komt vóór de cijfers, en de stand komt vóór de
+  inhoud omdat de weekstand de aanleiding is om iets vast te leggen. Daaronder staat de
+  navigatie in twee
   groepen onder een klein, uppercase groepskopje (net als de "Planning"/"Budget"-
   groepskoppen in de campagnetabel): **Campagnes** (Campagnes, Tijdlijn) en **Chatbot**
   (Start gesprek, Prikbord, Kennisbank) — het Prikbord staat bewust onder Chatbot, want
@@ -202,8 +204,9 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
-  `StatusIndicator`, `Modal`, `Drawer`, `CampaignHeader`, `CampaignNotes`, `NotitieLijst`,
-  `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`, `kennisacties/*`. Voeg nieuwe UI
+  `StatusIndicator`, `Modal`, `Drawer`, `Toast`, `CampaignHeader`, `CampaignNotes`,
+  `NotitieLijst`, `Prikbord`, `CampagneTijdlijn`, `Avatar`, `Medaille`, `Inlogprompt`,
+  `brandLogos`, `kennisacties/*`, `scores/*`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
 - Het oogje voor de themes hangt `fixed` rechtsboven in het scherm (niet in de
@@ -245,13 +248,15 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
   besluit volgende week naast het cijfer staat dat het moest raken. Het logboek is één
   zijbalk die vanuit de campagnenaam of het logboek-knopje opent — omdat het overleg per
   campagne gaat en niet per metric.
-- **Kennis en acties** (`components/kennisacties/`, `lib/punten.ts`, bovenste tabblad):
-  hetzelfde logboek, maar dan over alle campagnes heen — datum, initialen, campagne,
-  soort en de tekst in één tabel, met daarboven dezelfde velden als filter. De
-  logboekzijbalk is voor tijdens het kijken naar één campagne; dit tabblad is voor de
-  vraag "wat hebben we de afgelopen weken eigenlijk geleerd?".
+- **Kennis en acties** (`components/kennisacties/`, tweede tabblad): hetzelfde logboek,
+  maar dan over alle campagnes heen — datum, initialen, campagne, soort en de tekst in
+  één tabel, met daarboven dezelfde velden als filter. De logboekzijbalk is voor tijdens
+  het kijken naar één campagne; dit tabblad is voor de vraag "wat hebben we de afgelopen
+  weken eigenlijk geleerd?".
   - Er komt **geen tweede tabel** voor in de database: het leest en schrijft
-    `dataloket.campagne_notities` via dezelfde POST-route als het logboek zelf.
+    `dataloket.campagne_notities` via dezelfde POST-route als het logboek zelf. Dat geldt
+    ook voor alles op het scoretabblad hieronder — punten, weken, streaks en prijzen zijn
+    zonder uitzondering afgeleid uit diezelfde rijen, er wordt niets van bijgehouden.
   - Een bericht hoeft niet aan een campagne te hangen. In het uitklapmenu staat naast de
     campagnes uit de sheet één extra optie ("Eigen onderwerp") met een vrij tekstveld;
     zo'n naam bestaat niet in de sheet en komt daardoor nergens bij de campagnes te
@@ -262,19 +267,63 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
     vastgelegde berichten eronder. Geen gecentreerde pop-up — die legt zich over de tabel
     waar je tijdens het typen nog in staat te kijken. Na opslaan blijft de zijbalk open en
     leegt alleen het tekstveld (campagne en soort blijven staan): het nieuwe bericht
-    verschijnt meteen bovenaan in de lijst eronder, en je kunt er zo nog een kwijt.
-  - Bovenaan staat over de volle breedte een rij met alle collega's (profielfoto of
-    initialen) en daaronder hun **punten**: observatie 10, hypothese 20, besluit 10,
-    actie 5, standaard over de laatste 30 dagen met het verschil t.o.v. de 30 dagen
-    daarvóór. Zonder vorige periode staat er "nieuw" en geen verzonnen oneindig
-    percentage (zie `lib/punten.test.ts`).
-  - De rij staat **alfabetisch op naam** (A–Z) en iedereen staat erop, ook wie nog niets
-    heeft vastgelegd. De stand blijkt uit een **medaille** (#1/#2/#3 in goud, zilver,
-    brons) op het avatar van de drie hoogste totalen — dus niet uit de volgorde: je vindt
-    een collega op naam terug. Gelijke stand deelt dezelfde medaille en nul punten levert
-    er nooit één op (`bepaalMedailles` in `lib/punten.ts`). De medaillekleuren zijn eigen
-    tokens die in élk theme gelijk blijven: goud in het merkpalet van Škoda is geen goud
-    meer.
+    verschijnt meteen bovenaan in de lijst eronder, en je kunt er zo nog een kwijt. De
+    zijbalk zelf hangt in `AppShell`, niet in een paneel: hij wordt vanaf beide teamtabs
+    geopend (de ronde "+" rechtsonder) én vanuit de nudge in het scorebord. Na opslaan
+    verschijnt er rechtsonder een korte bevestiging met de verdiende punten
+    (`components/Toast.tsx`) — feedback hoort te vallen op het moment van de handeling,
+    niet pas als je een ander tabblad opent.
+  - Onder de berichtentabel staat een aparte **actietabel** (`ActieTabel.tsx`) met alleen
+    de berichten van het soort "actie", af te vinken zonder eerst de campagne op te
+    zoeken. Open acties staan bovenaan met hun leeftijd in dagen (rood vanaf veertien
+    dagen), afgeronde blijven onderaan staan als bewijs dat er iets gebeurd is. Daarboven
+    staat per collega hoeveel er openstaat en hoe oud de oudste is (`OpenActies.tsx`) —
+    de toewijzing is die van wie de actie noteerde, want een eigenaar kent de tabel niet,
+    en dat staat er ook zo bij. Bewust géén punten: een openstaande actie is geen score
+    maar een schuld aan het team. De actietabel volgt dezelfde filterbalk, maar negeert
+    het filter "Type bericht" — daar staan per definitie alleen acties in.
+
+- **Scores** (`components/scores/`, `lib/punten.ts`, `lib/week.ts`, bovenste tabblad):
+  alles rondom de puntentelling, van boven naar beneden: het teamdoel van deze week, de
+  rij collega's met hun punten over 30/90 dagen of alles, de weekstand, en de totaalstand
+  zonder einddatum. De inhoud van wat er vastligt staat op het tabblad hiervoor; hier gaat
+  het over het ritme.
+  - **Punten per bericht**: observatie 10, hypothese 20, besluit 10, actie 5. De weging
+    volgt hoe zwaar een aantekening weegt in het overleg, niet hoeveel typewerk hij kost.
+  - **De puntenweek loopt van maandag 11:59 tot maandag 11:59** Nederlandse tijd
+    (`lib/week.ts`, met tests voor zomer-/wintertijd). Dat ene moment bepaalt drie dingen
+    tegelijk: welke berichten meetellen voor de weekpunten, wanneer #1/#2/#3 opnieuw
+    verdeeld worden, en tot hoe laat de weekwinnaar-pop-up nog te zien is. Verzet dat
+    moment dus nooit op één plek.
+  - **Een winnaar per week is hier bewust wél de bedoeling** — dat was eerder anders (het
+    scorebord was expliciet géén ranglijst). De weekstand is daarom op punten gesorteerd
+    en deelt medailles uit; de rij collega's erboven blijft **alfabetisch** en zonder
+    medaille, zodat je een collega altijd op dezelfde plek terugvindt en een rustige maand
+    niet meteen een plek op een ranglijst is. Iedereen met een account staat erop, ook wie
+    nog niets heeft vastgelegd — die lege nul is de uitnodiging, en voor jezelf staat er
+    een knop bij om er iets aan te doen. Gelijke stand deelt dezelfde plek en nul punten
+    levert nooit een medaille op (`bepaalMedailles`). De medaillekleuren zijn eigen tokens
+    die in élk theme gelijk blijven: goud in het merkpalet van Škoda is geen goud meer.
+  - **Teamdoel** bovenaan (`Teamdoel.tsx`): 30 punten per collega per week, dus het doel
+    schaalt mee als er iemand bij komt. Coöperatief en vóór de individuele stand: een
+    achterblijvende week hoort een probleem van het team te zijn, niet van één collega.
+  - **Streaks**: elke week op rij waarin je iets vastlegt vanaf de tweede levert
+    `STREAK_BONUS` (30) bonuspunten op in díe week; een week overslaan zet de reeks terug
+    op nul. De eerste week van een reeks geeft niets — anders is "een streak" gewoon een
+    andere naam voor "een bericht".
+  - **Totaalstand zonder einddatum** (`Prijzenkast.tsx`): alle punten sinds het eerste
+    bericht plus de prijzenkast (hoe vaak #1, #2, #3). Een prijs telt pas mee zodra de
+    week is afgelopen — een voorsprong op donderdag is nog geen gewonnen week.
+  - **Weekwinnaar-pop-up** (`WeekwinnaarPopup.tsx`): maandag tussen 00:00 en 11:58, dus
+    in het laatste stuk van de week die om 11:59 afsluit. Weg te klikken; de keuze staat
+    per collega en per week in localStorage, zodat hij maandag daarop vanzelf terugkomt.
+    Hij hangt in `AppShell` en rendert via een portal, dus hij verschijnt ook als je die
+    ochtend meteen naar de campagnes doorklikt — en hij blijft weg als er die week niets
+    is vastgelegd.
+  - **Eén ophaalactie voor beide tabbladen** (`lib/teamData.tsx`): ze kijken naar dezelfde
+    rijen, dus een tweede fetch zou twee standen opleveren die na het vastleggen van een
+    bericht uit elkaar lopen. Het peilmoment (`nu`) tikt daar elke minuut door, zodat de
+    week vanzelf omslaat zonder herladen.
 - **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
   team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.
   Zo groeit het dashboard uit de vragen die er echt leven.

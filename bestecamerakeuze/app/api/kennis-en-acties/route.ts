@@ -7,12 +7,13 @@ import { haalAlleProfielen } from "@/lib/profielen";
 export const dynamic = "force-dynamic";
 
 /**
- * Het tabblad "Kennis en acties" in één keer: alle aantekeningen over alle campagnes
- * heen, plus álle profielen.
+ * De tabbladen "Scores" en "Kennis en acties" in één keer: alle aantekeningen over alle
+ * campagnes heen, plus álle profielen. Beide tabbladen delen deze ene ophaalactie via
+ * `TeamDataProvider` (lib/teamData.tsx).
  *
- * Waarom alle profielen en niet alleen de schrijvers: het scorebord bovenaan zet iedere
- * collega op de rij, ook wie deze maand nog niets heeft vastgelegd — dat lege plekje is
- * de bedoeling.
+ * Waarom alle profielen en niet alleen de schrijvers: het scorebord zet iedere collega
+ * op de rij, ook wie deze maand nog niets heeft vastgelegd — dat lege plekje is de
+ * bedoeling.
  *
  * Toevoegen gebeurt via de bestaande POST op /api/campagne-notities; het is dezelfde
  * tabel en dezelfde validatie, dus daar hoort geen tweede schrijfroute naast.

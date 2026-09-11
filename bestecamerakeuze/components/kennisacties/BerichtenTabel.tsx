@@ -1,15 +1,19 @@
 "use client";
 
 import Avatar from "@/components/Avatar";
+import { MedaillePil } from "@/components/Medaille";
 import { initialenVoor } from "@/lib/initialen";
 import { SOORT_LABEL, type NotitieSoort } from "@/lib/notities";
-import type { Bericht, Profiel } from "@/components/kennisacties/types";
+import type { Medaille } from "@/lib/punten";
+import type { Bericht, Profiel } from "@/lib/teamData";
 
 type Props = {
   berichten: Bericht[];
   profielen: Record<string, Profiel>;
   /** De campagnenamen uit de sheet — alles daarbuiten is een vrij onderwerp. */
   bekendeCampagnes: Set<string>;
+  /** De #1/#2/#3 van de lopende week, zodat de stand ook hier zichtbaar is. */
+  medailles: Record<string, Medaille>;
   laden: boolean;
 };
 
@@ -37,10 +41,18 @@ function formatDatum(iso: string): string {
  *
  * De initialen staan naast het profielfotootje in plaats van in plaats daarvan: de foto
  * herken je van een afstand, de twee letters maken het eenduidig als twee collega's op
- * elkaar lijken. Hier wordt bewust niet bewerkt of verwijderd — dat blijft bij de
- * campagne zelf, waar de aantekening ook in zijn context staat.
+ * elkaar lijken. Staat iemand deze week in de top 3, dan hangt zijn medaille er ook bij —
+ * zo zie je de stand terwijl je leest wat er is vastgelegd, zonder naar het scoretabblad
+ * te hoeven. Hier wordt bewust niet bewerkt of verwijderd — dat blijft bij de campagne
+ * zelf, waar de aantekening ook in zijn context staat.
  */
-export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes, laden }: Props) {
+export default function BerichtenTabel({
+  berichten,
+  profielen,
+  bekendeCampagnes,
+  medailles,
+  laden,
+}: Props) {
   if (laden) {
     return (
       <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
@@ -92,6 +104,9 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
                     <span className="text-sm font-medium text-ink">
                       {initialenVoor(profiel?.naam ?? null)}
                     </span>
+                    {medailles[bericht.aangemaaktDoor] && (
+                      <MedaillePil plek={medailles[bericht.aangemaaktDoor]} />
+                    )}
                   </span>
                 </td>
                 <td className="border-b border-line-soft px-2 py-3 text-sm text-ink">

@@ -3,29 +3,17 @@
 import { useMemo, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Drawer from "@/components/Drawer";
+import { useCampagneFilters } from "@/lib/campagneFilterContext";
 import { initialenVoor } from "@/lib/initialen";
 import { SOORTEN, SOORT_LABEL, type NotitieSoort } from "@/lib/notities";
 import { puntenVoor } from "@/lib/punten";
-import type { Bericht, Profiel } from "@/components/kennisacties/types";
+import { useTeamData, type Bericht, type Profiel } from "@/lib/teamData";
 
 /** Sentinelwaarde in het uitklapmenu; geen campagnenaam kan hierop lijken. */
 const VRIJ = "__eigen_onderwerp__";
 
 /** Hoeveel eerdere berichten er onder het formulier passen zonder een archief te worden. */
 const RECENT_AANTAL = 20;
-
-type Props = {
-  ingelogd: boolean;
-  /** De campagnenamen uit de sheet, als opties in het uitklapmenu. */
-  campagnes: string[];
-  /** Alles wat er al vastligt, nieuwste eerst — de lijst onder het formulier. */
-  berichten: Bericht[];
-  profielen: Record<string, Profiel>;
-  eigenNaam: string | null;
-  eigenAvatarUrl: string | null;
-  onClose: () => void;
-  onToegevoegd: (bericht: Bericht, profiel: Profiel | null) => void;
-};
 
 const SOORT_STIJL: Record<NotitieSoort, string> = {
   observatie: "bg-surface text-ink-muted",
@@ -61,16 +49,25 @@ function formatDatum(iso: string): string {
  * campagnes terecht — hij blijft een los inzicht in dit overzicht, gemarkeerd als
  * "vrij onderwerp". De sheet blijft de bron.
  */
-export default function NieuwBerichtZijbalk({
-  ingelogd,
-  campagnes,
-  berichten,
-  profielen,
-  eigenNaam,
-  eigenAvatarUrl,
-  onClose,
-  onToegevoegd,
-}: Props) {
+export default function NieuwBerichtZijbalk() {
+  const { campagnes: alleCampagnes } = useCampagneFilters();
+  const {
+    ingelogd,
+    berichten,
+    profielPerId: profielen,
+    eigenNaam,
+    eigenAvatarUrl,
+    voegToe: onToegevoegd,
+    sluitZijbalk: onClose,
+  } = useTeamData();
+  const campagnes = useMemo(
+    () =>
+      Array.from(new Set(alleCampagnes.map((c) => c.naam)))
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, "nl")),
+    [alleCampagnes],
+  );
+
   // "" = nog niets gekozen, VRIJ = eigen onderwerp, anders de campagnenaam zelf.
   const [keuze, setKeuze] = useState("");
   const [vrijOnderwerp, setVrijOnderwerp] = useState("");

@@ -296,3 +296,35 @@ export function IconPin({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconTrophy({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M7 4.5h10v4.5a5 5 0 0 1-10 0Z" />
+      <path d="M7 6H4.5v1.5A3.5 3.5 0 0 0 8 11" />
+      <path d="M17 6h2.5v1.5A3.5 3.5 0 0 1 16 11" />
+      <path d="M12 14v3.5" />
+      <path d="M8.5 20h7" />
+      <path d="M9.5 20a2.5 2.5 0 0 1 5 0" />
+    </svg>
+  );
+}
+
+export function IconFlame({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M12 3.5s4.5 3.2 4.5 7.5a4.5 4.5 0 0 1-9 0c0-1.5.6-2.7 1.3-3.6.3 1 1 1.8 1.7 2.1 0-2.3.6-4.4 1.5-6Z" />
+      <path d="M12 20.5a4.5 4.5 0 0 0 4.5-4.5" />
+    </svg>
+  );
+}
+
+export function IconTarget({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="12" cy="12" r="1" />
+    </svg>
+  );
+}

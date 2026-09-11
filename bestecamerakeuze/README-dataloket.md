@@ -49,6 +49,12 @@ maar niemand aan `service_role`), waardoor de service-role-client die
 `instellingen`, `profielen` of `gebruikers_wachtwoorden` aansprak — geeft `service_role`
 alsnog `usage` op het schema en de nodige tabelrechten.
 
+Het tabblad **Scores** heeft geen eigen migratie nodig en krijgt er ook geen: punten,
+weekstanden, streaks, medailles en de totaalstand worden allemaal afgeleid uit dezelfde
+`campagne_notities` (zie `lib/punten.ts` + `lib/week.ts`). Er wordt dus niets van de
+stand opgeslagen — een bericht kan achteraf niet met terugwerkende kracht een andere
+datum krijgen, dus de geschiedenis ligt vast zodra hij is vastgelegd.
+
 Dat maakt het `dataloket`-schema aan met:
 
 - `sync_runs` en `sync_afwijkingen` — wat is wanneer ingelezen, en welke rijen zijn afgekeurd

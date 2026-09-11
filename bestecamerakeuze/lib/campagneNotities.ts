@@ -71,17 +71,23 @@ export async function lijstNotities(
 }
 
 /**
- * Alle aantekeningen over alle campagnes heen, nieuwste eerst — de bron van het tabblad
- * "Kennis en acties". Dezelfde rijen als `lijstNotities`, alleen niet op één campagne
- * gefilterd: het overzicht bestaat juist om te zien wat er teamsbreed is vastgelegd.
+ * Alle aantekeningen over alle campagnes heen, nieuwste eerst — de bron onder de
+ * tabbladen "Scores" en "Kennis en acties". Dezelfde rijen als `lijstNotities`, alleen
+ * niet op één campagne gefilterd: die overzichten bestaan juist om te zien wat er
+ * teamsbreed is vastgelegd.
  *
- * Bewust begrensd (default 500). Het scorebord kijkt maximaal 60 dagen terug en de tabel
- * is een leeslijst, geen archief; een ongelimiteerde select wordt met de jaren vanzelf
- * een trage pagina.
+ * Bewust begrensd. De grens ligt hoger dan je voor één scherm nodig hebt, omdat de
+ * totaalstand op het scoretabblad "zonder einddatum" is: die telt elke week sinds het
+ * eerste bericht mee (zie `berekenSeizoen`). Wat buiten deze grens valt, telt dus ook
+ * niet meer mee in de totalen — met een paar berichten per week per collega duurt het
+ * jaren voor dat speelt, en tegen die tijd is een aparte weektabel de betere oplossing
+ * dan een steeds hogere limiet.
  */
+export const ALLE_NOTITIES_LIMIET = 5000;
+
 export async function lijstAlleNotities(
   supabase: SupabaseClient,
-  limiet = 500,
+  limiet = ALLE_NOTITIES_LIMIET,
 ): Promise<CampagneNotitie[]> {
   const { data, error } = await supabase
     .schema(SCHEMA)

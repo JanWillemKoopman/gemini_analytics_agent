@@ -11,9 +11,11 @@ import {
   IconMegaphone,
   IconPin,
   IconSettings,
+  IconTrophy,
 } from "@/components/icons";
 
 export type DashboardView =
+  | "scores"
   | "kennisacties"
   | "campagnes"
   | "tijdlijn"
@@ -70,12 +72,20 @@ export default function Sidebar({
         </div>
 
         <nav aria-label="Hoofdnavigatie" className="mt-6 flex flex-col gap-0.5">
-          {/* Staat bewust bóven de groep "Campagnes" en zonder eigen groepskopje: dit is
+          {/* Staan bewust bóven de groep "Campagnes" en zonder eigen groepskopje: dit is
               wat het team zelf vastlegt en het eerste waar je 's ochtends naar kijkt —
-              de cijfers eronder vertellen wat er gebeurde, dit waarom. */}
+              de cijfers eronder vertellen wat er gebeurde, dit waarom. Scores staat
+              vooraan omdat de weekstand de aanleiding is om iets vast te leggen; wat er
+              vastligt lees je op het tabblad erna. */}
+          <NavigationItem
+            icon={<IconTrophy />}
+            label="Scores"
+            active={actief === "scores"}
+            onClick={() => onNavigate("scores")}
+          />
           <NavigationItem
             icon={<IconBrain />}
-            label="Team intelligence"
+            label="Kennis en acties"
             active={actief === "kennisacties"}
             onClick={() => onNavigate("kennisacties")}
           />

@@ -4,6 +4,7 @@ import CampagneBeheer from "@/components/beheer/CampagneBeheer";
 import ChatPaneel from "@/components/chat/ChatPaneel";
 import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
 import KennisEnActies from "@/components/kennisacties/KennisEnActies";
+import ScorePaneel from "@/components/scores/ScorePaneel";
 import KennisPaneel from "@/components/kennis/KennisPaneel";
 import KostenPaneel from "@/components/kosten/KostenPaneel";
 import NietGeconfigureerd from "@/components/NietGeconfigureerd";
@@ -13,6 +14,7 @@ import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
 import { CampagneFilterProvider } from "@/lib/campagneFilterContext";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
+import { TeamDataProvider } from "@/lib/teamData";
 import { formatUpdatedAt, isCampagneLive } from "@/lib/format";
 import { haalProfiel } from "@/lib/profielen";
 import { createClient } from "@/lib/supabase/server";
@@ -39,20 +41,24 @@ export default async function DashboardPage() {
 
   return (
     <CampagneFilterProvider campagnes={campagnes}>
-      <AppShell
+      {/* Eén ophaalactie voor alles wat het team zelf vastlegt, gedeeld door de
+          tabbladen Scores en Kennis en acties (en door de weekwinnaar-pop-up in
+          AppShell) — zie lib/teamData.tsx. */}
+      <TeamDataProvider
+        ingelogd={ingelogd}
+        eigenId={gebruiker?.id ?? null}
+        eigenNaam={profiel?.naam ?? null}
+        eigenAvatarUrl={profiel?.avatarUrl ?? null}
+      >
+        <AppShell
         gebruikerEmail={gebruiker?.email ?? null}
         profielNaam={profiel?.naam ?? null}
         profielAvatarUrl={profiel?.avatarUrl ?? null}
         liveCount={liveCount}
         updatedAt={updatedAt}
         ingelogd={ingelogd}
-        kennisacties={
-          <KennisEnActies
-            ingelogd={ingelogd}
-            eigenNaam={profiel?.naam ?? null}
-            eigenAvatarUrl={profiel?.avatarUrl ?? null}
-          />
-        }
+        scores={<ScorePaneel />}
+        kennisacties={<KennisEnActies />}
         campagnes={
           <CampaignDashboard notitiesBeschikbaar={isSupabaseGeconfigureerd()} ingelogd={ingelogd} />
         }
@@ -87,7 +93,8 @@ export default async function DashboardPage() {
           )
         }
         instellingen={<InstellingenPaneel ingelogd={ingelogd} email={gebruiker?.email ?? null} />}
-      />
+        />
+      </TeamDataProvider>
     </CampagneFilterProvider>
   );
 }

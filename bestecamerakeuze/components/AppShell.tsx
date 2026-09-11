@@ -4,7 +4,12 @@ import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import Sidebar, { type DashboardView } from "@/components/Sidebar";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import Toast from "@/components/Toast";
 import NieuweCampagneKnop from "@/components/NieuweCampagneKnop";
+import NieuwBerichtZijbalk from "@/components/kennisacties/NieuwBerichtZijbalk";
+import WeekwinnaarPopup from "@/components/scores/WeekwinnaarPopup";
+import { IconPlus } from "@/components/icons";
+import { useTeamData } from "@/lib/teamData";
 
 type Props = {
   gebruikerEmail: string | null;
@@ -13,6 +18,7 @@ type Props = {
   liveCount: number;
   updatedAt: string;
   ingelogd: boolean;
+  scores: React.ReactNode;
   kennisacties: React.ReactNode;
   campagnes: React.ReactNode;
   tijdlijn: React.ReactNode;
@@ -27,7 +33,14 @@ type Props = {
 /** Tabbladen uit de sidebargroep "Campagnes" — hier blijft het ronde "+"-knopje zichtbaar. */
 const CAMPAGNE_GROEP_VIEWS: DashboardView[] = ["campagnes", "tijdlijn", "campagnebeheer"];
 
+/** De twee tabbladen over wat het team zelf vastlegt; beide met de "+" voor een bericht. */
+const TEAM_VIEWS: DashboardView[] = ["scores", "kennisacties"];
+
 const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
+  scores: {
+    title: "Scores",
+    subtitle: "Het teamdoel, de weekstand en de totaalstand van iedereen die vastlegt.",
+  },
   kennisacties: {
     title: "Kennis en acties",
     subtitle:
@@ -83,6 +96,7 @@ export default function AppShell({
   liveCount,
   updatedAt,
   ingelogd,
+  scores,
   kennisacties,
   campagnes,
   tijdlijn,
@@ -95,6 +109,7 @@ export default function AppShell({
 }: Props) {
   const [actief, setActief] = useState<DashboardView>("campagnes");
   const { title, subtitle } = TITLES[actief];
+  const { zijbalkOpen, openZijbalk, melding, wisMelding } = useTeamData();
 
   return (
     <div className="flex min-h-screen bg-page">
@@ -127,6 +142,9 @@ export default function AppShell({
           />
         )}
 
+        <div className="mt-6" role="tabpanel" hidden={actief !== "scores"}>
+          {scores}
+        </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "kennisacties"}>
           {kennisacties}
         </div>
@@ -158,10 +176,32 @@ export default function AppShell({
 
       {/* Het ronde "+"-knopje rechtsonder: alleen op de tabbladen uit de sidebargroep
           "Campagnes" (Campagnes, Tijdlijn, Campagnebeheer), niet op Chatbot/Kosten/
-          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard.
-          "Kennis en acties" heeft een eigen "+" op dezelfde plek, maar die hangt in dat
-          paneel zelf: een net vastgelegd bericht moet meteen in de tabel erboven staan. */}
+          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard. */}
       {CAMPAGNE_GROEP_VIEWS.includes(actief) && <NieuweCampagneKnop ingelogd={ingelogd} />}
+
+      {/* Dezelfde plek, maar dan voor een bericht: op Scores én op Kennis en acties, want
+          een observatie leg je net zo goed vast terwijl je naar de stand kijkt. De zijbalk
+          zelf hangt hier (en niet in één van de twee panelen) zodat beide tabbladen — en de
+          nudge in het scorebord — dezelfde zijbalk openen. */}
+      {TEAM_VIEWS.includes(actief) && (
+        <button
+          type="button"
+          onClick={openZijbalk}
+          aria-label="Bericht toevoegen"
+          title="Bericht toevoegen"
+          className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-150 hover:opacity-100"
+        >
+          <IconPlus className="h-5 w-5" />
+        </button>
+      )}
+
+      {zijbalkOpen && <NieuwBerichtZijbalk />}
+
+      {/* Beide renderen via een portal naar <body>, dus ze staan los van het actieve
+          tabblad: de weekuitslag hoort maandagochtend te verschijnen waar je ook bent, en
+          de puntenbevestiging hoort te blijven staan als de zijbalk dichtgaat. */}
+      <WeekwinnaarPopup />
+      <Toast melding={melding} onWeg={wisMelding} />
     </div>
   );
 }

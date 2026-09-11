@@ -12,7 +12,8 @@ Voer in volgorde uit in de Supabase SQL-editor:
 `supabase/migrations/0001_dataloket.sql`, dan `0002_gesprekken.sql`, dan
 `0003_kennisbank.sql`, dan `0004_claude_kosten.sql`, dan `0005_campagne_notities.sql`,
 dan `0006_profielen.sql`, dan `0007_besluitenlog_prikbord_vragen.sql`, dan
-`0008_leads_orders.sql`.
+`0008_leads_orders.sql`, dan `0009_app_instellingen.sql`, dan
+`0010_profiel_theme.sql`, dan `0011_kennis_en_acties.sql`.
 
 De eerste zet de datalaag en de read-only rol neer, de tweede de gespreksgeschiedenis
 (gesprekken, berichten, feedback — elk met rijbeveiliging zodat iedereen alleen zijn
@@ -29,7 +30,14 @@ het prikbord toe (vastgepinde grafieken uit de chat) en de view
 zet de echte eerste twee bronnen neer (`leads_raw`/`v_leads` en `orders_raw`/`v_orders`,
 tabbladen "Data leads" en "Data orders 2" van dezelfde spreadsheet als Campagnes) en
 trekt de rechten van `v_verkopen` in — die voorbeeldtabel is daarna niet meer bevraagbaar
-door de chat, de tabel en view zelf blijven staan als sjabloon.
+door de chat, de tabel en view zelf blijven staan als sjabloon. De negende zet de
+key/value-tabel `instellingen` neer (nu alleen het gedeelde standaardwachtwoord voor
+nieuwe collega-accounts; bewust zonder policies, alleen de service-role-routes komen
+erbij). De tiende bewaart de themekeuze (het oogje rechtsboven) per collega in het
+profiel, zodat die ook geldt op een ander apparaat. De elfde hoort bij het tabblad
+**Kennis en acties**: geen nieuwe tabel, alleen een index op de tijd — dat overzicht
+leest dezelfde aantekeningen, maar dan zonder campagnefilter en over alle campagnes
+heen.
 
 Dat maakt het `dataloket`-schema aan met:
 

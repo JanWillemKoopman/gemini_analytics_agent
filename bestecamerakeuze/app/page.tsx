@@ -3,6 +3,7 @@ import CampaignDashboard from "@/components/CampaignDashboard";
 import CampagneBeheer from "@/components/beheer/CampagneBeheer";
 import ChatPaneel from "@/components/chat/ChatPaneel";
 import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
+import KennisEnActies from "@/components/kennisacties/KennisEnActies";
 import KennisPaneel from "@/components/kennis/KennisPaneel";
 import KostenPaneel from "@/components/kosten/KostenPaneel";
 import NietGeconfigureerd from "@/components/NietGeconfigureerd";
@@ -45,6 +46,13 @@ export default async function DashboardPage() {
         liveCount={liveCount}
         updatedAt={updatedAt}
         ingelogd={ingelogd}
+        kennisacties={
+          <KennisEnActies
+            ingelogd={ingelogd}
+            eigenNaam={profiel?.naam ?? null}
+            eigenAvatarUrl={profiel?.avatarUrl ?? null}
+          />
+        }
         campagnes={
           <CampaignDashboard notitiesBeschikbaar={isSupabaseGeconfigureerd()} ingelogd={ingelogd} />
         }

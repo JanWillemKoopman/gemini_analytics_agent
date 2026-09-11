@@ -95,7 +95,7 @@ export default function Scorebord({ berichten, profielen, periode, onPeriode }: 
     periode === null ? "sinds het begin" : `in de laatste ${periode} dagen`;
 
   return (
-    <section className="rounded-panel border border-line bg-card px-5 py-4 shadow-card">
+    <section className="rounded-panel border border-line bg-card px-5 py-4 shadow-subtle">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-sans-w7 text-sm font-bold text-ink">Het team</p>
@@ -112,7 +112,7 @@ export default function Scorebord({ berichten, profielen, periode, onPeriode }: 
               type="button"
               onClick={() => onPeriode(p.waarde)}
               aria-pressed={periode === p.waarde}
-              className={`rounded-control px-2.5 py-1 text-xs font-medium transition-colors duration-150 ${
+              className={`rounded-control px-2.5 py-1 text-xs font-medium transition-colors duration-[var(--duur-snel)] ${
                 periode === p.waarde
                   ? "bg-card text-ink shadow-card"
                   : "text-ink-muted hover:text-ink"

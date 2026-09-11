@@ -43,7 +43,7 @@ function formatDatum(iso: string): string {
 export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes, laden }: Props) {
   if (laden) {
     return (
-      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
+      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-subtle">
         Laden…
       </div>
     );
@@ -51,7 +51,7 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
 
   if (berichten.length === 0) {
     return (
-      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
+      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-subtle">
         Geen berichten gevonden. Leg er rechtsonder met + een nieuwe vast.
       </div>
     );

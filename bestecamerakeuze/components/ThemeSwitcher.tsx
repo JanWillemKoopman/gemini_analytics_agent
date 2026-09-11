@@ -44,7 +44,7 @@ export default function ThemeSwitcher() {
         aria-expanded={open}
         aria-label="Vormgeving kiezen"
         title="Vormgeving kiezen"
-        className={`flex h-9 w-9 items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink ${
+        className={`flex h-9 w-9 items-center justify-center text-ink-muted transition-colors duration-[var(--duur-snel)] hover:text-ink ${
           open ? "text-ink" : ""
         }`}
       >
@@ -73,7 +73,7 @@ export default function ThemeSwitcher() {
                   kiesTheme(t.id);
                   setOpen(false);
                 }}
-                className={`flex w-full items-start gap-2.5 rounded-control px-2.5 py-2 text-left transition-colors duration-150 hover:bg-surface ${
+                className={`flex w-full items-start gap-2.5 rounded-control px-2.5 py-2 text-left transition-colors duration-[var(--duur-snel)] hover:bg-surface ${
                   actief ? "bg-surface" : ""
                 }`}
               >

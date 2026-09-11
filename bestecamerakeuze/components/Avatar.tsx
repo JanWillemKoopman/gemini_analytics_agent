@@ -21,7 +21,7 @@ export default function Avatar({ naam, avatarUrl, size = 20, className = "" }: P
         src={avatarUrl}
         alt=""
         style={stijl}
-        className={`shrink-0 rounded-full object-cover ${className}`}
+        className={`shrink-0 rounded-avatar object-cover ${className}`}
       />
     );
   }
@@ -30,7 +30,7 @@ export default function Avatar({ naam, avatarUrl, size = 20, className = "" }: P
     <span
       aria-hidden="true"
       style={{ ...stijl, fontSize: Math.max(9, size * 0.4) }}
-      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-light font-semibold text-brand ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-avatar bg-brand-light font-semibold text-brand ${className}`}
     >
       {initialenVoor(naam)}
     </span>

@@ -151,7 +151,7 @@ export default function NieuwBerichtZijbalk({
               type="button"
               onClick={() => setSoort(s.waarde)}
               title={s.uitleg}
-              className={`rounded-button px-2.5 py-1 text-xs font-medium transition-colors duration-150 ${
+              className={`rounded-button px-2.5 py-1 text-xs font-medium transition-colors duration-[var(--duur-snel)] ${
                 soort === s.waarde
                   ? "bg-primary text-on-primary"
                   : "border border-line text-ink-muted hover:border-primary/40 hover:text-ink"

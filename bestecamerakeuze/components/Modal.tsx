@@ -47,7 +47,7 @@ export default function Modal({ title, onClose, children }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="flex max-h-[80vh] w-full max-w-md flex-col rounded-panel border border-line bg-card shadow-dropdown"
+        className="flex max-h-[80vh] w-full max-w-md flex-col rounded-panel border border-line bg-card shadow-modal"
       >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-4">
           <p className="font-sans-w7 text-sm font-bold text-ink">{title}</p>
@@ -55,7 +55,7 @@ export default function Modal({ title, onClose, children }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Sluiten"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-ink-faint transition-colors duration-150 hover:bg-surface hover:text-ink"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-ink-faint transition-colors duration-[var(--duur-snel)] hover:bg-surface hover:text-ink"
           >
             <IconClose className="h-4 w-4" />
           </button>

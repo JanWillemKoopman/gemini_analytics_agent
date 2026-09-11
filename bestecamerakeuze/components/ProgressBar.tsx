@@ -10,7 +10,7 @@ export default function ProgressBar({ percent }: { percent: number }) {
       className="h-1 w-full max-w-24 overflow-hidden rounded-pill bg-progress-track"
     >
       <div
-        className="h-full rounded-pill bg-progress-fill transition-[width] duration-300"
+        className="h-full rounded-pill bg-progress-fill transition-[width] duration-[var(--duur-traag)]"
         style={{ width: `${clamped}%` }}
       />
     </div>

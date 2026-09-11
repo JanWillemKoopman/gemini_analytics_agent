@@ -12,7 +12,7 @@ export default function NavigationItem({ icon, label, active, onClick }: Props) 
       type="button"
       onClick={onClick}
       aria-current={active ? "page" : undefined}
-      className={`flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium transition-colors duration-150 ${
+      className={`flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium transition-colors duration-[var(--duur-snel)] ${
         active
           ? "bg-sidebar-active text-sidebar-ink"
           : "text-sidebar-ink-muted hover:bg-sidebar-hover hover:text-sidebar-ink"
@@ -21,7 +21,7 @@ export default function NavigationItem({ icon, label, active, onClick }: Props) 
       <span className="shrink-0 [&>svg]:h-[18px] [&>svg]:w-[18px]">{icon}</span>
       {/* Ingeklapt (rail op 72px) is er geen ruimte voor tekst — de breedte + transparantie
           animeren mee met het uitklappen van de sidebar (zie Sidebar.tsx, group-hover). */}
-      <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
+      <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-[var(--duur)] group-hover:max-w-[160px] group-hover:opacity-100">
         {label}
       </span>
     </button>

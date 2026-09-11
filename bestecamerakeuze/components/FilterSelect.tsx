@@ -53,13 +53,13 @@ export default function FilterSelect({ label, options, selected, onChange }: Pro
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex min-w-[128px] flex-col items-start gap-0.5 rounded-control px-3 py-1.5 text-left transition-colors duration-150 hover:bg-surface"
+        className="flex min-w-[128px] flex-col items-start gap-0.5 rounded-control px-3 py-1.5 text-left transition-colors duration-[var(--duur-snel)] hover:bg-surface"
       >
         <span className="label-theme text-label text-ink-faint">{label}</span>
         <span className="flex items-center gap-1 text-sm font-medium text-ink">
           <span className="max-w-32 truncate">{valueLabel}</span>
           <IconChevronDown
-            className={`h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+            className={`h-3.5 w-3.5 shrink-0 text-ink-faint transition-transform duration-[var(--duur-snel)] ${open ? "rotate-180" : ""}`}
           />
         </span>
       </button>

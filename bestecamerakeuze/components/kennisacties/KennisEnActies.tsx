@@ -201,7 +201,7 @@ export default function KennisEnActies({ ingelogd, eigenNaam, eigenAvatarUrl }: 
         onClick={() => setZijbalkOpen(true)}
         aria-label="Bericht toevoegen"
         title="Bericht toevoegen"
-        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-150 hover:opacity-100"
+        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-[var(--duur-snel)] hover:opacity-100"
       >
         <IconPlus className="h-5 w-5" />
       </button>

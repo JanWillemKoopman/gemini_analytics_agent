@@ -13,7 +13,7 @@ export default function CampaignNotes({ campagne, onOpen }: { campagne: Campagne
       onClick={onOpen}
       title="Logboek"
       aria-label={`Logboek voor ${campagne.naam}`}
-      className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-ink-faint transition-colors duration-150 hover:bg-surface hover:text-ink-muted"
+      className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-ink-faint transition-colors duration-[var(--duur-snel)] hover:bg-surface hover:text-ink-muted"
     >
       <IconNotes className="h-3.5 w-3.5" />
     </button>

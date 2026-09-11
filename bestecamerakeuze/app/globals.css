@@ -97,6 +97,10 @@
   --color-progress-track: rgba(15, 23, 42, 0.08);
   --color-progress-fill: #19243b;
 
+  /* Geselecteerde tekst. Zonder eigen token pakt de browser zijn eigen blauw — dat
+     breekt elk theme, en het meest zichtbaar bij Bentley en CUPRA. */
+  --color-selectie: rgba(0, 61, 165, 0.18);
+
   /* De donkere navigatieschil links: eigen, rustige surface los van de witte content. */
   --color-sidebar: #14192b;
   --color-sidebar-line: rgba(255, 255, 255, 0.08);
@@ -113,9 +117,24 @@
      bijna rechthoekig, CUPRA en Bentley scherp — dit is per merk een van de meest
      kenmerkende verschillen, dus een eigen token in plaats van een vaste `rounded-pill`. */
   --radius-button: 999px;
+  /* Avatars, het beeldmerk en andere kleine ronde vlakken. Rond bij de merken met een
+     ronde vormtaal, hoekig bij Porsche/CUPRA/Bentley — een perfect ronde foto naast
+     uitsluitend rechte hoeken valt daar direct uit de toon. */
+  --radius-avatar: 999px;
 
+  /* Vier hoogtes in plaats van twee, zodat een paneel dat rust (--shadow-subtle) en een
+     paneel dat de aandacht draagt (--shadow-card) zichtbaar van elkaar verschillen, en
+     een pop-up (--shadow-modal) echt boven de pagina zweeft. De schaduwkleur is per merk
+     de eigen inktkleur, nooit neutraal zwart: een blauwe schaduw onder een VW-kaart
+     oogt als hetzelfde materiaal, een grijze niet. */
+  --shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
   --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-modal: 0 24px 60px rgba(15, 23, 42, 0.18);
+
+  /* De bewegingscurve van het merk (zie --duur-* hieronder). Tailwind maakt hier de
+     utility `ease-merk` van, die in plaats van `ease-out` overal gebruikt wordt. */
+  --ease-merk: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Lettergroottes zijn onderdeel van het theme: Audi zet grote, brede letters neer,
      CUPRA juist compacte kapitalen. De Tailwind-groottes (text-xs/sm/base) zijn
@@ -149,6 +168,21 @@
   --theme-label-transform: uppercase;
   --theme-label-weight: 600;
   --theme-body-tracking: normal;
+
+  /* Beweging is net zo goed merkeigen als kleur: Porsche beweegt kort en houdt abrupt
+     op, Bentley traag en zwaar, CUPRA bijna schokkerig scherp. Componenten gebruiken
+     `duration-[var(--duur-snel)]` + `ease-merk` in plaats van een vaste duration-150,
+     zodat het hele dashboard in het ritme van het merk beweegt. */
+  --duur-snel: 150ms; /* hover, kleurwissel */
+  --duur: 200ms; /* uitklappen, inschuiven */
+  --duur-traag: 300ms; /* progress bars, langere verplaatsingen */
+
+  /* De focusring: niet elk merk zet hem even dik of even ver van de rand. */
+  --focus-ring: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-kleur: var(--color-primary);
+
+  --scrollbar-dikte: 8px;
 }
 
 body {
@@ -181,26 +215,38 @@ body {
 
 @layer base {
   :focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
+    outline: var(--focus-ring) solid var(--focus-ring-kleur);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  ::selection {
+    background-color: var(--color-selectie);
+    color: var(--color-ink);
+  }
+
+  /* Cijfers in een tabel horen onder elkaar uit te lijnen — dat is in een
+     cijferdashboard het verschil tussen "netjes" en "af". Bewust op tabellen en niet op
+     de hele body: in lopende tekst zijn tabellaire cijfers juist te wijd. */
+  table {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Opgeruimde scrollbar voor de scrollbare filter-dropdowns, i.p.v. de standaard
      platform-scrollbar. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-line) transparent;
+    scrollbar-color: var(--color-accent-dark) transparent;
   }
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: var(--scrollbar-dikte);
+    height: var(--scrollbar-dikte);
   }
   *::-webkit-scrollbar-track {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background-color: var(--color-line);
-    border-radius: 999px;
+    background-color: var(--color-accent-dark);
+    border-radius: var(--radius-pill);
   }
 }
 
@@ -306,6 +352,17 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.02em;
   --theme-label-tracking: 0.05em;
+
+  --shadow-subtle: 0 1px 2px rgba(0, 30, 80, 0.05);
+  --shadow-modal: 0 26px 64px rgba(0, 30, 80, 0.22);
+
+  --color-selectie: rgba(0, 176, 240, 0.26);
+
+  /* Volkswagen beweegt zacht en vloeiend — niets schiet, niets stuitert. */
+  --ease-merk: cubic-bezier(0.4, 0, 0.2, 1);
+  --duur-snel: 160ms;
+  --duur: 240ms;
+  --duur-traag: 360ms;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -391,6 +448,17 @@ body {
   --theme-title-stretch: 118%;
   --theme-label-weight: 500;
   --theme-label-tracking: 0.08em;
+
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.7);
+
+  --color-selectie: rgba(245, 5, 55, 0.32);
+
+  /* Audi beweegt traag op gang en komt zacht tot stilstand — zwaar materiaal. */
+  --ease-merk: cubic-bezier(0.33, 0, 0.2, 1);
+  --duur-snel: 180ms;
+  --duur: 260ms;
+  --duur-traag: 380ms;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -471,6 +539,16 @@ body {
   --theme-title-weight: 800;
   --theme-title-tracking: -0.03em;
   --theme-label-tracking: 0.07em;
+
+  --shadow-subtle: 0 1px 2px rgba(14, 58, 47, 0.05);
+  --shadow-modal: 0 26px 64px rgba(14, 58, 47, 0.22);
+
+  --color-selectie: rgba(120, 250, 174, 0.45);
+
+  --ease-merk: cubic-bezier(0.2, 0.6, 0.3, 1);
+  --duur-snel: 150ms;
+  --duur: 210ms;
+  --duur-traag: 320ms;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -551,6 +629,16 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.02em;
   --theme-label-tracking: 0.06em;
+
+  --shadow-subtle: 0 1px 2px rgba(17, 17, 17, 0.05);
+  --shadow-modal: 0 26px 64px rgba(17, 17, 17, 0.2);
+
+  --color-selectie: rgba(228, 0, 43, 0.2);
+
+  --ease-merk: cubic-bezier(0.3, 0.7, 0.4, 1);
+  --duur-snel: 150ms;
+  --duur: 200ms;
+  --duur-traag: 300ms;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -635,6 +723,21 @@ body {
   --theme-label-weight: 600;
   --theme-label-tracking: 0.14em;
   --theme-body-tracking: 0.01em;
+
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-modal: 0 30px 76px rgba(0, 0, 0, 0.72);
+
+  --color-selectie: rgba(181, 129, 80, 0.38);
+
+  /* CUPRA is het scherpste theme: kort, bijna lineair, stopt hard. */
+  --ease-merk: cubic-bezier(0.2, 0, 0, 1);
+  --duur-snel: 90ms;
+  --duur: 130ms;
+  --duur-traag: 200ms;
+
+  --radius-avatar: 2px;
+  --focus-ring: 1px;
+  --scrollbar-dikte: 6px;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -671,9 +774,9 @@ body {
   --color-ink-muted: #626669;
   --color-ink-faint: #96989a;
 
-  --color-page: #eeeff2;
+  --color-page: #e9eaee;
   --color-card: #ffffff;
-  --color-line: rgba(1, 2, 5, 0.14);
+  --color-line: rgba(1, 2, 5, 0.11);
   --color-line-soft: rgba(1, 2, 5, 0.07);
 
   --color-open: #018a16;
@@ -716,6 +819,21 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.015em;
   --theme-label-tracking: 0.05em;
+
+  --shadow-subtle: 0 1px 2px rgba(1, 2, 5, 0.05);
+  --shadow-modal: 0 24px 60px rgba(1, 2, 5, 0.22);
+
+  --color-selectie: rgba(213, 0, 28, 0.2);
+
+  /* Porsche beweegt kort en gecontroleerd — techniek, geen zwier. */
+  --ease-merk: cubic-bezier(0.2, 0, 0, 1);
+  --duur-snel: 120ms;
+  --duur: 160ms;
+  --duur-traag: 240ms;
+
+  --radius-avatar: 4px;
+  --focus-ring-offset: 1px;
+  --scrollbar-dikte: 6px;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -754,7 +872,7 @@ body {
 
   --color-page: #f5f2eb;
   --color-card: #ffffff;
-  --color-line: rgba(26, 43, 35, 0.14);
+  --color-line: rgba(26, 43, 35, 0.11);
   --color-line-soft: rgba(26, 43, 35, 0.07);
 
   --color-open: #1c6b4b;
@@ -800,4 +918,22 @@ body {
   --theme-label-weight: 500;
   --theme-label-tracking: 0.16em;
   --theme-body-tracking: 0.015em;
+
+  --shadow-subtle: 0 1px 2px rgba(26, 43, 35, 0.05);
+  --shadow-modal: 0 28px 70px rgba(26, 43, 35, 0.24);
+
+  --color-selectie: rgba(176, 141, 69, 0.32);
+
+  /* Bentley beweegt als een autodeur die zichzelf dichttrekt: traag en zwaar. */
+  --ease-merk: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duur-snel: 260ms;
+  --duur: 420ms;
+  --duur-traag: 560ms;
+
+  --radius-avatar: 2px;
+  /* Een dunne gouden ring op afstand, zoals de belettering op hun dashboard. */
+  --focus-ring: 1px;
+  --focus-ring-offset: 3px;
+  --focus-ring-kleur: var(--color-orange);
+  --scrollbar-dikte: 4px;
 }

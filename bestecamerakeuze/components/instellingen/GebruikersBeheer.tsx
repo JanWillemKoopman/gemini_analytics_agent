@@ -114,8 +114,8 @@ export default function GebruikersBeheer({ isWachtwoordEigenaar }: { isWachtwoor
   }
 
   return (
-    <>
-      <div className="mt-6 max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+    <div className="flex flex-col gap-6">
+      <div className="rounded-panel border border-line bg-card p-6 shadow-card">
         <p className="font-sans-w7 text-base font-bold text-ink">Collega&apos;s toevoegen</p>
         <p className="mt-1 text-sm text-ink-muted">
           Plak e-mailadressen (één per regel, of gescheiden door een komma). Ieder account
@@ -148,7 +148,7 @@ export default function GebruikersBeheer({ isWachtwoordEigenaar }: { isWachtwoor
         </form>
       </div>
 
-      <div className="mt-6 max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+      <div className="rounded-panel border border-line bg-card p-6 shadow-card">
         <p className="font-sans-w7 text-base font-bold text-ink">Accounts</p>
         {laadFout && (
           <p className="mt-3 rounded-card border border-orange bg-card px-3 py-2 text-xs text-orange">
@@ -186,7 +186,7 @@ export default function GebruikersBeheer({ isWachtwoordEigenaar }: { isWachtwoor
       </div>
 
       {isWachtwoordEigenaar && <StandaardWachtwoordPaneel />}
-    </>
+    </div>
   );
 }
 
@@ -222,7 +222,7 @@ function StandaardWachtwoordPaneel() {
   }
 
   return (
-    <div className="mt-6 max-w-lg rounded-panel border border-line bg-card p-6 shadow-card">
+    <div className="rounded-panel border border-line bg-card p-6 shadow-card">
       <p className="font-sans-w7 text-base font-bold text-ink">Standaardwachtwoord wijzigen</p>
       <p className="mt-1 text-sm text-ink-muted">
         Alleen jij ziet deze sectie. Dit wijzigt het wachtwoord voor <em>nieuw</em> aan te maken

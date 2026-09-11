@@ -24,12 +24,19 @@ const ThemeContext = createContext<ThemeContextWaarde>({
  * Houdt bij welk theme actief is en zet dat als `data-theme` op `<html>`; alle
  * kleur-, font- en radius-tokens in `app/globals.css` hangen aan die attribuutwaarde.
  *
- * De keuze staat in localStorage, zodat hij per browser blijft hangen — er is geen
- * gebruikersvoorkeur in de database voor nodig, en hij werkt ook als je niet ingelogd
- * bent. Het attribuut wordt al vóór de eerste paint gezet door een klein inline script
- * in `app/layout.tsx`; deze provider leest die stand bij het mounten gewoon weer uit,
- * zodat React en de DOM het over hetzelfde theme eens zijn zonder hydration-mismatch
- * (de server rendert altijd het standaardtheme).
+ * De keuze staat in localStorage, zodat hij per browser blijft hangen zonder in te
+ * hoeven loggen én al vóór de eerste paint gezet kan worden door het inline script in
+ * `app/layout.tsx` (deze provider leest die stand bij het mounten gewoon weer uit,
+ * zodat React en de DOM het over hetzelfde theme eens zijn zonder hydration-mismatch —
+ * de server rendert altijd het standaardtheme).
+ *
+ * Voor een ingelogde collega is de keuze bovendien onderdeel van zijn profiel
+ * (`dataloket.profielen.theme`, via `/api/profiel`), zodat hij ook op een ander
+ * apparaat of na opnieuw inloggen terugkomt. Die ophaal gebeurt async ná de eerste
+ * paint — er is dus even kort het localStorage-/standaardtheme te zien vóór het
+ * profieltheme (indien anders) overneemt, net als elders in de app waar een
+ * profielveld pas na een fetch verschijnt. Niet ingelogd, of geen Supabase
+ * geconfigureerd: de fetch faalt gewoon stil en localStorage blijft de enige bron.
  */
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<ThemeId>(STANDAARD_THEME);
@@ -37,6 +44,27 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     const opgeslagen = document.documentElement.dataset.theme;
     if (isThemeId(opgeslagen) && opgeslagen !== STANDAARD_THEME) setTheme(opgeslagen);
+  }, []);
+
+  useEffect(() => {
+    let genegeerd = false;
+    fetch("/api/profiel")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (genegeerd || !json) return;
+        const profielTheme = json.profiel?.theme;
+        if (isThemeId(profielTheme)) {
+          setTheme(profielTheme);
+          document.documentElement.dataset.theme = profielTheme;
+        }
+      })
+      .catch(() => {
+        // Niet ingelogd, geen Supabase, of een netwerkfout: het lokaal opgeslagen
+        // theme (of het standaardtheme) blijft gewoon staan.
+      });
+    return () => {
+      genegeerd = true;
+    };
   }, []);
 
   const kiesTheme = useCallback((id: ThemeId) => {
@@ -48,6 +76,13 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
       // Privacymodus of geblokkeerde opslag: het theme werkt deze sessie gewoon, het
       // onthouden lukt alleen niet. Geen reden om de UI te laten struikelen.
     }
+    // Ook op het profiel bewaren, zodat de keuze meegaat naar een ander apparaat. Geen
+    // paniek als dit faalt (niet ingelogd, netwerkfout): localStorage is dan het vangnet.
+    fetch("/api/profiel", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme: id }),
+    }).catch(() => {});
   }, []);
 
   return <ThemeContext.Provider value={{ theme, kiesTheme }}>{children}</ThemeContext.Provider>;

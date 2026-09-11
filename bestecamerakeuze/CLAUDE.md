@@ -163,6 +163,15 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   Per theme staat er in `app/globals.css` een `[data-theme="…"]`-blok dat de tokens
   overschrijft. Die blokken staan bewust **buiten** `@layer`: Tailwind zet zijn eigen
   tokens in `@layer theme`, en ongelaagde CSS wint altijd van gelaagde CSS.
+- **Per gebruiker onthouden.** Voor een ingelogde collega staat de keuze ook op zijn
+  profiel (`dataloket.profielen.theme`, `supabase/migrations/0010_profiel_theme.sql`),
+  naast naam en avatar (zie `lib/profielen.ts`, `app/api/profiel/route.ts`). localStorage
+  blijft de bron vóór de eerste paint en voor wie niet ingelogd is; `ThemeProvider` haalt
+  het profieltheme daarna async op en neemt het over als het afwijkt (net als elders in
+  de app een profielveld pas na een fetch verschijnt — een korte flits van het
+  lokale/standaardtheme is dus mogelijk), en schrijft bij `kiesTheme` zowel naar
+  localStorage als (best-effort, ook zonder sessie) naar `/api/profiel`. Zo geldt de
+  keuze ook op een ander apparaat of na opnieuw inloggen.
 - **Waarom het overal werkt.** Elk component gebruikt uitsluitend de semantische tokens
   (`bg-card`, `text-ink`, `border-line`, `rounded-button`, `font-sans-w7`, …). Zolang
   dat zo blijft, hoeft nieuwe UI niets van themes te weten en verandert hij vanzelf

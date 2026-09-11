@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Avatar from "@/components/Avatar";
 import { IconEye, IconEyeOff } from "@/components/icons";
+import GebruikersBeheer from "@/components/instellingen/GebruikersBeheer";
+import { isWachtwoordEigenaar } from "@/lib/gebruikersbeheer";
 
 type Profiel = {
   id: string;
@@ -378,6 +380,8 @@ export default function Instellingen({
         </button>
       </form>
     </div>
+
+    <GebruikersBeheer isWachtwoordEigenaar={isWachtwoordEigenaar(email)} />
     </>
   );
 }

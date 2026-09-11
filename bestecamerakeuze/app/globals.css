@@ -200,6 +200,23 @@
 
   /* Verloop over de donkere navigatieschil, zodat hij niet als één vlak ingevuld oogt. */
   --theme-sidebar-verloop: none;
+
+  /* Accentlijn bovenop een paneel (.kaart-accent). Standaard gewoon de gebruikelijke
+     hairline: alleen de merken die zelf met een accentrand werken (Porsche, Audi,
+     CUPRA, Bentley) zetten hier hun kleur neer. */
+  --theme-kaart-accent: var(--color-line);
+
+  /* Dunne binnenlijn op afstand van de rand (.kaart-omlijst) — de gouden kaderlijn van
+     gedrukt briefpapier. Alleen Bentley gebruikt hem. */
+  --theme-kaart-ring: transparent;
+
+  /* Het actieve item in de sidebar: vorm van het vlak plus een eventuele streep ernaast. */
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 0px;
+  --theme-nav-streep-kleur: var(--color-primary);
+
+  /* De progress bar: Porsche zet er maatstreepjes in, de rest houdt hem glad. */
+  --theme-progress-maatstreep: transparent;
 }
 
 body {
@@ -230,6 +247,44 @@ body {
 .sidebar-vlak {
   background-color: var(--color-sidebar);
   background-image: var(--theme-sidebar-verloop);
+}
+
+/* Een paneel met een accentlijn erboven. Bewust een border en geen pseudo-element: een
+   border valt buiten de padding box en kan dus nooit door een sticky tabelkop worden
+   overdekt — precies het probleem waar de z-index-notitie in CLAUDE.md over gaat. */
+.kaart-accent {
+  border-top-width: 2px;
+  border-top-color: var(--theme-kaart-accent);
+}
+
+/* Een tweede, dunne lijn net binnen de rand. Staat standaard op transparent, dus voor
+   elk theme behalve Bentley verandert er niets. */
+.kaart-omlijst {
+  position: relative;
+}
+.kaart-omlijst::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--theme-kaart-ring);
+  border-radius: calc(var(--radius-panel) - 4px);
+  pointer-events: none;
+}
+
+/* Eén rij in de sidebarnavigatie. De vorm van het actieve vlak en de streep ernaast
+   verschillen per merk: een volle pil bij Volkswagen, een strakke streep links bij
+   Porsche en CUPRA, een gouden haarlijn bij Bentley. */
+.nav-item {
+  border-radius: var(--theme-nav-radius);
+}
+.nav-item-actief::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: var(--theme-nav-streep);
+  background-color: var(--theme-nav-streep-kleur);
 }
 
 /* De paginatitel van elk tabblad. Per merk verschilt niet alleen de grootte maar ook
@@ -407,6 +462,9 @@ body {
      lijnen, want de vormtaal is glad en geometrisch. */
   --theme-page-patroon: radial-gradient(1100px 620px at 92% -12%, rgba(0, 176, 240, 0.13), transparent 68%);
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(0, 176, 240, 0.14), transparent 42%);
+
+  /* Volkswagen navigeert in pilvormen — dezelfde vorm als zijn knoppen. */
+  --theme-nav-radius: var(--radius-pill);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -511,6 +569,10 @@ body {
      canvas, precies zoals hun eigen interface het donker opbouwt. */
   --theme-page-patroon: radial-gradient(1300px 780px at 18% -14%, rgba(255, 255, 255, 0.05), transparent 66%);
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(245, 5, 55, 0.1), transparent 34%);
+
+  /* Audi zet Progressive Red spaarzaam in: één lijn bovenop het paneel is genoeg. */
+  --theme-kaart-accent: var(--color-primary);
+  --theme-nav-radius: var(--radius-pill);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -605,6 +667,8 @@ body {
   /* Škoda: een gloed van Electric Green tegen het groenwitte canvas. */
   --theme-page-patroon: radial-gradient(1000px 560px at 90% -12%, rgba(120, 250, 174, 0.22), transparent 66%);
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(120, 250, 174, 0.12), transparent 40%);
+
+  --theme-nav-radius: var(--radius-button);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -700,6 +764,8 @@ body {
   --theme-page-patroon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)' opacity='0.12'/%3E%3C/svg%3E");
   --theme-page-patroon-maat: 160px 160px;
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(228, 0, 43, 0.12), transparent 36%);
+
+  --theme-nav-radius: var(--radius-pill);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -810,6 +876,11 @@ body {
     transparent 1px 28px
   );
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(181, 129, 80, 0.14), transparent 38%);
+
+  --theme-kaart-accent: var(--color-primary);
+  /* Hoekig en strak: geen vlak dat oplicht maar een koperen streep ernaast. */
+  --theme-nav-radius: 0px;
+  --theme-nav-streep: 2px;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -913,6 +984,12 @@ body {
     linear-gradient(90deg, rgba(1, 2, 5, 0.035) 1px, transparent 1px);
   --theme-page-patroon-maat: 32px 32px, 32px 32px;
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(213, 0, 28, 0.12), transparent 34%);
+
+  --theme-kaart-accent: var(--color-primary);
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 2px;
+  /* Maatstreepjes op 25/50/75% — de schaalverdeling van een instrument. */
+  --theme-progress-maatstreep: rgba(1, 2, 5, 0.22);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -1022,4 +1099,10 @@ body {
     repeating-linear-gradient(45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px),
     repeating-linear-gradient(-45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px);
   --theme-sidebar-verloop: linear-gradient(180deg, rgba(176, 141, 69, 0.14), transparent 40%);
+
+  --theme-kaart-accent: var(--color-orange);
+  --theme-kaart-ring: rgba(176, 141, 69, 0.3);
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 1px;
+  --theme-nav-streep-kleur: var(--color-orange);
 }

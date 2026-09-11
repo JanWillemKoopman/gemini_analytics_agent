@@ -192,7 +192,7 @@ export default function CampaignTable({ campagnes, notitiesBeschikbaar, ingelogd
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <div className="kaart-accent overflow-hidden rounded-panel border border-line bg-card shadow-card">
       <div className="overflow-x-auto">
         {/* Geen vaste hoogte / verticaal scrollen hier: de tabel groeit gewoon mee met het
             aantal rijen en de pagina zelf scrollt. Alleen horizontaal scrollen (bij veel

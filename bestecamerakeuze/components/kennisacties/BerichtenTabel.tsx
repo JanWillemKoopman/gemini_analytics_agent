@@ -58,7 +58,7 @@ export default function BerichtenTabel({ berichten, profielen, bekendeCampagnes,
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <div className="kaart-accent overflow-hidden rounded-panel border border-line bg-card shadow-card">
       <table className="w-full border-separate border-spacing-0 text-left">
         <thead>
           <tr className="bg-surface-tint">

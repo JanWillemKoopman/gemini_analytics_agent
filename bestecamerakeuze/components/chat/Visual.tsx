@@ -302,8 +302,9 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
             <Tooltip content={<Tip eenheid={eenheid} />} />
             <Line
               dataKey="waarde"
+              type={kleuren.lijnvorm}
               stroke={serieKleur}
-              strokeWidth={2}
+              strokeWidth={kleuren.lijndikte}
               // Alleen het eindpunt krijgt een marker: dat is de stand van nu, en het
               // maakt de laatste waarde afleesbaar zonder te hoveren.
               dot={(props: { cx?: number; cy?: number; index?: number }) => {
@@ -311,14 +312,30 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
                 if (!laatste || props.cx === undefined || props.cy === undefined) {
                   return <g key={props.index} />;
                 }
+                // De vorm van dat eindpunt hoort bij het merk: een gevulde stip, een
+                // open ring (Bentley) of een vierkantje (Porsche, CUPRA).
+                if (kleuren.punt === "vierkant") {
+                  return (
+                    <rect
+                      key={props.index}
+                      x={props.cx - 4}
+                      y={props.cy - 4}
+                      width={8}
+                      height={8}
+                      fill={serieKleur}
+                      stroke={kleuren.vlak}
+                      strokeWidth={2}
+                    />
+                  );
+                }
                 return (
                   <circle
                     key={props.index}
                     cx={props.cx}
                     cy={props.cy}
                     r={4}
-                    fill={serieKleur}
-                    stroke={kleuren.vlak}
+                    fill={kleuren.punt === "open" ? kleuren.vlak : serieKleur}
+                    stroke={kleuren.punt === "open" ? serieKleur : kleuren.vlak}
                     strokeWidth={2}
                   />
                 );
@@ -366,7 +383,9 @@ export default function Visual({ weergave, kolommen, rijen }: Props) {
             dataKey="waarde"
             fill={serieKleur}
             // Afgeronde uiteinden aan de datazijde; de staaf blijft op de nullijn staan.
-            radius={[0, 4, 4, 0]}
+            // Hoeveel afgerond verschilt per merk: een pil bij Volkswagen, recht bij
+            // CUPRA en Bentley.
+            radius={[0, kleuren.staafradius, kleuren.staafradius, 0]}
             barSize={16}
             isAnimationActive={false}
           >

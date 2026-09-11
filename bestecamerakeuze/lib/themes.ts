@@ -46,6 +46,14 @@ export type GrafiekKleuren = {
   vlak: string;
   /** Tekstkleur van een label bovenop een staaf. */
   label: string;
+  /** Dikte van de lijn in een lijngrafiek — Bentley trekt een haarlijn, VW een volle. */
+  lijndikte: number;
+  /** Vloeiend of recht van punt naar punt: Porsche en CUPRA tekenen hoekig. */
+  lijnvorm: "monotone" | "linear";
+  /** Vorm van het eindpunt op de lijn. */
+  punt: "gevuld" | "open" | "vierkant";
+  /** Hoekradius van het staafeinde; 999 maakt er een pil van, 0 een rechte staaf. */
+  staafradius: number;
 };
 
 export type Theme = {
@@ -72,6 +80,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(25, 36, 59, 0.10)",
       vlak: "#ffffff",
       label: "#19243b",
+      lijndikte: 2,
+      lijnvorm: "monotone",
+      punt: "gevuld",
+      staafradius: 4,
     },
   },
   {
@@ -86,6 +98,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(0, 30, 80, 0.12)",
       vlak: "#ffffff",
       label: "#001e50",
+      lijndikte: 2.5,
+      lijnvorm: "monotone",
+      punt: "gevuld",
+      staafradius: 999,
     },
   },
   {
@@ -100,6 +116,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(255, 255, 255, 0.12)",
       vlak: "#181d25",
       label: "#fcfcfd",
+      lijndikte: 2,
+      lijnvorm: "monotone",
+      punt: "gevuld",
+      staafradius: 999,
     },
   },
   {
@@ -114,6 +134,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(14, 58, 47, 0.12)",
       vlak: "#ffffff",
       label: "#0e3a2f",
+      lijndikte: 2.5,
+      lijnvorm: "monotone",
+      punt: "gevuld",
+      staafradius: 3,
     },
   },
   {
@@ -128,6 +152,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(17, 17, 17, 0.12)",
       vlak: "#ffffff",
       label: "#111111",
+      lijndikte: 2,
+      lijnvorm: "monotone",
+      punt: "gevuld",
+      staafradius: 999,
     },
   },
   {
@@ -142,6 +170,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(242, 240, 237, 0.12)",
       vlak: "#0e1a1d",
       label: "#f2f0ed",
+      lijndikte: 1.5,
+      lijnvorm: "linear",
+      punt: "vierkant",
+      staafradius: 0,
     },
   },
   {
@@ -156,6 +188,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(1, 2, 5, 0.12)",
       vlak: "#ffffff",
       label: "#010205",
+      lijndikte: 1.5,
+      lijnvorm: "linear",
+      punt: "vierkant",
+      staafradius: 2,
     },
   },
   {
@@ -170,6 +206,10 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(26, 43, 35, 0.14)",
       vlak: "#ffffff",
       label: "#10231c",
+      lijndikte: 1.25,
+      lijnvorm: "monotone",
+      punt: "open",
+      staafradius: 0,
     },
   },
 ] as const;

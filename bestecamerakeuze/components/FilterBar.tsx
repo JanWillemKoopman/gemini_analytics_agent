@@ -23,7 +23,7 @@ export default function FilterBar({
   const gefilterd = activeFilterCount > 0 && filteredCount !== totalCount;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-panel border border-line bg-card px-4 py-3 shadow-card">
+    <div className="flex flex-wrap items-center justify-between gap-3 kaart-omlijst rounded-panel border border-line bg-card px-4 py-3 shadow-subtle">
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-surface text-ink-muted">
           <IconMegaphone className="h-4 w-4" />

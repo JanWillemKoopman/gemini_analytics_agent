@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Campagne } from "@/lib/sheet";
-import CampagneFocus from "@/components/CampagneFocus";
 import CampagneFilterBalk from "@/components/CampagneFilterBalk";
 import CampaignTable from "@/components/CampaignTable";
 import { useCampagneFilters } from "@/lib/campagneFilterContext";
@@ -44,8 +43,8 @@ function Leeswijzer() {
           doel is afgesproken. Staat er een streepje, dan ontbreekt dat doel in de sheet.
         </li>
         <li>
-          <span className="font-medium text-ink">Klik op een campagnenaam</span> om alles over die
-          campagne bij elkaar te zien, inclusief het logboek met besluiten.
+          <span className="font-medium text-ink">Klik op een campagnenaam</span> om het logboek van
+          die campagne te openen: observaties, hypotheses, besluiten en acties.
         </li>
       </ul>
     </div>
@@ -54,13 +53,8 @@ function Leeswijzer() {
 
 export default function CampaignDashboard({ notitiesBeschikbaar, ingelogd }: Props) {
   const { filtered, uitlegAan } = useCampagneFilters();
-  const [focusNaam, setFocusNaam] = useState<string | null>(null);
 
   const sorted = useMemo(() => sortByStartdatumDesc(filtered), [filtered]);
-
-  // De focus wordt uit de gefilterde lijst afgeleid in plaats van apart bijgehouden:
-  // filtert iemand de campagne in focus weg, dan verdwijnt het focuspaneel vanzelf.
-  const focusCampagne = focusNaam ? (sorted.find((c) => c.naam === focusNaam) ?? null) : null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -72,22 +66,8 @@ export default function CampaignDashboard({ notitiesBeschikbaar, ingelogd }: Pro
         campagnes={sorted}
         notitiesBeschikbaar={notitiesBeschikbaar}
         ingelogd={ingelogd}
-        focus={focusCampagne?.naam ?? null}
-        onFocus={setFocusNaam}
         uitlegAan={uitlegAan}
       />
-
-      {focusCampagne && (
-        <CampagneFocus
-          // key: bij wisselen van campagne moet het logboek opnieuw laden in plaats van
-          // de aantekeningen van de vorige campagne te blijven tonen.
-          key={focusCampagne.naam}
-          campagne={focusCampagne}
-          notitiesBeschikbaar={notitiesBeschikbaar}
-          ingelogd={ingelogd}
-          onSluit={() => setFocusNaam(null)}
-        />
-      )}
     </div>
   );
 }

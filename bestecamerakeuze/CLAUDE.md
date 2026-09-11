@@ -76,27 +76,24 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   Onbekende of niet-specifieke waarden (zoals "Alle") blijven gewoon tekst. Logo's
   zijn altijd één kleur (`currentColor`), nooit
   multicolor.
-- Elke campagnekop heeft een subtiel "logboek"-knopje (`components/CampaignNotes.tsx`)
-  dat een zijbalk (`components/Drawer.tsx`) van rechts laat uitklappen, over de volle
-  schermhoogte en ongeveer een derde van de breedte, met `components/notities/
-  NotitieLijst.tsx` erin. Dat is het **besluitenlogboek** van die campagne: elke regel
-  is een observatie, hypothese, besluit of actie (`lib/notities.ts`), met een
-  avatarfotootje + naam van wie hem toevoegde (`components/Avatar.tsx`,
+- Elke campagnekop opent het **besluitenlogboek** van die campagne op twee gelijkwaardige
+  manieren: een klik op de campagnenaam zelf, of het subtiele "logboek"-knopje ernaast
+  (`components/CampaignNotes.tsx`). Beide openen dezelfde zijbalk (`components/
+  Drawer.tsx`) die van rechts uitklapt over de volle schermhoogte en ongeveer een derde
+  van de breedte, met `components/notities/NotitieLijst.tsx` erin — die open-state leeft
+  daarom op één plek, in `components/CampaignHeader.tsx`. Dit is de **enige** plek in het
+  dashboard waar aantekeningen worden toegevoegd of bekeken; er is bewust geen los paneel
+  onder de tabel meer (de vroegere "Focusmodus" is vervangen door deze zijbalk). Elke
+  regel in het logboek is een observatie, hypothese, besluit of actie (`lib/notities.ts`),
+  met een avatarfotootje + naam van wie hem toevoegde (`components/Avatar.tsx`,
   `lib/profielen.ts`) — herleidbaarheid is het hele punt. Het invoerveld staat bovenaan
-  (bewust duidelijk: dat is waar je typt), de lijst eronder toont nieuw-naar-oud. Bij
-  een hypothese of besluit vraagt de UI om de metriek die erdoor moet veranderen en
-  legt hij de stand van dat cijfer op dát moment vast; de regel eronder toont later
-  "toen → nu" met het verschil. Zonder dat nulpunt (oudere aantekeningen) wordt er niets
-  verzonnen, dan blijft alleen de metrieknaam staan. Acties zijn af te vinken. Het
-  knopje verschijnt alleen als Supabase geconfigureerd is — zonder database is er niets
-  om in op te slaan.
-- **Focusmodus** (`components/CampagneFocus.tsx`): klikken op een campagnenaam in de
-  kolomkop zet die campagne in focus. De andere kolommen worden gedempt (opacity, ze
-  verdwijnen niet) en onder de tabel verschijnt één paneel dat volledig aan het logboek
-  is gewijd — de cijfers en kenmerken staan al in de tabel erboven, dus die worden hier
-  niet nogmaals getoond. Zo krijgt het invoerveld en de lijst de volle breedte, in
-  plaats van een smalle kolom naast kerncijfers. Escape of "Focus verlaten" sluit hem;
-  de focus wordt afgeleid uit de gefilterde lijst, dus wegfilteren sluit hem vanzelf.
+  (bewust duidelijk: dat is waar je typt), de lijst eronder toont nieuw-naar-oud. Bij een
+  hypothese of besluit vraagt de UI om de metriek die erdoor moet veranderen en legt hij
+  de stand van dat cijfer op dát moment vast; de regel eronder toont later "toen → nu" met
+  het verschil. Zonder dat nulpunt (oudere aantekeningen) wordt er niets verzonnen, dan
+  blijft alleen de metrieknaam staan. Acties zijn af te vinken. De naam is alleen
+  klikbaar en het knopje verschijnt alleen als Supabase geconfigureerd is — zonder
+  database is er niets om in op te slaan.
 - **"Zo lees je dit"** (knop in de filterbalk, standaard uit): zet een leeswijzer boven
   de tabel en een zin in gewone taal onder elk metriclabel. Die uitleg staat als veld
   `uitleg` op elke metric in `CampaignTable.tsx` — een nieuwe rij toevoegen zonder
@@ -203,7 +200,7 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
-  `StatusIndicator`, `Modal`, `Drawer`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
+  `StatusIndicator`, `Modal`, `Drawer`, `CampaignHeader`, `CampaignNotes`, `NotitieLijst`,
   `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
@@ -243,8 +240,9 @@ functionaliteit hoort die cyclus te versterken — beeld → besluit → terugbl
 verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat:
 
 - **Besluitenlogboek** per campagne (soort + gekoppelde metriek + nulpunt), zodat een
-  besluit volgende week naast het cijfer staat dat het moest raken.
-- **Focusmodus**, omdat het overleg per campagne gaat en niet per metric.
+  besluit volgende week naast het cijfer staat dat het moest raken. Het logboek is één
+  zijbalk die vanuit de campagnenaam of het logboek-knopje opent — omdat het overleg per
+  campagne gaat en niet per metric.
 - **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
   team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.
   Zo groeit het dashboard uit de vragen die er echt leven.

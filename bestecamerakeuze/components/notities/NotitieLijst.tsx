@@ -24,9 +24,10 @@ import type { Campagne } from "@/lib/sheet";
  * én wat dat cijfer op dat moment was — zodat je een week later niet hoeft te
  * discussiëren of er iets gebeurd is, maar het gewoon ziet staan.
  *
- * Wordt op twee plekken gebruikt: in de zijbalk vanuit de kolomkop (`CampaignNotes.tsx`,
- * via `Drawer.tsx`) en in de focusmodus onder de tabel. Vandaar dat het component zijn
- * eigen data ophaalt.
+ * Wordt gerenderd in de zijbalk die vanuit de kolomkop opent (`CampaignHeader.tsx`, via
+ * `Drawer.tsx`) — de enige plek in het dashboard waar aantekeningen worden toegevoegd of
+ * bekeken. Haalt zijn eigen data op zodat hij overal waar hij gemount wordt zelfstandig
+ * werkt.
  *
  * Het invoerveld staat bovenaan — daar begint elk weekoverleg, niet onderaan een lijst
  * die je eerst voorbij moet scrollen — en de lijst eronder toont nieuw-naar-oud, zodat

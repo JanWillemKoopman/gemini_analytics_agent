@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import type { Campagne } from "@/lib/sheet";
 import StatusIndicator from "@/components/StatusIndicator";
 import { getBrandLogo } from "@/components/brandLogos";
 import CampaignNotes from "@/components/CampaignNotes";
+import Drawer from "@/components/Drawer";
+import NotitieLijst from "@/components/notities/NotitieLijst";
 import { isCampagneLive } from "@/lib/format";
 
 type Props = {
@@ -9,38 +14,36 @@ type Props = {
   /** Alleen tonen als er ook echt iets is om het logboek in op te slaan. */
   notitiesBeschikbaar: boolean;
   ingelogd: boolean;
-  gefocust: boolean;
-  /** Klikken op de naam zet de focus op deze campagne, of haalt hem er weer af. */
-  onFocus: () => void;
 };
 
-/** Kolomkop van één campagne: naam als primaire informatie, merk + status als metadata. */
-export default function CampaignHeader({
-  campagne,
-  notitiesBeschikbaar,
-  ingelogd,
-  gefocust,
-  onFocus,
-}: Props) {
+/**
+ * Kolomkop van één campagne: naam als primaire informatie, merk + status als metadata.
+ *
+ * De naam is tegelijk de knop naar het logboek: één klik laat de zijbalk (`Drawer.tsx`)
+ * van rechts uitklappen, met `NotitieLijst` erin. Hetzelfde knopje staat er ook nog als
+ * subtiel icoontje (`CampaignNotes.tsx`) naast de naam, voor wie dat sneller vindt —
+ * beide openen exact dezelfde zijbalk, vandaar dat de open-state hier op één plek leeft.
+ */
+export default function CampaignHeader({ campagne, notitiesBeschikbaar, ingelogd }: Props) {
+  const [open, setOpen] = useState(false);
   const BrandLogo = campagne.merk ? getBrandLogo(campagne.merk) : null;
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
       <div className="flex min-w-0 items-start justify-between gap-1.5">
-        {/* De naam is de knop naar de focusmodus: het overleg gaat per campagne, dus
-            één klik op de campagne waar het over gaat zet de rest op de achtergrond. */}
-        <button
-          type="button"
-          onClick={onFocus}
-          title={gefocust ? "Focus verlaten" : `Focus op ${campagne.naam}`}
-          aria-pressed={gefocust}
-          className={`block min-w-0 truncate text-left text-cell font-semibold transition-colors ${
-            gefocust ? "text-primary" : "text-ink hover:text-primary"
-          }`}
-        >
-          {campagne.naam}
-        </button>
-        {notitiesBeschikbaar && <CampaignNotes campagne={campagne} ingelogd={ingelogd} />}
+        {notitiesBeschikbaar ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            title="Logboek"
+            className="block min-w-0 truncate text-left text-cell font-semibold text-ink transition-colors hover:text-primary"
+          >
+            {campagne.naam}
+          </button>
+        ) : (
+          <span className="block min-w-0 truncate text-cell font-semibold text-ink">{campagne.naam}</span>
+        )}
+        {notitiesBeschikbaar && <CampaignNotes campagne={campagne} onOpen={() => setOpen(true)} />}
       </div>
       <span className="flex min-w-0 items-center gap-1.5">
         {campagne.merk &&
@@ -51,6 +54,12 @@ export default function CampaignHeader({
           ))}
         <StatusIndicator live={isCampagneLive(campagne)} />
       </span>
+
+      {open && notitiesBeschikbaar && (
+        <Drawer title={`Logboek — ${campagne.naam}`} onClose={() => setOpen(false)}>
+          <NotitieLijst campagne={campagne} ingelogd={ingelogd} />
+        </Drawer>
+      )}
     </div>
   );
 }

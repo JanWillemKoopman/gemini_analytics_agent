@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getGebruiker } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { haalProfiel, wijzigEigenProfiel } from "@/lib/profielen";
+import { isThemeId } from "@/lib/themes";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export async function GET() {
     const supabase = await createClient();
     const profiel = await haalProfiel(supabase, gebruiker.id);
     return NextResponse.json({
-      profiel: profiel ?? { id: gebruiker.id, naam: null, avatarUrl: null },
+      profiel: profiel ?? { id: gebruiker.id, naam: null, avatarUrl: null, theme: null },
     });
   } catch (err) {
     return NextResponse.json(
@@ -41,6 +42,12 @@ export async function PATCH(request: Request) {
   }
   if (typeof body.avatarUrl === "string" || body.avatarUrl === null) {
     invoer.avatarUrl = body.avatarUrl;
+  }
+  if (body.theme !== undefined) {
+    if (body.theme !== null && !isThemeId(body.theme)) {
+      return NextResponse.json({ fout: "Onbekend theme." }, { status: 400 });
+    }
+    invoer.theme = body.theme;
   }
 
   try {

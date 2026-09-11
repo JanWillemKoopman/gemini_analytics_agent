@@ -78,37 +78,38 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   Onbekende of niet-specifieke waarden (zoals "Alle") blijven gewoon tekst. Logo's
   zijn altijd één kleur (`currentColor`), nooit
   multicolor.
-- Elke campagnekop heeft een subtiel "logboek"-knopje (`components/CampaignNotes.tsx`)
-  dat een pop-up opent met `components/notities/NotitieLijst.tsx` erin. Dat is het
-  **besluitenlogboek** van die campagne: elke regel is een observatie, hypothese,
-  besluit of actie (`lib/notities.ts`), met een avatarfotootje + naam van wie hem
-  toevoegde (`components/Avatar.tsx`, `lib/profielen.ts`) — herleidbaarheid is het hele
-  punt. Bij een hypothese of besluit vraagt de UI om de metriek die erdoor moet
-  veranderen en legt hij de stand van dat cijfer op dát moment vast; de regel eronder
-  toont later "toen → nu" met het verschil. Zonder dat nulpunt (oudere aantekeningen)
-  wordt er niets verzonnen, dan blijft alleen de metrieknaam staan. Acties zijn af te
-  vinken. Het knopje verschijnt alleen als Supabase geconfigureerd is — zonder database
-  is er niets om in op te slaan.
-- **Focusmodus** (`components/CampagneFocus.tsx`): klikken op een campagnenaam in de
-  kolomkop zet die campagne in focus. De andere kolommen worden gedempt (opacity, ze
-  verdwijnen niet) en onder de tabel verschijnt één paneel dat volledig aan het logboek
-  is gewijd — de cijfers en kenmerken staan al in de tabel erboven, dus die worden hier
-  niet nogmaals getoond. Zo krijgt het invoerveld en de lijst de volle breedte, in
-  plaats van een smalle kolom naast kerncijfers. Escape of "Focus verlaten" sluit hem;
-  de focus wordt afgeleid uit de gefilterde lijst, dus wegfilteren sluit hem vanzelf.
+- Elke campagnekop opent het **besluitenlogboek** van die campagne op twee gelijkwaardige
+  manieren: een klik op de campagnenaam zelf, of het subtiele "logboek"-knopje ernaast
+  (`components/CampaignNotes.tsx`). Beide openen dezelfde zijbalk (`components/
+  Drawer.tsx`) die van rechts uitklapt over de volle schermhoogte en ongeveer een derde
+  van de breedte, met `components/notities/NotitieLijst.tsx` erin — die open-state leeft
+  daarom op één plek, in `components/CampaignHeader.tsx`. Dit is de **enige** plek in het
+  dashboard waar aantekeningen worden toegevoegd of bekeken; er is bewust geen los paneel
+  onder de tabel meer (de vroegere "Focusmodus" is vervangen door deze zijbalk). Elke
+  regel in het logboek is een observatie, hypothese, besluit of actie (`lib/notities.ts`),
+  met een avatarfotootje + naam van wie hem toevoegde (`components/Avatar.tsx`,
+  `lib/profielen.ts`) — herleidbaarheid is het hele punt. Het invoerveld staat bovenaan
+  (bewust duidelijk: dat is waar je typt), de lijst eronder toont nieuw-naar-oud. Bij een
+  hypothese of besluit vraagt de UI om de metriek die erdoor moet veranderen en legt hij
+  de stand van dat cijfer op dát moment vast; de regel eronder toont later "toen → nu" met
+  het verschil. Zonder dat nulpunt (oudere aantekeningen) wordt er niets verzonnen, dan
+  blijft alleen de metrieknaam staan. Acties zijn af te vinken. De naam is alleen
+  klikbaar en het knopje verschijnt alleen als Supabase geconfigureerd is — zonder
+  database is er niets om in op te slaan.
 - **"Zo lees je dit"** (knop in de filterbalk, standaard uit): zet een leeswijzer boven
   de tabel en een zin in gewone taal onder elk metriclabel. Die uitleg staat als veld
   `uitleg` op elke metric in `CampaignTable.tsx` — een nieuwe rij toevoegen zonder
   uitleg valt daardoor meteen op.
-- Pop-ups (`components/Modal.tsx`) renderen via een React-portal naar `<body>`, niet op
-  hun eigen plek in de boom. Reden: een knop die vanuit een sticky tabelkop opent (zoals
-  de aantekeningen-knop) zit zelf in een sticky stacking context, en dan wint een hoge
-  z-index niet meer van een andere sticky cel elders in de tabel — stacking contexts
-  worden alleen met siblings vergeleken, niet globaal. Iets vergelijkbaars gold eerder
-  al voor `FilterSelect`'s dropdown (die moest naar `z-40` boven de tabel's `z-30`) en
-  voor de tabel zelf (`border-separate` i.p.v. `border-collapse`, zie hieronder) — kom
-  je een derde keer zoiets tegen, denk dan eerst aan een portal in plaats van weer een
-  hogere z-index te proberen.
+- Pop-ups (`components/Modal.tsx`) en de uitklapbare zijbalk (`components/Drawer.tsx`)
+  renderen via een React-portal naar `<body>`, niet op hun eigen plek in de boom. Reden:
+  een knop die vanuit een sticky tabelkop opent (zoals de aantekeningen-knop) zit zelf
+  in een sticky stacking context, en dan wint een hoge z-index niet meer van een andere
+  sticky cel elders in de tabel — stacking contexts worden alleen met siblings
+  vergeleken, niet globaal. Iets vergelijkbaars gold eerder al voor `FilterSelect`'s
+  dropdown (die moest naar `z-40` boven de tabel's `z-30`) en voor de tabel zelf
+  (`border-separate` i.p.v. `border-collapse`, zie hieronder) — kom je een derde keer
+  zoiets tegen, denk dan eerst aan een portal in plaats van weer een hogere z-index te
+  proberen.
 
 ### Databestand van de tabel
 
@@ -165,6 +166,15 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   Per theme staat er in `app/globals.css` een `[data-theme="…"]`-blok dat de tokens
   overschrijft. Die blokken staan bewust **buiten** `@layer`: Tailwind zet zijn eigen
   tokens in `@layer theme`, en ongelaagde CSS wint altijd van gelaagde CSS.
+- **Per gebruiker onthouden.** Voor een ingelogde collega staat de keuze ook op zijn
+  profiel (`dataloket.profielen.theme`, `supabase/migrations/0010_profiel_theme.sql`),
+  naast naam en avatar (zie `lib/profielen.ts`, `app/api/profiel/route.ts`). localStorage
+  blijft de bron vóór de eerste paint en voor wie niet ingelogd is; `ThemeProvider` haalt
+  het profieltheme daarna async op en neemt het over als het afwijkt (net als elders in
+  de app een profielveld pas na een fetch verschijnt — een korte flits van het
+  lokale/standaardtheme is dus mogelijk), en schrijft bij `kiesTheme` zowel naar
+  localStorage als (best-effort, ook zonder sessie) naar `/api/profiel`. Zo geldt de
+  keuze ook op een ander apparaat of na opnieuw inloggen.
 - **Waarom het overal werkt.** Elk component gebruikt uitsluitend de semantische tokens
   (`bg-card`, `text-ink`, `border-line`, `rounded-button`, `font-sans-w7`, …). Zolang
   dat zo blijft, hoeft nieuwe UI niets van themes te weten en verandert hij vanzelf
@@ -192,7 +202,7 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,
   `PageHeader`, `LiveStatus`, `UpdateButton`, `FilterBar`, `FilterSelect`,
   `CampaignTable`, `CampaignHeader`, `MetricCell`/`PlainCell`, `ProgressBar`,
-  `StatusIndicator`, `Modal`, `CampaignNotes`, `CampagneFocus`, `NotitieLijst`,
+  `StatusIndicator`, `Modal`, `Drawer`, `CampaignHeader`, `CampaignNotes`, `NotitieLijst`,
   `Prikbord`, `CampagneTijdlijn`, `Avatar`, `brandLogos`, `kennisacties/*`. Voeg nieuwe UI
   eerder toe als zo'n klein, getypeerd component dan als opgeblazen JSX in een
   paginabestand.
@@ -232,11 +242,13 @@ functionaliteit hoort die cyclus te versterken — beeld → besluit → terugbl
 verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat:
 
 - **Besluitenlogboek** per campagne (soort + gekoppelde metriek + nulpunt), zodat een
-  besluit volgende week naast het cijfer staat dat het moest raken.
+  besluit volgende week naast het cijfer staat dat het moest raken. Het logboek is één
+  zijbalk die vanuit de campagnenaam of het logboek-knopje opent — omdat het overleg per
+  campagne gaat en niet per metric.
 - **Kennis en acties** (`components/kennisacties/`, `lib/punten.ts`, bovenste tabblad):
   hetzelfde logboek, maar dan over alle campagnes heen — datum, initialen, campagne,
-  soort en de tekst in één tabel, met daarboven dezelfde velden als filter. Het logboek
-  in de kolomkop is voor tijdens het kijken naar één campagne; dit tabblad is voor de
+  soort en de tekst in één tabel, met daarboven dezelfde velden als filter. De
+  logboekzijbalk is voor tijdens het kijken naar één campagne; dit tabblad is voor de
   vraag "wat hebben we de afgelopen weken eigenlijk geleerd?".
   - Er komt **geen tweede tabel** voor in de database: het leest en schrijft
     `dataloket.campagne_notities` via dezelfde POST-route als het logboek zelf.
@@ -251,7 +263,6 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
     daarvóór. Bewust geen ranglijst met een nummer één — vaste alfabetische volgorde, en
     iedereen staat erop, ook wie nog niets heeft vastgelegd. Zonder vorige periode staat
     er "nieuw" en geen verzonnen oneindig percentage (zie `lib/punten.test.ts`).
-- **Focusmodus**, omdat het overleg per campagne gaat en niet per metric.
 - **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
   team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.
   Zo groeit het dashboard uit de vragen die er echt leven.

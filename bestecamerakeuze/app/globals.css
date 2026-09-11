@@ -85,6 +85,15 @@
   --color-positive: #15803d;
   --color-negative: #b91c1c;
 
+  /* De medailles bij de top 3 van het scorebord op "Kennis en acties". Bewust in élk
+     theme dezelfde kleuren: goud is goud, ook bij Škoda of CUPRA — een zilveren medaille
+     in het merkpalet is geen medaille meer. Vandaar ook een eigen inktkleur ervoor; alle
+     drie de vlakken zijn licht, dus daar hoort altijd donkere tekst op. */
+  --color-goud: #d9a520;
+  --color-zilver: #b4bac4;
+  --color-brons: #c2814b;
+  --color-on-medaille: #1c1608;
+
   --color-progress-track: rgba(15, 23, 42, 0.08);
   --color-progress-fill: #19243b;
 

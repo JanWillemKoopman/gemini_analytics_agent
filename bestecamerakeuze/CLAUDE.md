@@ -257,12 +257,24 @@ verandering — en niet alleen een cijfer extra te tonen. Wat daar nu voor staat
     zo'n naam bestaat niet in de sheet en komt daardoor nergens bij de campagnes te
     staan — in de tabel is hij herkenbaar als "vrij onderwerp". Geen extra kolom, geen
     vlag: de koppeling op naam regelt het al.
+  - Toevoegen gaat via een **zijbalk** die van rechts inschuift (`Drawer.tsx`), met
+    dezelfde indeling als het logboek bij Campagnes: het invulgedeelte bovenaan, de al
+    vastgelegde berichten eronder. Geen gecentreerde pop-up — die legt zich over de tabel
+    waar je tijdens het typen nog in staat te kijken. Na opslaan blijft de zijbalk open en
+    leegt alleen het tekstveld (campagne en soort blijven staan): het nieuwe bericht
+    verschijnt meteen bovenaan in de lijst eronder, en je kunt er zo nog een kwijt.
   - Bovenaan staat over de volle breedte een rij met alle collega's (profielfoto of
     initialen) en daaronder hun **punten**: observatie 10, hypothese 20, besluit 10,
     actie 5, standaard over de laatste 30 dagen met het verschil t.o.v. de 30 dagen
-    daarvóór. Bewust geen ranglijst met een nummer één — vaste alfabetische volgorde, en
-    iedereen staat erop, ook wie nog niets heeft vastgelegd. Zonder vorige periode staat
-    er "nieuw" en geen verzonnen oneindig percentage (zie `lib/punten.test.ts`).
+    daarvóór. Zonder vorige periode staat er "nieuw" en geen verzonnen oneindig
+    percentage (zie `lib/punten.test.ts`).
+  - De rij staat **alfabetisch op naam** (A–Z) en iedereen staat erop, ook wie nog niets
+    heeft vastgelegd. De stand blijkt uit een **medaille** (#1/#2/#3 in goud, zilver,
+    brons) op het avatar van de drie hoogste totalen — dus niet uit de volgorde: je vindt
+    een collega op naam terug. Gelijke stand deelt dezelfde medaille en nul punten levert
+    er nooit één op (`bepaalMedailles` in `lib/punten.ts`). De medaillekleuren zijn eigen
+    tokens die in élk theme gelijk blijven: goud in het merkpalet van Škoda is geen goud
+    meer.
 - **Prikbord** (`components/prikbord/`, `lib/prikbord.ts`): grafieken uit de chat die het
   team bewaart, met hun query erbij en een ververs-knop die dezelfde SQL opnieuw draait.
   Zo groeit het dashboard uit de vragen die er echt leven.

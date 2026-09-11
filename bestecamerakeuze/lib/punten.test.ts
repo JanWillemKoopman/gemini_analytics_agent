@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { berekenPuntenstanden, legeStand, puntenVoor } from "./punten.ts";
+import { bepaalMedailles, berekenPuntenstanden, legeStand, puntenVoor } from "./punten.ts";
 
 const NU = new Date("2026-03-31T12:00:00Z");
 
@@ -63,4 +63,34 @@ test("periode 'alles' telt alles en vergelijkt niet", () => {
 test("een collega zonder berichten krijgt een nulstand", () => {
   assert.deepEqual(legeStand(30), { punten: 0, vorige: 0, verandering: null, aantal: 0 });
   assert.deepEqual(legeStand(null), { punten: 0, vorige: null, verandering: null, aantal: 0 });
+});
+
+/** Kleine hulp: alleen het puntenaantal telt voor de medailles. */
+function stand(punten: number) {
+  return { punten, vorige: 0, verandering: null, aantal: 1 };
+}
+
+test("geeft goud, zilver en brons aan de drie hoogste totalen", () => {
+  const medailles = bepaalMedailles({
+    a: stand(40),
+    b: stand(30),
+    c: stand(20),
+    d: stand(10),
+  });
+  assert.deepEqual(medailles, { a: 1, b: 2, c: 3 });
+});
+
+test("gelijke stand deelt dezelfde medaille", () => {
+  const medailles = bepaalMedailles({
+    a: stand(30),
+    b: stand(30),
+    c: stand(20),
+    d: stand(10),
+  });
+  assert.deepEqual(medailles, { a: 1, b: 1, c: 2, d: 3 });
+});
+
+test("nul punten levert nooit een medaille op", () => {
+  const medailles = bepaalMedailles({ a: stand(10), b: stand(0), c: stand(0) });
+  assert.deepEqual(medailles, { a: 1 });
 });

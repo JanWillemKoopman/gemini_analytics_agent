@@ -15,7 +15,7 @@ import { getGebruiker } from "@/lib/auth";
 import { CampagneFilterProvider } from "@/lib/campagneFilterContext";
 import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
 import { TeamDataProvider } from "@/lib/teamData";
-import { formatUpdatedAt, isCampagneLive } from "@/lib/format";
+import { isCampagneLive } from "@/lib/format";
 import { haalProfiel } from "@/lib/profielen";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,7 +37,6 @@ export default async function DashboardPage() {
     : null;
 
   const liveCount = campagnes.filter((c) => isCampagneLive(c)).length;
-  const updatedAt = formatUpdatedAt(new Date());
 
   return (
     <CampagneFilterProvider campagnes={campagnes}>
@@ -55,7 +54,6 @@ export default async function DashboardPage() {
         profielNaam={profiel?.naam ?? null}
         profielAvatarUrl={profiel?.avatarUrl ?? null}
         liveCount={liveCount}
-        updatedAt={updatedAt}
         ingelogd={ingelogd}
         scores={<ScorePaneel />}
         kennisacties={<KennisEnActies />}

@@ -1,10 +1,11 @@
 import LiveStatus from "@/components/LiveStatus";
+import GameInfoKnop from "@/components/GameInfoKnop";
 
 type Props = {
   title: string;
   subtitle: string;
-  /** Live-status + update-actie horen alleen bij het campagne-overzicht. */
-  meta?: { liveCount: number; updatedAt: string };
+  /** Live-status hoort alleen bij het campagne-overzicht. */
+  meta?: { liveCount: number };
 };
 
 export default function PageHeader({ title, subtitle, meta }: Props) {
@@ -21,7 +22,7 @@ export default function PageHeader({ title, subtitle, meta }: Props) {
         <div className="flex flex-wrap items-center gap-4 pt-1.5">
           <LiveStatus liveCount={meta.liveCount} />
           <span aria-hidden="true" className="h-3 w-px bg-line" />
-          <span className="text-sm text-ink-muted">Laatst bijgewerkt {meta.updatedAt}</span>
+          <GameInfoKnop />
         </div>
       )}
     </div>

@@ -114,11 +114,3 @@ export function isCampagneLive(
   const vandaagIso = vandaagISO(vandaag);
   return campagne.startdatum <= vandaagIso && vandaagIso <= campagne.einddatum;
 }
-
-export function formatUpdatedAt(date: Date): string {
-  return new Intl.DateTimeFormat("nl-NL", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Amsterdam",
-  }).format(date);
-}

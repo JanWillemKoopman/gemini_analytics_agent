@@ -16,7 +16,6 @@ type Props = {
   profielNaam: string | null;
   profielAvatarUrl: string | null;
   liveCount: number;
-  updatedAt: string;
   ingelogd: boolean;
   scores: React.ReactNode;
   kennisacties: React.ReactNode;
@@ -94,7 +93,6 @@ export default function AppShell({
   profielNaam,
   profielAvatarUrl,
   liveCount,
-  updatedAt,
   ingelogd,
   scores,
   kennisacties,
@@ -138,7 +136,7 @@ export default function AppShell({
           <PageHeader
             title={title}
             subtitle={subtitle}
-            meta={actief === "campagnes" ? { liveCount, updatedAt } : undefined}
+            meta={actief === "campagnes" ? { liveCount } : undefined}
           />
         )}
 

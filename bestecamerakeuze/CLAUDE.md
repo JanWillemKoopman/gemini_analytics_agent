@@ -280,17 +280,18 @@ van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
   **Instellingen** (`components/instellingen/`); de foto gaat rechtstreeks van de
   browser naar Supabase Storage (bucket `avatars`, rijbeveiligd op de eigen user-id als
   mapnaam), niet via een API-route.
-- **Het inlogscherm** (`app/login/page.tsx`, `components/login/`) is een tweeluik over de
-  volle schermhoogte: links de donkere merkschil (`MerkPaneel.tsx` — hetzelfde
-  `.sidebar-vlak` als de navigatie van het dashboard, plus `.inlog-schil` voor één
-  zachte lichtbundel, het uitvergrote merklogo van het actieve theme op 5% en onderaan de
-  merken van het huis als eenkleurige logo's), rechts het formulier in een dragend paneel
-  met `.kaart-accent` en `.kaart-omlijst`. De twee velden zijn één component
+- **Het inlogscherm** (`app/login/page.tsx`, `components/login/`) is bewust één ding:
+  het formulier, gecentreerd op het paginavlak, in een dragend paneel met
+  `.kaart-accent` en `.kaart-omlijst`. Er stond eerder een donkere merkschil met de
+  merklogo's naast (een tweeluik); die is er op verzoek weer af — zet hem niet terug
+  zonder dat daarom gevraagd wordt. De twee velden zijn één component
   (`InlogVeld.tsx`) met het icoon in het veld en de focus-halo op de omhulling, zodat
-  icoon en oogje binnen de ring vallen. Geen enkele kleur staat hier hard in de code: het
-  scherm is de eerste indruk van de gekozen huisstijl, dus het wisselt volledig mee met
-  het oogje — controleer een wijziging dus ook even op Audi of CUPRA (de donkere themes)
-  en op Bentley (kapitalen plus de gouden kaderlijn).
+  icoon en oogje binnen de ring vallen; de foutmelding staat vast onder de velden en
+  boven de knop, zodat de knop niet wegschuift op het moment dat je hem opnieuw wil
+  indrukken. Geen enkele kleur staat hard in de code: het scherm is de eerste indruk van
+  de gekozen huisstijl, dus het wisselt volledig mee met het oogje — controleer een
+  wijziging dus ook even op Audi of CUPRA (de donkere themes) en op Bentley (kapitalen
+  plus de gouden kaderlijn).
 - De campagnedata zelf (Google Sheet via `lib/sheet.ts`) blijft de brondata; features
   die daar bovenop komen (aantekeningen, kosten) koppelen op de campagnenaam of draaien
   los ernaast — er komt geen eigen "campagne"-tabel in de database zolang de sheet de

@@ -253,22 +253,6 @@ body {
   background-image: var(--theme-sidebar-verloop);
 }
 
-/* Het inlogscherm gebruikt dezelfde donkere schil, met daarop één zachte lichtbundel
-   uit de linkerbovenhoek — anders staat het vlak bij de merken zonder sidebarverloop
-   als één effen kleur over de volle schermhoogte. De bundel is opgebouwd uit de eigen
-   inktkleur van het theme (`color-mix`), dus er komt nooit een vreemd wit bij. Staat
-   ná `.sidebar-vlak` zodat hij diens `background-image` overschrijft; de kleur zelf
-   blijft van die class komen. */
-.inlog-schil {
-  background-image:
-    radial-gradient(
-      120% 90% at 10% 0%,
-      color-mix(in srgb, var(--color-sidebar-ink) 9%, transparent) 0%,
-      transparent 62%
-    ),
-    var(--theme-sidebar-verloop);
-}
-
 /* Een paneel met een accentlijn erboven. Bewust een border en geen pseudo-element: een
    border valt buiten de padding box en kan dus nooit door een sticky tabelkop worden
    overdekt — precies het probleem waar de z-index-notitie in CLAUDE.md over gaat. */

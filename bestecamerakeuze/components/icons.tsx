@@ -346,3 +346,21 @@ export function IconArrowRight({ className }: IconProps) {
     </svg>
   );
 }
+
+/**
+ * Social media: drie knooppunten met verbindingen ertussen — één lijnicoon uit dezelfde
+ * set als de rest, geen merklogo. Het groepskopje in de sidebar heet "Social media" en
+ * kan meer kanalen dan Facebook gaan bevatten; een Facebook-"f" zou dan het enige
+ * merkgebonden icoon in de navigatie zijn.
+ */
+export function IconShare({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <circle cx="17.5" cy="5.5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="17.5" cy="18.5" r="2.5" />
+      <path d="M15.3 6.8 8.2 10.7" />
+      <path d="M8.2 13.3 15.3 17.2" />
+    </svg>
+  );
+}

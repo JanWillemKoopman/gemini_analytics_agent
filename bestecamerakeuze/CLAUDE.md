@@ -3,8 +3,9 @@
 Dit document is de doorlopende referentie voor wie hierna aan dit dashboard werkt
 (mens of Claude). Het legt vast wat er niet expliciet in elke prompt terugkomt: het
 doelplatform en de designvisie waarop het huidige dashboard is gebouwd. Zie
-`README.md` voor de technische opzet (stack, data, draaien) en `README-dataloket.md`
-voor het aansluiten van Supabase/de chat/de kosten/de aantekeningen/profielen.
+`README.md` voor de technische opzet (stack, data, draaien), `README-dataloket.md`
+voor het aansluiten van Supabase/de chat/de kosten/de aantekeningen/profielen, en
+`README-social.md` voor de Windsor.ai-koppeling achter het tabblad Social media.
 
 ## Alleen desktop
 
@@ -42,9 +43,10 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   `AppShell.tsx`). Bovenaan staan, los en zonder groepskopje, **Scores** en **Kennis en
   acties** — wat het team zelf vastlegt komt vóór de cijfers, en de stand komt vóór de
   inhoud omdat de weekstand de aanleiding is om iets vast te leggen. Daaronder staat de
-  navigatie in twee
+  navigatie in drie
   groepen onder een klein, uppercase groepskopje (net als de "Planning"/"Budget"-
-  groepskoppen in de campagnetabel): **Campagnes** (Campagnes, Tijdlijn) en **Chatbot**
+  groepskoppen in de campagnetabel): **Campagnes** (Campagnes, Tijdlijn,
+  Campagnebeheer), **Social media** (Facebook) en **Chatbot**
   (Start gesprek, Prikbord, Kennisbank) — het Prikbord staat bewust onder Chatbot, want
   het is een functie van de chat (grafieken die je daaruit vastpint), niet van het
   wekelijkse cijferoverzicht.
@@ -129,6 +131,43 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
   tabellaire cijfers juist te wijd.
 - De ondersteunende regel onder een waarde gebruikt `text-meta` (eigen maat plus
   regelafstand), niet `text-xs`.
+
+### Cijfers uit een externe bron (Social media)
+
+Het tabblad **Social media → Facebook** is de eerste pagina met een andere bron dan de
+sheet: de Meta-accounts komen live uit de datafeed van Windsor.ai. Wat daar is neergezet
+en geldt als uitgangspunt voor een volgend kanaal (Instagram, LinkedIn):
+
+- **Betaald en onbetaald staan in aparte panelen** en worden nooit bij elkaar opgeteld.
+  De advertenties (connector `facebook`) en de pagina's zelf (`facebook_organic`) meten
+  niet dezelfde gebeurtenis, en de organische feed rekent het betaalde bereik al mee.
+- **Verhoudingsgetallen worden ná het optellen berekend**, nooit opgehaald en gemiddeld:
+  CTR, kosten per click en kosten per lead zijn de som gedeeld door de som. Een
+  gemiddelde van dagpercentages laat een dag met € 2 uitgaven even zwaar wegen als een
+  dag met € 800.
+- **Eén y-as per grafiek.** Uitgaven en clicks staan niet samen in één beeld met twee
+  assen — welke reeks dan "boven" ligt hangt af van de schaalkeuze en suggereert een
+  verband dat er niet hoeft te zijn. In plaats daarvan kiest de gebruiker de metriek met
+  een knoppenrij in de paneelkop.
+- **Kleur hangt aan het account, niet aan de ranglijst**: een account wegfilteren verft
+  de overblijvers niet om. Wie buiten de kleurenreeks valt (een pagina zonder
+  advertentieaccount) krijgt de neutrale contextkleur — nooit een herhaalde tint, want
+  twee accounts in dezelfde kleur is erger dan een account zonder kleur.
+- **Een cijfer met een kanttekening krijgt die kanttekening in beeld**, niet in de
+  documentatie. Bereik is een dagsom en geen uniek periodebereik, dus de kolom heet
+  "Dagbereik" en de leeswijzer boven de grafiek legt het uit. Een cijfer dat de kolom
+  ernaast tegenspreekt (Meta's `post_video_views`) wordt niet getoond — vertrouwen in de
+  cijfers is de voorwaarde om er beslissingen op te durven baseren.
+- **De leeswijzer staat vast in de paneelkop**, niet achter de knop "Zo lees je dit" van
+  de campagnetabel: wie hier één keer per week komt moet niet eerst hoeven uitzoeken wat
+  "bereik" betekent.
+- **De API-sleutel blijft server-side.** Windsor zet hem in de query-string, dus het
+  ophalen gebeurt in een route-handler achter de inlog en de browser krijgt alleen het
+  opgetelde resultaat. Nooit een `NEXT_PUBLIC_`-variabele.
+- **Campagnes als rijen mag hier wél.** De regel dat campagnes kolommen blijven geldt de
+  campagnetabel uit de sheet (een handvol campagnes, twaalf metrics). Meta levert
+  tientallen advertentiecampagnes met tien metrics; die horen als gesorteerde rijen in
+  een scrollbare tabel met sticky kop en een sticky totaalregel.
 
 ### Kleuren, typografie, spacing
 

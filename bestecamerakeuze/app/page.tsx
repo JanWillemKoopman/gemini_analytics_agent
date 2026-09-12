@@ -1,6 +1,7 @@
 import AppShell from "@/components/AppShell";
 import CampaignDashboard from "@/components/CampaignDashboard";
 import CampagneBeheer from "@/components/beheer/CampagneBeheer";
+import FacebookPaneel from "@/components/social/FacebookPaneel";
 import ChatPaneel from "@/components/chat/ChatPaneel";
 import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
 import KennisEnActies from "@/components/kennisacties/KennisEnActies";
@@ -13,7 +14,7 @@ import CampagneTijdlijn from "@/components/tijdlijn/CampagneTijdlijn";
 import { getCampagnes } from "@/lib/sheet";
 import { getGebruiker } from "@/lib/auth";
 import { CampagneFilterProvider } from "@/lib/campagneFilterContext";
-import { chatGereedheid, isSupabaseGeconfigureerd } from "@/lib/config";
+import { chatGereedheid, isSupabaseGeconfigureerd, isWindsorGeconfigureerd } from "@/lib/config";
 import { TeamDataProvider } from "@/lib/teamData";
 import { isCampagneLive } from "@/lib/format";
 import { haalProfiel } from "@/lib/profielen";
@@ -62,6 +63,20 @@ export default async function DashboardPage() {
         }
         tijdlijn={<CampagneTijdlijn />}
         campagnebeheer={<CampagneBeheer ingelogd={ingelogd} />}
+        facebook={
+          isWindsorGeconfigureerd() ? (
+            <FacebookPaneel ingelogd={ingelogd} />
+          ) : (
+            <NietGeconfigureerd
+              titel="De social-mediacijfers zijn nog niet aangesloten"
+              inleiding="Het tabblad is gebouwd en leest de Facebook-accounts via de datafeed van Windsor.ai. Er ontbreekt nog één omgevingsvariabele:"
+              ontbreekt={[
+                "WINDSOR_API_KEY — de API-sleutel uit Windsor.ai (Destinations → Python/R Code); server-only, dus zonder NEXT_PUBLIC_",
+              ]}
+              documentatie="bestecamerakeuze/README-social.md"
+            />
+          )
+        }
         prikbord={
           gereed.gereed ? (
             <PrikbordPaneel ingelogd={ingelogd} />

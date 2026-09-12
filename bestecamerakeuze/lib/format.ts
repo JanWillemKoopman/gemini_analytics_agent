@@ -23,6 +23,34 @@ export function formatUsd(value: number | null, maxDecimals = 2): string {
   }).format(value);
 }
 
+/**
+ * Bedrag met centen. Anders dan formatCurrency (hele euro's, prima voor budgetten en
+ * omzet) gaat het bij kosten per click of per lead juist om de centen — daar zou
+ * afronden op hele euro's alles op "€ 0" zetten.
+ */
+export function formatCurrencyPrecies(value: number | null, maxDecimals = 2): string {
+  if (value === null) return "—";
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: maxDecimals,
+  }).format(value);
+}
+
+/**
+ * Een verhouding (0,0123) als percentage. Anders dan formatPercent, dat een getal van
+ * 0–100 op hele procenten afrondt: een CTR van 1,2% zou daarin "1%" worden en het
+ * verschil met 1,8% verdwijnt dan.
+ */
+export function formatVerhoudingPercent(fractie: number | null, decimalen = 2): string {
+  if (fractie === null || !Number.isFinite(fractie)) return "—";
+  return `${(fractie * 100).toLocaleString("nl-NL", {
+    minimumFractionDigits: decimalen,
+    maximumFractionDigits: decimalen,
+  })}%`;
+}
+
 export function formatNumber(value: number | null): string {
   if (value === null) return "—";
   return new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 2 }).format(value);

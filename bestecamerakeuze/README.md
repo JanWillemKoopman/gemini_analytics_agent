@@ -57,6 +57,19 @@ de juiste groep in de `GROUPS`-array in `components/CampaignTable.tsx`.
 De campagnes staan altijd gesorteerd op startdatum, hoogste (meest recente) links
 (`sortByStartdatumDesc` in `CampaignDashboard.tsx`) — geen aparte sorteerkeuze in de UI.
 
+## Social media (Facebook)
+
+Naast de sheet-data staat er een tweede bron in het dashboard: het tabblad **Social media →
+Facebook** leest de Meta-advertentieaccounts en de Facebook-pagina's live uit de datafeed
+van Windsor.ai (`lib/windsor.ts`, `app/api/social/facebook/route.ts`,
+`components/social/`). Aansluiten is één server-only omgevingsvariabele
+(`WINDSOR_API_KEY`); zonder die variabele blijft de rest van het dashboard werken en
+vertelt het tabblad wat er ontbreekt.
+
+Zie **`README-social.md`** voor het aansluiten, wat de twee connectors (`facebook` en
+`facebook_organic`) precies leveren, en waarom bereik, volgers en de verhoudingsgetallen
+daar anders worden behandeld dan je op het eerste gezicht zou verwachten.
+
 ## Filters
 
 `components/CampaignDashboard.tsx` (client component) filtert client-side op Status,

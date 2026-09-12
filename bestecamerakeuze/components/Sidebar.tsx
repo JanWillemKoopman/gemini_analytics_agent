@@ -11,6 +11,7 @@ import {
   IconMegaphone,
   IconPin,
   IconSettings,
+  IconShare,
   IconTrophy,
 } from "@/components/icons";
 
@@ -20,6 +21,7 @@ export type DashboardView =
   | "campagnes"
   | "tijdlijn"
   | "campagnebeheer"
+  | "facebook"
   | "prikbord"
   | "chat"
   | "kennis"
@@ -110,6 +112,20 @@ export default function Sidebar({
             label="Campagnebeheer"
             active={actief === "campagnebeheer"}
             onClick={() => onNavigate("campagnebeheer")}
+          />
+
+          {/* Social media staat na Campagnes en vóór Chatbot: het is net als de
+              campagnetabel een cijferoverzicht (en geen chatfunctie), maar wel van een
+              andere bron — de kanalen zelf via Windsor.ai in plaats van de sheet.
+              Komen Instagram of LinkedIn erbij, dan is dat hier een extra regel. */}
+          <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
+            Social media
+          </p>
+          <NavigationItem
+            icon={<IconShare />}
+            label="Facebook"
+            active={actief === "facebook"}
+            onClick={() => onNavigate("facebook")}
           />
 
           {toontChatbot && (

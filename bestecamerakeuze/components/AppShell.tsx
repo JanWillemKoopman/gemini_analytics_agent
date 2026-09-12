@@ -22,6 +22,7 @@ type Props = {
   campagnes: React.ReactNode;
   tijdlijn: React.ReactNode;
   campagnebeheer: React.ReactNode;
+  facebook: React.ReactNode;
   prikbord: React.ReactNode;
   chat: React.ReactNode;
   kennis: React.ReactNode;
@@ -56,6 +57,10 @@ const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   campagnebeheer: {
     title: "Campagnebeheer",
     subtitle: "Campagnes toevoegen en alle velden bewerken — direct in sync met de sheet.",
+  },
+  facebook: {
+    title: "Facebook",
+    subtitle: "Wat de advertenties en de pagina's opleverden, per account en per campagne.",
   },
   prikbord: {
     title: "Prikbord",
@@ -99,6 +104,7 @@ export default function AppShell({
   campagnes,
   tijdlijn,
   campagnebeheer,
+  facebook,
   prikbord,
   chat,
   kennis,
@@ -155,6 +161,9 @@ export default function AppShell({
         <div className="mt-6" role="tabpanel" hidden={actief !== "campagnebeheer"}>
           {campagnebeheer}
         </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "facebook"}>
+          {facebook}
+        </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "prikbord"}>
           {prikbord}
         </div>
@@ -173,8 +182,9 @@ export default function AppShell({
       </main>
 
       {/* Het ronde "+"-knopje rechtsonder: alleen op de tabbladen uit de sidebargroep
-          "Campagnes" (Campagnes, Tijdlijn, Campagnebeheer), niet op Chatbot/Kosten/
-          Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard. */}
+          "Campagnes" (Campagnes, Tijdlijn, Campagnebeheer), niet op Social media/Chatbot/
+          Kosten/Instellingen — het hoort bij het beheren van de campagnes uit de sheet,
+          niet bij het hele dashboard (een Facebook-campagne beheer je in Meta Ads). */}
       {CAMPAGNE_GROEP_VIEWS.includes(actief) && <NieuweCampagneKnop ingelogd={ingelogd} />}
 
       {/* Dezelfde plek, maar dan voor een bericht: op Scores én op Kennis en acties, want

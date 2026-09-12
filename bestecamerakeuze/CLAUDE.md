@@ -166,7 +166,14 @@ duidelijke hiërarchie, niet meer kleur/schaduw/badges dan nodig.
 
 Rechtsboven in het scherm staat een oog-icoon (`components/ThemeSwitcher.tsx`) waarmee
 je de vormgeving van het hele dashboard omzet: de huisstijl van Udenhout zelf, of die
-van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche of Bentley.
+van Volkswagen, Audi, Škoda, SEAT, CUPRA, Porsche, Pink Porsche of Bentley.
+
+Eén theme is geen automerk maar één auto: **Pink Porsche** is de lichtroze 911 GT3 RS —
+dezelfde technische vormtaal als het Porsche-theme (Barlow, 4px-radii, het raster, het
+korte bewegingsritme), maar met een roze studiovlak, zwart als inkt- en navigatiekleur en
+magenta (#d5006e) als enige accent. Hij hergebruikt bewust het Porsche-font en het
+Porsche-logo (sleutel `pink-porsche` in `brandLogos.tsx`): het is dezelfde auto, andere
+lak.
 
 - **Hoe het werkt.** `components/ThemeProvider.tsx` zet `data-theme="…"` op `<html>` en
   bewaart de keuze in localStorage; een klein inline script in `app/layout.tsx` zet dat

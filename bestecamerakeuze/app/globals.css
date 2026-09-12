@@ -1059,6 +1059,123 @@ body {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
+   PINK PORSCHE
+   De 911 GT3 RS in Rubystone-achtig lichtroze: dezelfde technische, rechte vormtaal als
+   het Porsche-theme hierboven — kleine hoekradii, Barlow, korte en gecontroleerde
+   beweging — maar het grijze vlak is vervangen door een licht roze studiovlak en het
+   rood door magenta (#d5006e, dezelfde toon als Porsche-rood maar dan in het roze).
+   Zwart doet in dit theme wat het op de auto doet: de aerodynamische delen, de velgen en
+   de belettering — inkt, navigatieschil en de tweede grafiekkleur. Bewust geen tweede
+   accentkleur: roze en zwart dragen het scherm samen.
+   ════════════════════════════════════════════════════════════════════════════════ */
+[data-theme="pink-porsche"] {
+  /* Het beeldmerk als roze plaatje met een zwarte crest erin — de auto zelf in het
+     klein, en het enige vlak in de donkere sidebar dat roze is. */
+  --color-logo: #f4c6d9;
+  --color-on-logo: #0a0a0c;
+
+  --color-brand: #0a0a0c;
+  --color-brand-dark: #000000;
+  --color-brand-light: #f6dce8;
+
+  --color-primary: #d5006e;
+  --color-primary-dark: #ad0059;
+  --color-primary-light: rgba(213, 0, 110, 0.09);
+  --color-on-primary: #ffffff;
+
+  --color-orange: #d5006e;
+  --color-orange-dark: #ad0059;
+
+  --color-accent: #e8cbd9;
+  --color-accent-dark: #d6b0c3;
+  --color-surface: #f9ecf2;
+  --color-surface-tint: #fdf6fa;
+
+  --color-ink: #0a0a0c;
+  --color-ink-muted: #6b5a62;
+  --color-ink-faint: #9d8b93;
+
+  /* Het studiovlak waar de auto op staat: licht roze, iets dieper dan de kaarten. */
+  --color-page: #f3dde7;
+  --color-card: #ffffff;
+  --color-line: rgba(10, 10, 12, 0.11);
+  --color-line-soft: rgba(10, 10, 12, 0.07);
+
+  --color-open: #0e8a4a;
+  --color-open-light: #dcf2e6;
+  --color-open-bright: #62d19b;
+  --color-closed: #9d8b93;
+  --color-closed-light: #f1e4ea;
+
+  --color-positive: #0e8a4a;
+  --color-negative: #c8102e;
+
+  --color-progress-track: rgba(10, 10, 12, 0.12);
+  --color-progress-fill: #d5006e;
+
+  --color-sidebar: #131013;
+  --color-sidebar-line: rgba(255, 255, 255, 0.11);
+  --color-sidebar-ink: #ffffff;
+  --color-sidebar-ink-muted: rgba(255, 255, 255, 0.6);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --color-sidebar-active: rgba(213, 0, 110, 0.34);
+
+  --radius-card: 8px;
+  --radius-panel: 12px;
+  --radius-control: 4px;
+  --radius-button: 4px;
+
+  --shadow-subtle: 0 1px 2px rgba(60, 10, 35, 0.05);
+  --shadow-card: 0 1px 2px rgba(60, 10, 35, 0.06), 0 1px 12px rgba(60, 10, 35, 0.05);
+  --shadow-raised: 0 2px 4px rgba(60, 10, 35, 0.08), 0 10px 26px rgba(60, 10, 35, 0.14);
+  --shadow-dropdown: 0 10px 28px rgba(60, 10, 35, 0.18);
+  --shadow-modal: 0 24px 60px rgba(60, 10, 35, 0.22);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-label: 11px;
+  --text-cell: 15px;
+  --text-title: 32px;
+
+  --font-sans: var(--font-porsche), "Arial Narrow", ui-sans-serif, system-ui, Arial, sans-serif;
+  --font-sans-w7: var(--font-porsche), "Arial Narrow", ui-sans-serif, system-ui, Arial, sans-serif;
+
+  --theme-title-weight: 700;
+  --theme-title-tracking: -0.015em;
+  --theme-label-tracking: 0.05em;
+
+  --color-selectie: rgba(213, 0, 110, 0.2);
+
+  /* Zelfde ritme als Porsche: kort, strak, geen zwier. */
+  --ease-merk: cubic-bezier(0.2, 0, 0, 1);
+  --duur-snel: 120ms;
+  --duur: 160ms;
+  --duur-traag: 240ms;
+
+  --radius-avatar: 4px;
+  --focus-ring-offset: 1px;
+  --focus-ring-kleur: var(--color-primary);
+  --scrollbar-dikte: 6px;
+
+  /* Hetzelfde technische raster als bij Porsche, maar in de inktkleur van dit theme en
+     nog iets lichter — op een roze vlak komt een raster harder aan dan op grijs. */
+  --theme-page-patroon:
+    linear-gradient(rgba(10, 10, 12, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 10, 12, 0.03) 1px, transparent 1px);
+  --theme-page-patroon-maat: 32px 32px, 32px 32px;
+  /* De roze gloed die in de studiofoto vanaf boven over de auto valt. */
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(213, 0, 110, 0.22), transparent 38%);
+
+  --theme-kaart-accent: var(--color-primary);
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 2px;
+  --theme-nav-streep-kleur: var(--color-primary);
+  --theme-progress-maatstreep: rgba(10, 10, 12, 0.22);
+  --duur-adem: 4s;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
    BENTLEY
    Het rustigste en meest klassieke theme: crème papier in plaats van wit-grijs,
    British Racing Green als inkt- en navigatiekleur, en goud als enige accent — de

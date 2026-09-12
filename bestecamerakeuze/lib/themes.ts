@@ -22,6 +22,7 @@ export type ThemeId =
   | "seat"
   | "cupra"
   | "porsche"
+  | "pink-porsche"
   | "bentley";
 
 /**
@@ -188,6 +189,24 @@ export const THEMES: readonly Theme[] = [
       raster: "rgba(1, 2, 5, 0.12)",
       vlak: "#ffffff",
       label: "#010205",
+      lijndikte: 1.5,
+      lijnvorm: "linear",
+      punt: "vierkant",
+      staafradius: 2,
+    },
+  },
+  {
+    id: "pink-porsche",
+    naam: "Pink Porsche",
+    omschrijving: "Dezelfde techniek, in lichtroze: zwarte inkt, magenta accent.",
+    staal: ["#f3dde7", "#0a0a0c", "#d5006e"],
+    grafiek: {
+      categorieen: ["#d5006e", "#1b1b20", "#e98ab6", "#8a4fd0", "#2175d9", "#b06a00"],
+      context: "#d3bcc7",
+      as: "#6b5a62",
+      raster: "rgba(10, 10, 12, 0.12)",
+      vlak: "#ffffff",
+      label: "#0a0a0c",
       lijndikte: 1.5,
       lijnvorm: "linear",
       punt: "vierkant",

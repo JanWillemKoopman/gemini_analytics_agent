@@ -28,7 +28,7 @@ export default function ScorePaneel() {
 
   if (laden) {
     return (
-      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
+      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-subtle">
         Laden…
       </div>
     );

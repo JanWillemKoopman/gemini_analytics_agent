@@ -32,7 +32,7 @@ function Datumveld({
   onChange: (waarde: string) => void;
 }) {
   return (
-    <label className="flex flex-col items-start gap-0.5 rounded-control px-3 py-1.5 transition-colors duration-150 hover:bg-surface">
+    <label className="flex flex-col items-start gap-0.5 rounded-control px-3 py-1.5 transition-colors duration-[var(--duur-snel)] hover:bg-surface">
       <span className="label-theme text-label text-ink-faint">{label}</span>
       <input
         type="date"
@@ -63,7 +63,7 @@ export default function BerichtFilterBalk({
   const gefilterd = actieveFilters > 0 && getoond !== totaal;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-panel border border-line bg-card px-4 py-3 shadow-card">
+    <div className="flex flex-wrap items-center justify-between gap-3 kaart-omlijst rounded-panel border border-line bg-card px-4 py-3 shadow-subtle">
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-surface text-ink-muted">
           <IconNotes className="h-4 w-4" />

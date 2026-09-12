@@ -36,7 +36,7 @@ export default function Prijzenkast() {
   const weken = seizoen.weken.filter((week) => week.afgelopen).length;
 
   return (
-    <section className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <section className="kaart-omlijst overflow-hidden rounded-panel border border-line bg-card shadow-subtle">
       <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-surface text-ink-muted">

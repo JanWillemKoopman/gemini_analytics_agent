@@ -35,7 +35,7 @@ export default function UpdateButton({ label = "Data updaten", variant = "header
       type="button"
       onClick={bijwerken}
       disabled={isPending}
-      className={`flex shrink-0 items-center gap-1.5 rounded-control text-sm font-medium text-ink transition-colors duration-150 disabled:cursor-wait disabled:opacity-70 ${
+      className={`flex shrink-0 items-center gap-1.5 rounded-control text-sm font-medium text-ink transition-colors duration-[var(--duur-snel)] disabled:cursor-wait disabled:opacity-70 ${
         variant === "header"
           ? "border border-line bg-card px-3 py-1.5 shadow-card hover:bg-surface"
           : "px-3 py-2 text-ink-muted hover:bg-surface hover:text-ink"

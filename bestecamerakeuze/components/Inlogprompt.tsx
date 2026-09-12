@@ -5,7 +5,7 @@
  */
 export default function Inlogprompt({ tekst }: { tekst: string }) {
   return (
-    <div className="rounded-panel border border-line bg-card px-5 py-6 shadow-card">
+    <div className="rounded-panel border border-line bg-card px-5 py-6 shadow-subtle">
       <p className="text-sm text-ink-muted">{tekst}</p>
       <a
         href="/login"

@@ -118,7 +118,7 @@ export default function Prikbord({ ingelogd }: { ingelogd: boolean }) {
       )}
 
       {items === null ? (
-        <div className="h-64 rounded-panel border border-line bg-surface" />
+        <div className="laadvlak h-64 rounded-panel border border-line bg-surface" />
       ) : items.length === 0 ? (
         <div className="rounded-panel border border-line bg-surface px-6 py-12 text-center">
           <p className="font-sans-w7 text-lg font-bold text-ink">Nog niets vastgepind</p>
@@ -133,7 +133,7 @@ export default function Prikbord({ ingelogd }: { ingelogd: boolean }) {
           {items.map((item) => {
             const profiel = profielen[item.aangemaaktDoor];
             return (
-              <article key={item.id} className="flex flex-col rounded-panel border border-line bg-card p-4">
+              <article key={item.id} className="kaart-hover flex flex-col rounded-panel border border-line bg-card p-4">
                 <header className="mb-1 flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     {item.vraag && (

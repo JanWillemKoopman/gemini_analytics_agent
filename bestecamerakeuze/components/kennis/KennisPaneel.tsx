@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 const Kennisbank = dynamic(() => import("@/components/kennis/Kennisbank"), {
   ssr: false,
   loading: () => (
-    <div className="h-64 rounded-panel border border-line bg-surface" />
+    <div className="laadvlak h-64 rounded-panel border border-line bg-surface" />
   ),
 });
 

@@ -76,7 +76,7 @@ export default function Weekpunten() {
   const { dagen, uren } = tijdTotReset(nu);
 
   return (
-    <section className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <section className="kaart-accent overflow-hidden rounded-panel border border-line bg-card shadow-card">
       <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
         <div>
           <p className="font-sans-w7 text-sm font-bold text-ink">Deze week</p>

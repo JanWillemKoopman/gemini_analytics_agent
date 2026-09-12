@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getBrandLogo } from "@/components/brandLogos";
 import { useTheme } from "@/components/ThemeProvider";
 import { IconCheck, IconEye } from "@/components/icons";
 import { THEMES } from "@/lib/themes";
@@ -44,7 +45,7 @@ export default function ThemeSwitcher() {
         aria-expanded={open}
         aria-label="Vormgeving kiezen"
         title="Vormgeving kiezen"
-        className={`flex h-9 w-9 items-center justify-center text-ink-muted transition-colors duration-150 hover:text-ink ${
+        className={`flex h-9 w-9 items-center justify-center text-ink-muted transition-colors duration-[var(--duur-snel)] hover:text-ink ${
           open ? "text-ink" : ""
         }`}
       >
@@ -73,19 +74,27 @@ export default function ThemeSwitcher() {
                   kiesTheme(t.id);
                   setOpen(false);
                 }}
-                className={`flex w-full items-start gap-2.5 rounded-control px-2.5 py-2 text-left transition-colors duration-150 hover:bg-surface ${
+                className={`flex w-full items-start gap-2.5 rounded-control px-2.5 py-2 text-left transition-colors duration-[var(--duur-snel)] hover:bg-surface ${
                   actief ? "bg-surface" : ""
                 }`}
               >
-                {/* Drie staaltjes: vlak, inkt, accent — genoeg om het merk te herkennen
-                    zonder het logo te hoeven tonen. */}
+                {/* Het merklogo op het eigen vlak van dat merk: je herkent de regel aan
+                    het logo, niet aan de tekst. Onder de omschrijving staan de drie
+                    staaltjes (vlak, inkt, accent) nog als dun bandje, want de kleuren
+                    zijn net zo goed het verschil. */}
                 <span
                   aria-hidden="true"
-                  className="mt-0.5 flex shrink-0 overflow-hidden rounded-control border border-line"
+                  className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-control border border-line"
+                  style={{ background: t.staal[0], color: t.staal[2] }}
                 >
-                  {t.staal.map((kleur) => (
-                    <span key={kleur} className="block h-4 w-4" style={{ background: kleur }} />
-                  ))}
+                  {(() => {
+                    const MerkLogo = getBrandLogo(t.id);
+                    return MerkLogo ? (
+                      <MerkLogo className="h-4 w-4" />
+                    ) : (
+                      <span className="h-3 w-3 rounded-full" style={{ background: t.staal[2] }} />
+                    );
+                  })()}
                 </span>
 
                 <span className="min-w-0 flex-1">
@@ -95,6 +104,11 @@ export default function ThemeSwitcher() {
                   </span>
                   <span className="mt-0.5 block text-label leading-snug text-ink-faint">
                     {t.omschrijving}
+                  </span>
+                  <span aria-hidden="true" className="mt-1.5 flex h-[3px] w-full overflow-hidden rounded-pill">
+                    {t.staal.map((kleur) => (
+                      <span key={kleur} className="block h-full flex-1" style={{ background: kleur }} />
+                    ))}
                   </span>
                 </span>
               </button>

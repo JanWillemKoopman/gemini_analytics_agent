@@ -44,7 +44,7 @@ export default function Drawer({ title, onClose, children }: Props) {
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 bg-ink/30 transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 bg-ink/30 transition-opacity duration-[var(--duur)] ${
         zichtbaar ? "opacity-100" : "opacity-0"
       }`}
       onMouseDown={(event) => {
@@ -56,7 +56,7 @@ export default function Drawer({ title, onClose, children }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`absolute inset-y-0 right-0 flex w-1/3 min-w-[420px] flex-col border-l border-line bg-card shadow-dropdown transition-transform duration-200 ease-out ${
+        className={`absolute inset-y-0 right-0 flex w-1/3 min-w-[420px] flex-col border-l border-line bg-card shadow-modal transition-transform duration-[var(--duur)] ease-merk ${
           zichtbaar ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -66,7 +66,7 @@ export default function Drawer({ title, onClose, children }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Sluiten"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-ink-faint transition-colors duration-150 hover:bg-surface hover:text-ink"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-control text-ink-faint transition-colors duration-[var(--duur-snel)] hover:bg-surface hover:text-ink"
           >
             <IconClose className="h-4 w-4" />
           </button>

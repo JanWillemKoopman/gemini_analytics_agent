@@ -112,7 +112,7 @@ export default function AppShell({
   const { zijbalkOpen, openZijbalk, melding, wisMelding } = useTeamData();
 
   return (
-    <div className="flex min-h-screen bg-page">
+    <div className="flex min-h-screen pagina-vlak">
       {/* Het oogje staat helemaal rechtsboven in het scherm en blijft daar op elk
           tabblad staan — het hoort bij het venster, niet bij één pagina. */}
       <ThemeSwitcher />
@@ -189,7 +189,7 @@ export default function AppShell({
           onClick={openZijbalk}
           aria-label="Bericht toevoegen"
           title="Bericht toevoegen"
-          className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-150 hover:opacity-100"
+          className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-on-primary opacity-85 shadow-dropdown transition-opacity duration-[var(--duur-snel)] ease-merk hover:opacity-100"
         >
           <IconPlus className="h-5 w-5" />
         </button>

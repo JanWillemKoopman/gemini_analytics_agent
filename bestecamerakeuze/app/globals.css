@@ -97,6 +97,10 @@
   --color-progress-track: rgba(15, 23, 42, 0.08);
   --color-progress-fill: #19243b;
 
+  /* Geselecteerde tekst. Zonder eigen token pakt de browser zijn eigen blauw — dat
+     breekt elk theme, en het meest zichtbaar bij Bentley en CUPRA. */
+  --color-selectie: rgba(0, 61, 165, 0.18);
+
   /* De donkere navigatieschil links: eigen, rustige surface los van de witte content. */
   --color-sidebar: #14192b;
   --color-sidebar-line: rgba(255, 255, 255, 0.08);
@@ -113,9 +117,25 @@
      bijna rechthoekig, CUPRA en Bentley scherp — dit is per merk een van de meest
      kenmerkende verschillen, dus een eigen token in plaats van een vaste `rounded-pill`. */
   --radius-button: 999px;
+  /* Avatars, het beeldmerk en andere kleine ronde vlakken. Rond bij de merken met een
+     ronde vormtaal, hoekig bij Porsche/CUPRA/Bentley — een perfect ronde foto naast
+     uitsluitend rechte hoeken valt daar direct uit de toon. */
+  --radius-avatar: 999px;
 
+  /* Vier hoogtes in plaats van twee, zodat een paneel dat rust (--shadow-subtle) en een
+     paneel dat de aandacht draagt (--shadow-card) zichtbaar van elkaar verschillen, en
+     een pop-up (--shadow-modal) echt boven de pagina zweeft. De schaduwkleur is per merk
+     de eigen inktkleur, nooit neutraal zwart: een blauwe schaduw onder een VW-kaart
+     oogt als hetzelfde materiaal, een grijze niet. */
+  --shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.04);
   --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 12px rgba(15, 23, 42, 0.04);
+  --shadow-raised: 0 2px 4px rgba(15, 23, 42, 0.06), 0 10px 26px rgba(15, 23, 42, 0.1);
   --shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-modal: 0 24px 60px rgba(15, 23, 42, 0.18);
+
+  /* De bewegingscurve van het merk (zie --duur-* hieronder). Tailwind maakt hier de
+     utility `ease-merk` van, die in plaats van `ease-out` overal gebruikt wordt. */
+  --ease-merk: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Lettergroottes zijn onderdeel van het theme: Audi zet grote, brede letters neer,
      CUPRA juist compacte kapitalen. De Tailwind-groottes (text-xs/sm/base) zijn
@@ -123,6 +143,11 @@
      plekken in dit dashboard. */
   --text-label: 11px; /* kleine kapitalen: PLANNING, STATUS, MERK, … */
   --text-cell: 15px; /* campagnenaam in de tabelkop, naam in de sidebar */
+  /* De ondersteunende regel onder een waarde ("+445 boven doel", "12% benut") en de
+     subtitel in de PageHeader. Eigen maat in plaats van text-xs, zodat de tweede regel
+     duidelijk ondergeschikt is aan de eerste in plaats van alleen kleiner. */
+  --text-meta: 12px;
+  --text-meta--line-height: 1.4;
   --text-title: 28px; /* de paginatitel in de PageHeader */
 
   /* TheSansB (W5 Plain body / W7 koppen) is de huisstijlfont van udenhout.nl, maar niet
@@ -149,14 +174,121 @@
   --theme-label-transform: uppercase;
   --theme-label-weight: 600;
   --theme-body-tracking: normal;
+
+  /* Beweging is net zo goed merkeigen als kleur: Porsche beweegt kort en houdt abrupt
+     op, Bentley traag en zwaar, CUPRA bijna schokkerig scherp. Componenten gebruiken
+     `duration-[var(--duur-snel)]` + `ease-merk` in plaats van een vaste duration-150,
+     zodat het hele dashboard in het ritme van het merk beweegt. */
+  --duur-snel: 150ms; /* hover, kleurwissel */
+  --duur: 200ms; /* uitklappen, inschuiven */
+  --duur-traag: 300ms; /* progress bars, langere verplaatsingen */
+
+  /* De focusring: niet elk merk zet hem even dik of even ver van de rand. */
+  --focus-ring: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-kleur: var(--color-primary);
+
+  --scrollbar-dikte: 8px;
+
+  /* Het tempo waarin de "live"-stip ademt. Hoort bij hetzelfde ritme als --duur-*. */
+  --duur-adem: 6s;
+
+  /* De ondergrond van het merk: één textuur per theme op het paginavlak — een
+     technisch raster (Porsche), een diagonaal (CUPRA), een ruitpatroon (Bentley), een
+     licht verloop (Volkswagen, Audi, Škoda) of drukkorrel (Udenhout, SEAT). Bewust
+     één signaal per merk: patroon én korrel én verloop tegelijk maakt het onrustig in
+     plaats van rijk. */
+  /* Udenhout: fijne drukkorrel, zoals het zand/beige uit de huisstijl op papier. */
+  --theme-page-patroon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)' opacity='0.11'/%3E%3C/svg%3E");
+  --theme-page-patroon-maat: 160px 160px;
+
+  /* Verloop over de donkere navigatieschil, zodat hij niet als één vlak ingevuld oogt. */
+  --theme-sidebar-verloop: none;
+
+  /* Accentlijn bovenop een paneel (.kaart-accent). Standaard gewoon de gebruikelijke
+     hairline: alleen de merken die zelf met een accentrand werken (Porsche, Audi,
+     CUPRA, Bentley) zetten hier hun kleur neer. */
+  --theme-kaart-accent: var(--color-line);
+
+  /* Dunne binnenlijn op afstand van de rand (.kaart-omlijst) — de gouden kaderlijn van
+     gedrukt briefpapier. Alleen Bentley gebruikt hem. */
+  --theme-kaart-ring: transparent;
+
+  /* Het actieve item in de sidebar: vorm van het vlak plus een eventuele streep ernaast. */
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 0px;
+  --theme-nav-streep-kleur: var(--color-primary);
+
+  /* De progress bar: Porsche zet er maatstreepjes in, de rest houdt hem glad. */
+  --theme-progress-maatstreep: transparent;
 }
 
 body {
   background-color: var(--color-page);
+  background-image: var(--theme-page-patroon);
+  background-size: var(--theme-page-patroon-maat);
+  /* Vast aan het venster: de textuur is het canvas waar de pagina op ligt, hij hoort
+     niet met de inhoud mee te schuiven. Meteen ook de reden dat een verloop op
+     `auto` precies één keer het scherm vult in plaats van te herhalen. */
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
   letter-spacing: var(--theme-body-tracking);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Het paginavlak zelf. De schil in `AppShell` legt een eigen `bg-page` over de body
+   heen; zonder deze class zou de merktextuur daar volledig achter verdwijnen. */
+.pagina-vlak {
+  background-color: var(--color-page);
+  background-image: var(--theme-page-patroon);
+  background-size: var(--theme-page-patroon-maat);
+  background-attachment: fixed;
+}
+
+/* De donkere navigatieschil. Als `bg-sidebar` met daarbovenop, per merk, een verloop —
+   zo blijft de kleur één token en is het verloop optioneel. */
+.sidebar-vlak {
+  background-color: var(--color-sidebar);
+  background-image: var(--theme-sidebar-verloop);
+}
+
+/* Een paneel met een accentlijn erboven. Bewust een border en geen pseudo-element: een
+   border valt buiten de padding box en kan dus nooit door een sticky tabelkop worden
+   overdekt — precies het probleem waar de z-index-notitie in CLAUDE.md over gaat. */
+.kaart-accent {
+  border-top-width: 2px;
+  border-top-color: var(--theme-kaart-accent);
+}
+
+/* Een tweede, dunne lijn net binnen de rand. Staat standaard op transparent, dus voor
+   elk theme behalve Bentley verandert er niets. */
+.kaart-omlijst {
+  position: relative;
+}
+.kaart-omlijst::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--theme-kaart-ring);
+  border-radius: calc(var(--radius-panel) - 4px);
+  pointer-events: none;
+}
+
+/* Eén rij in de sidebarnavigatie. De vorm van het actieve vlak en de streep ernaast
+   verschillen per merk: een volle pil bij Volkswagen, een strakke streep links bij
+   Porsche en CUPRA, een gouden haarlijn bij Bentley. */
+.nav-item {
+  border-radius: var(--theme-nav-radius);
+}
+.nav-item-actief::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14%;
+  bottom: 14%;
+  width: var(--theme-nav-streep);
+  background-color: var(--theme-nav-streep-kleur);
 }
 
 /* De paginatitel van elk tabblad. Per merk verschilt niet alleen de grootte maar ook
@@ -181,27 +313,84 @@ body {
 
 @layer base {
   :focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
+    outline: var(--focus-ring) solid var(--focus-ring-kleur);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  ::selection {
+    background-color: var(--color-selectie);
+    color: var(--color-ink);
+  }
+
+  /* Cijfers in een tabel horen onder elkaar uit te lijnen — dat is in een
+     cijferdashboard het verschil tussen "netjes" en "af". Bewust op tabellen en niet op
+     de hele body: in lopende tekst zijn tabellaire cijfers juist te wijd. */
+  table {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Opgeruimde scrollbar voor de scrollbare filter-dropdowns, i.p.v. de standaard
      platform-scrollbar. */
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-line) transparent;
+    scrollbar-color: var(--color-accent-dark) transparent;
   }
   *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: var(--scrollbar-dikte);
+    height: var(--scrollbar-dikte);
   }
   *::-webkit-scrollbar-track {
     background: transparent;
   }
   *::-webkit-scrollbar-thumb {
-    background-color: var(--color-line);
-    border-radius: 999px;
+    background-color: var(--color-accent-dark);
+    border-radius: var(--radius-pill);
   }
+}
+
+/* De overgang bij het wisselen van theme (zie ThemeProvider): het oude beeld vloeit
+   over het nieuwe uit in plaats van eroverheen te knipperen. Bewust wat trager dan een
+   gewone hover en met de merkcurve van het theme waar je náártoe gaat. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-merk);
+}
+
+/* Een kaart die onder de muis een fractie omhoogkomt. Bewust niet in de campagnetabel
+   (die reageert bewust niet op muisbeweging, zie CLAUDE.md) maar op de losse kaarten:
+   het prikbord en de kennisbank. */
+.kaart-hover {
+  transition:
+    transform var(--duur-snel) var(--ease-merk),
+    box-shadow var(--duur-snel) var(--ease-merk);
+}
+.kaart-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Laadvlak met een trage glans eroverheen, in de merkkleuren in plaats van het
+   gebruikelijke grijs: ook wachten hoort bij de vormgeving. */
+@keyframes glans {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 250% 0;
+  }
+}
+
+.laadvlak {
+  background-image: linear-gradient(
+    90deg,
+    transparent 20%,
+    var(--color-accent) 50%,
+    transparent 80%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: glans 1.8s var(--ease-merk) infinite;
 }
 
 /* Ademende statusdot voor een open campagne: heel langzaam en subtiel van lichtgroen
@@ -218,12 +407,17 @@ body {
 }
 
 .status-dot-ademen {
-  animation: status-dot-ademen 6s ease-in-out infinite;
+  animation: status-dot-ademen var(--duur-adem) ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .status-dot-ademen {
+  .status-dot-ademen,
+  .laadvlak {
     animation: none;
+  }
+
+  .kaart-hover:hover {
+    transform: none;
   }
 }
 
@@ -306,6 +500,27 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.02em;
   --theme-label-tracking: 0.05em;
+
+  --shadow-subtle: 0 1px 2px rgba(0, 30, 80, 0.05);
+  --shadow-modal: 0 26px 64px rgba(0, 30, 80, 0.22);
+
+  --color-selectie: rgba(0, 176, 240, 0.26);
+
+  /* Volkswagen beweegt zacht en vloeiend — niets schiet, niets stuitert. */
+  --ease-merk: cubic-bezier(0.4, 0, 0.2, 1);
+  --duur-snel: 160ms;
+  --duur: 240ms;
+  --duur-traag: 360ms;
+
+  /* Volkswagen: één rustig verloop in helderblauw vanuit de rechterbovenhoek — geen
+     lijnen, want de vormtaal is glad en geometrisch. */
+  --theme-page-patroon: radial-gradient(1100px 620px at 92% -12%, rgba(0, 176, 240, 0.13), transparent 68%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(0, 176, 240, 0.14), transparent 42%);
+
+  /* Volkswagen navigeert in pilvormen — dezelfde vorm als zijn knoppen. */
+  --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 4px rgba(0, 30, 80, 0.07), 0 12px 30px rgba(0, 30, 80, 0.12);
+  --duur-adem: 6s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -371,7 +586,7 @@ body {
   --radius-control: 12px;
   --radius-button: 999px;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.07);
   --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.6);
 
   --text-xs: 0.8125rem; /* 13px */
@@ -391,6 +606,31 @@ body {
   --theme-title-stretch: 118%;
   --theme-label-weight: 500;
   --theme-label-tracking: 0.08em;
+
+  /* Een haarlijn licht op de bovenrand tilt een vlak op een donker canvas op —
+     een drop-shadow doet daar niets. Zit in de schaduwtoken zelf, dus elk
+     bestaand `shadow-card`/`shadow-subtle` krijgt hem vanzelf. */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --shadow-modal: 0 32px 80px rgba(0, 0, 0, 0.7);
+
+  --color-selectie: rgba(245, 5, 55, 0.32);
+
+  /* Audi beweegt traag op gang en komt zacht tot stilstand — zwaar materiaal. */
+  --ease-merk: cubic-bezier(0.33, 0, 0.2, 1);
+  --duur-snel: 180ms;
+  --duur: 260ms;
+  --duur-traag: 380ms;
+
+  /* Audi: geen patroon maar diepte — een lichtval van linksboven over het bijna-zwarte
+     canvas, precies zoals hun eigen interface het donker opbouwt. */
+  --theme-page-patroon: radial-gradient(1300px 780px at 18% -14%, rgba(255, 255, 255, 0.05), transparent 66%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(245, 5, 55, 0.1), transparent 34%);
+
+  /* Audi zet Progressive Red spaarzaam in: één lijn bovenop het paneel is genoeg. */
+  --theme-kaart-accent: var(--color-primary);
+  --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.5), 0 16px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --duur-adem: 7s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -471,6 +711,24 @@ body {
   --theme-title-weight: 800;
   --theme-title-tracking: -0.03em;
   --theme-label-tracking: 0.07em;
+
+  --shadow-subtle: 0 1px 2px rgba(14, 58, 47, 0.05);
+  --shadow-modal: 0 26px 64px rgba(14, 58, 47, 0.22);
+
+  --color-selectie: rgba(120, 250, 174, 0.45);
+
+  --ease-merk: cubic-bezier(0.2, 0.6, 0.3, 1);
+  --duur-snel: 150ms;
+  --duur: 210ms;
+  --duur-traag: 320ms;
+
+  /* Škoda: een gloed van Electric Green tegen het groenwitte canvas. */
+  --theme-page-patroon: radial-gradient(1000px 560px at 90% -12%, rgba(120, 250, 174, 0.22), transparent 66%);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(120, 250, 174, 0.12), transparent 40%);
+
+  --theme-nav-radius: var(--radius-button);
+  --shadow-raised: 0 2px 4px rgba(14, 58, 47, 0.07), 0 12px 30px rgba(14, 58, 47, 0.12);
+  --duur-adem: 5s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -551,6 +809,24 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.02em;
   --theme-label-tracking: 0.06em;
+
+  --shadow-subtle: 0 1px 2px rgba(17, 17, 17, 0.05);
+  --shadow-modal: 0 26px 64px rgba(17, 17, 17, 0.2);
+
+  --color-selectie: rgba(228, 0, 43, 0.2);
+
+  --ease-merk: cubic-bezier(0.3, 0.7, 0.4, 1);
+  --duur-snel: 150ms;
+  --duur: 200ms;
+  --duur-traag: 300ms;
+
+  /* SEAT: warme drukkorrel op het zandwitte vlak — mediterraan papier, geen koel grijs. */
+  --theme-page-patroon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)' opacity='0.12'/%3E%3C/svg%3E");
+  --theme-page-patroon-maat: 160px 160px;
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(228, 0, 43, 0.12), transparent 36%);
+
+  --theme-nav-radius: var(--radius-pill);
+  --shadow-raised: 0 2px 4px rgba(17, 17, 17, 0.07), 0 12px 30px rgba(17, 17, 17, 0.12);
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -616,7 +892,7 @@ body {
   --radius-control: 2px;
   --radius-button: 0px;
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 22px rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 6px 22px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-dropdown: 0 14px 36px rgba(0, 0, 0, 0.62);
 
   --text-xs: 0.75rem;
@@ -635,6 +911,39 @@ body {
   --theme-label-weight: 600;
   --theme-label-tracking: 0.14em;
   --theme-body-tracking: 0.01em;
+
+  /* Een haarlijn licht op de bovenrand tilt een vlak op een donker canvas op —
+     een drop-shadow doet daar niets. Zit in de schaduwtoken zelf, dus elk
+     bestaand `shadow-card`/`shadow-subtle` krijgt hem vanzelf. */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-modal: 0 30px 76px rgba(0, 0, 0, 0.72);
+
+  --color-selectie: rgba(181, 129, 80, 0.38);
+
+  /* CUPRA is het scherpste theme: kort, bijna lineair, stopt hard. */
+  --ease-merk: cubic-bezier(0.2, 0, 0, 1);
+  --duur-snel: 90ms;
+  --duur: 130ms;
+  --duur-traag: 200ms;
+
+  --radius-avatar: 2px;
+  --focus-ring: 1px;
+  --scrollbar-dikte: 6px;
+
+  /* CUPRA: schuine koperen hairlines, de diagonaal uit het logo. */
+  --theme-page-patroon: repeating-linear-gradient(
+    115deg,
+    rgba(181, 129, 80, 0.05) 0 1px,
+    transparent 1px 28px
+  );
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(181, 129, 80, 0.14), transparent 38%);
+
+  --theme-kaart-accent: var(--color-primary);
+  /* Hoekig en strak: geen vlak dat oplicht maar een koperen streep ernaast. */
+  --theme-nav-radius: 0px;
+  --theme-nav-streep: 2px;
+  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.5), 0 14px 34px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --duur-adem: 4s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -671,9 +980,9 @@ body {
   --color-ink-muted: #626669;
   --color-ink-faint: #96989a;
 
-  --color-page: #eeeff2;
+  --color-page: #e9eaee;
   --color-card: #ffffff;
-  --color-line: rgba(1, 2, 5, 0.14);
+  --color-line: rgba(1, 2, 5, 0.11);
   --color-line-soft: rgba(1, 2, 5, 0.07);
 
   --color-open: #018a16;
@@ -716,6 +1025,37 @@ body {
   --theme-title-weight: 700;
   --theme-title-tracking: -0.015em;
   --theme-label-tracking: 0.05em;
+
+  --shadow-subtle: 0 1px 2px rgba(1, 2, 5, 0.05);
+  --shadow-modal: 0 24px 60px rgba(1, 2, 5, 0.22);
+
+  --color-selectie: rgba(213, 0, 28, 0.2);
+
+  /* Porsche beweegt kort en gecontroleerd — techniek, geen zwier. */
+  --ease-merk: cubic-bezier(0.2, 0, 0, 1);
+  --duur-snel: 120ms;
+  --duur: 160ms;
+  --duur-traag: 240ms;
+
+  --radius-avatar: 4px;
+  --focus-ring-offset: 1px;
+  --scrollbar-dikte: 6px;
+
+  /* Porsche: een fijn technisch raster, zoals millimeterpapier onder een tekening. */
+  --theme-page-patroon:
+    linear-gradient(rgba(1, 2, 5, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 2, 5, 0.035) 1px, transparent 1px);
+  --theme-page-patroon-maat: 32px 32px, 32px 32px;
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(213, 0, 28, 0.12), transparent 34%);
+
+  --theme-kaart-accent: var(--color-primary);
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 2px;
+  /* Maatstreepjes op 25/50/75% — de schaalverdeling van een instrument. */
+  --theme-progress-maatstreep: rgba(1, 2, 5, 0.22);
+  --shadow-raised: 0 2px 4px rgba(1, 2, 5, 0.08), 0 10px 26px rgba(1, 2, 5, 0.14);
+  /* Strak en kort, in hetzelfde ritme als de rest van dit theme. */
+  --duur-adem: 4s;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════════
@@ -754,7 +1094,7 @@ body {
 
   --color-page: #f5f2eb;
   --color-card: #ffffff;
-  --color-line: rgba(26, 43, 35, 0.14);
+  --color-line: rgba(26, 43, 35, 0.11);
   --color-line-soft: rgba(26, 43, 35, 0.07);
 
   --color-open: #1c6b4b;
@@ -800,4 +1140,37 @@ body {
   --theme-label-weight: 500;
   --theme-label-tracking: 0.16em;
   --theme-body-tracking: 0.015em;
+
+  --shadow-subtle: 0 1px 2px rgba(26, 43, 35, 0.05);
+  --shadow-modal: 0 28px 70px rgba(26, 43, 35, 0.24);
+
+  --color-selectie: rgba(176, 141, 69, 0.32);
+
+  /* Bentley beweegt als een autodeur die zichzelf dichttrekt: traag en zwaar. */
+  --ease-merk: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duur-snel: 260ms;
+  --duur: 420ms;
+  --duur-traag: 560ms;
+
+  --radius-avatar: 2px;
+  /* Een dunne gouden ring op afstand, zoals de belettering op hun dashboard. */
+  --focus-ring: 1px;
+  --focus-ring-offset: 3px;
+  --focus-ring-kleur: var(--color-orange);
+  --scrollbar-dikte: 4px;
+
+  /* Bentley: knurling — het geruite patroon van de gekartelde metalen knoppen in hun
+     interieur, in goud en zo licht dat je het eerder voelt dan ziet. */
+  --theme-page-patroon:
+    repeating-linear-gradient(45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(-45deg, rgba(176, 141, 69, 0.045) 0 1px, transparent 1px 15px);
+  --theme-sidebar-verloop: linear-gradient(180deg, rgba(176, 141, 69, 0.14), transparent 40%);
+
+  --theme-kaart-accent: var(--color-orange);
+  --theme-kaart-ring: rgba(176, 141, 69, 0.3);
+  --theme-nav-radius: var(--radius-control);
+  --theme-nav-streep: 1px;
+  --theme-nav-streep-kleur: var(--color-orange);
+  --shadow-raised: 0 3px 6px rgba(26, 43, 35, 0.07), 0 16px 38px rgba(26, 43, 35, 0.14);
+  --duur-adem: 9s;
 }

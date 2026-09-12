@@ -55,7 +55,7 @@ export default function BerichtenTabel({
 }: Props) {
   if (laden) {
     return (
-      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
+      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-subtle">
         Laden…
       </div>
     );
@@ -63,14 +63,14 @@ export default function BerichtenTabel({
 
   if (berichten.length === 0) {
     return (
-      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-card">
+      <div className="rounded-panel border border-line bg-card px-5 py-8 text-sm text-ink-faint shadow-subtle">
         Geen berichten gevonden. Leg er rechtsonder met + een nieuwe vast.
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <div className="kaart-accent overflow-hidden rounded-panel border border-line bg-card shadow-card">
       <table className="w-full border-separate border-spacing-0 text-left">
         <thead>
           <tr className="bg-surface-tint">

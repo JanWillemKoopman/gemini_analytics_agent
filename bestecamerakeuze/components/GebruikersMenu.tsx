@@ -61,10 +61,10 @@ export default function GebruikersMenu({ naam, email, avatarUrl, onKosten, onIns
         onClick={toggleOpen}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex w-full items-center gap-2.5 rounded-control px-2 py-2 text-left transition-colors duration-150 hover:bg-sidebar-hover"
+        className="flex w-full items-center gap-2.5 rounded-control px-2 py-2 text-left transition-colors duration-[var(--duur-snel)] hover:bg-sidebar-hover"
       >
         <Avatar naam={naam} avatarUrl={avatarUrl} size={32} />
-        <span className="min-w-0 max-w-0 flex-1 overflow-hidden opacity-0 transition-all duration-200 group-hover:max-w-[160px] group-hover:opacity-100">
+        <span className="min-w-0 max-w-0 flex-1 overflow-hidden opacity-0 transition-all duration-[var(--duur)] group-hover:max-w-[160px] group-hover:opacity-100">
           <span className="block truncate text-sm font-medium text-sidebar-ink">{naam}</span>
           <span className="block truncate text-xs text-sidebar-ink-muted">Udenhout</span>
         </span>
@@ -92,7 +92,7 @@ export default function GebruikersMenu({ naam, email, avatarUrl, onKosten, onIns
                 setOpen(false);
                 onKosten();
               }}
-              className="mt-1 flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-150 hover:bg-surface"
+              className="mt-1 flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-[var(--duur-snel)] hover:bg-surface"
             >
               <IconCoin className="h-4 w-4 text-ink-faint" />
               Kosten
@@ -104,7 +104,7 @@ export default function GebruikersMenu({ naam, email, avatarUrl, onKosten, onIns
                 setOpen(false);
                 onInstellingen();
               }}
-              className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-150 hover:bg-surface"
+              className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-[var(--duur-snel)] hover:bg-surface"
             >
               <IconSettings className="h-4 w-4 text-ink-faint" />
               Instellingen
@@ -117,7 +117,7 @@ export default function GebruikersMenu({ naam, email, avatarUrl, onKosten, onIns
                 <button
                   type="submit"
                   role="menuitem"
-                  className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-150 hover:bg-surface"
+                  className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-[var(--duur-snel)] hover:bg-surface"
                 >
                   <IconLogout className="h-4 w-4 text-ink-faint" />
                   Uitloggen
@@ -127,7 +127,7 @@ export default function GebruikersMenu({ naam, email, avatarUrl, onKosten, onIns
               <a
                 href="/login"
                 role="menuitem"
-                className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-150 hover:bg-surface"
+                className="flex w-full items-center gap-2 rounded-control px-2 py-1.5 text-left text-sm text-ink transition-colors duration-[var(--duur-snel)] hover:bg-surface"
               >
                 <IconLogout className="h-4 w-4 text-ink-faint" />
                 Inloggen

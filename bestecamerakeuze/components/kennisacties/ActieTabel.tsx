@@ -55,7 +55,7 @@ export default function ActieTabel({ acties }: { acties: Bericht[] }) {
   const open = gesorteerd.filter((actie) => actie.afgerondOp === null).length;
 
   return (
-    <section className="overflow-hidden rounded-panel border border-line bg-card shadow-card">
+    <section className="kaart-omlijst overflow-hidden rounded-panel border border-line bg-card shadow-subtle">
       <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
         <div>
           <p className="font-sans-w7 text-sm font-bold text-ink">Acties</p>
@@ -106,7 +106,7 @@ export default function ActieTabel({ acties }: { acties: Bericht[] }) {
                       aria-label={afgerond ? "Actie heropenen" : "Actie afvinken"}
                       aria-pressed={afgerond}
                       title={afgerond ? "Actie heropenen" : "Actie afvinken"}
-                      className={`flex h-5 w-5 items-center justify-center rounded-control border transition-colors duration-150 ${
+                      className={`flex h-5 w-5 items-center justify-center rounded-control border transition-colors duration-[var(--duur-snel)] ease-merk ${
                         afgerond
                           ? "border-positive bg-positive text-on-primary"
                           : "border-line text-transparent hover:border-positive hover:text-positive"

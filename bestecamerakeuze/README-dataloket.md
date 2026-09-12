@@ -95,10 +95,18 @@ In Vercel (of `.env.local` voor lokaal):
 | `CHAT_MODEL` | optioneel: het model van de chat (standaard `claude-haiku-4-5`) |
 | `CHAT_MODEL_ESCALATIE` | optioneel: het model waarop wordt overgestapt als dat niet lukt (standaard `claude-sonnet-5`) |
 | `SYNC_DATABASE_URL` | schrijvende verbinding, alleen voor de sync-job |
-| `CRON_SECRET` | beschermt `/api/sync` tegen aanroepen van buiten |
+| `CRON_SECRET` | beschermt `/api/sync` en `/api/windsor-sync` tegen aanroepen van buiten |
+| `WINDSOR_API_KEY` | de sleutel van Windsor.ai, voor de nachtelijke sync van de kanaaldata |
+| `WINDSOR_ACCOUNTS_*` | optioneel: per connector de accountlijst overschrijven (zie `lib/windsor/api.ts`) |
 | `SUPABASE_SERVICE_ROLE_KEY` | alleen voor `scripts/maak-gebruiker.ts`, nooit in de app zelf — zie hieronder |
 
 `DATAQUERY_DATABASE_URL` en `SYNC_DATABASE_URL` horen **verschillende** rollen te zijn.
+
+De Windsor-sleutel staat bewust alleen op de server: hij geeft toegang tot alle
+advertentie- en accountdata van de hele groep. Hij hoort dus nooit in clientcode, nooit
+in een `NEXT_PUBLIC_`-variabele en nooit in een URL die de browser opvraagt — alle
+Windsor-calls lopen via `/api/windsor-sync`. Raakt hij toch buiten, maak dan in Windsor
+een nieuwe aan; de oude blijft anders gewoon werken.
 
 ## 4. Collega-accounts aanmaken
 
@@ -264,6 +272,32 @@ en 04:00 zomertijd (Vercel-crons draaien altijd in UTC). Handmatig:
 ```bash
 curl -X POST https://<jouw-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
 ```
+
+### De Windsor-sync (kanaaldata)
+
+Draait als drie aparte crons tussen 02:10 en 02:40 UTC. Waarom gesplitst: één run over
+alles heen past niet binnen de vijf minuten die een serverless functie krijgt — Facebook
+organic alleen al deed er in de meting 131 seconden over. De volgorde is niet
+willekeurig: `organisch` koppelt aan het eind de posts aan de advertenties die erop
+stonden, en leest daarvoor de advertentietabel.
+
+```bash
+BASIS=https://<jouw-app>/api/windsor-sync
+for deel in advertenties organisch account; do
+  curl -X POST "$BASIS?deel=$deel" -H "Authorization: Bearer $CRON_SECRET"
+done
+```
+
+Standaard haalt elke run een voortschrijdend venster van dertig dagen opnieuw op, want
+Meta en Google herzien hun conversiecijfers nog dagen na dato. Eenmalig historie
+ophalen kan met `&dagen=365`; Meta weigert verder terug dan 37 maanden en geeft dan een
+expliciete foutmelding terug in plaats van lege rijen.
+
+Eén ding is tijdkritisch: Instagram levert **geen** volgershistorie — `followers_count`
+geeft altijd precies één rij met de stand van vandaag, welke periode je ook opvraagt. De
+Instagram-reeks in het dashboard bestaat daarom alleen uit de momentopnames die deze
+sync zelf wegschrijft (`volgers_geschat = true`). Draait de sync een nacht niet, dan
+ontbreekt die dag voorgoed.
 
 ## Grenzen die in de code vastliggen
 

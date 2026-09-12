@@ -350,3 +350,104 @@ status, plaatsing, campagnemanager · organisch: posttype · account: niets extr
    sollicitatie?
 5. **Mag de sync nu al aan**, vooruitlopend op de UI? (Mijn advies: ja, vanwege de
    Instagram-historie.)
+
+---
+
+## 8. Hoe het dashboard snel blijft
+
+Bijgewerkt na de keuzes van 12 september: Google Ads en Social ads krijgen elk een eigen
+pagina, er komt een pagina Koppeltabel, en alle conversie-acties komen mee als optionele
+kolom. Blijft over: hoe voelt dat snel aan, ook bij filteren?
+
+### Het uitgangspunt: filteren mag geen netwerkverkeer kosten
+
+Een filter die een serveraanroep doet, voelt altijd traag — zelfs bij 80 ms, want daar
+komt de latency van de verbinding en het opnieuw renderen bovenop. De enige manier om
+filteren echt instant te maken is het filteren dáár te doen waar de data al staat: in
+het geheugen van de browser.
+
+Dat kan alleen als de dataset klein genoeg is. Gemeten cardinaliteit, uit echte data:
+
+| Korrel | Per dag | 90 dagen | 365 dagen |
+|---|---:|---:|---:|
+| Social ads — dag × account × campagne | 34 | 3.000 | 12.300 |
+| Social ads — dag × account × campagne × platform | 62 | 5.500 | 22.500 |
+| Social ads — + plaatsing (feed/reels/stories) | 212 | 19.100 | 77.400 |
+| Social ads — dag × advertentie | 87 | 7.800 | 31.800 |
+| Google Ads — dag × campagne | 35 | 3.200 | 12.900 |
+| Google Ads — dag × campagne × advertentie | 315 | 28.400 | 115.100 |
+
+De korrel **dag × account × campagne × platform** is de fijnste waarop álle filters van
+de pagina werken (periode, account, platform, campagne, doelstelling, status,
+campagnemanager). Op 90 dagen zijn dat 5.500 rijen — klein genoeg om in één keer te
+versturen en daarna alles in de browser te doen.
+
+### Gemeten payload
+
+Een testbestand van 5.700 rijen met veertien statistieken, zoals de pagina hem zou
+krijgen:
+
+| Vorm | Rauw | Gzip |
+|---|---:|---:|
+| Array van objecten (`{"datum":…,"account":…}` per rij) | 1.604 KB | 338 KB |
+| Rijen als arrays + één kolomkop | 498 KB | **222 KB** |
+
+De tweede vorm herhaalt de veldnamen niet en vervangt account- en campagnenamen door een
+index in een lijstje vooraan. Dat is 34% van de naïeve payload, zonder dat er één cijfer
+verloren gaat. Voor een heel jaar loopt dat op naar 891 KB gzip — te veel. Vandaar de
+grens hieronder.
+
+### De vier maatregelen
+
+1. **Nachtelijke sync naar Postgres.** Haalt de 7 tot 131 seconden van de Windsor-API
+   volledig uit het verzoekpad. Staat er, draait als drie crons.
+
+2. **Eén ophaalactie per pagina, dan alles in het geheugen.** Bij het openen van een
+   tabblad haalt de pagina de cube voor de gekozen periode op. Daarna kosten filteren,
+   groeperen op dag/week/maand/kwartaal, van metric wisselen en sorteren geen enkele
+   serveraanroep — het is een `useMemo` over een array van een paar duizend rijen, wat in
+   de praktijk onder de milliseconde blijft. Alleen het wisselen van periode haalt nieuwe
+   data op.
+
+3. **Bij meer dan 120 dagen aggregeert de server naar week.** Een jaar op dagkorrel is
+   891 KB en dat is te zwaar; een jaar op weekkorrel is een zevende daarvan. Niemand
+   bekijkt een jaargrafiek per dag, dus er gaat niets verloren — behalve de mogelijkheid
+   om binnen dat jaar op dagniveau in te zoomen, en daarvoor kies je gewoon een kortere
+   periode.
+
+4. **Advertentieniveau laadt pas op verzoek.** De campagnetabel komt uit de cube die er
+   al is. Klap je een campagne open, dan haalt de pagina de advertenties van díe campagne
+   op — een paar tientallen rijen, geen 115.000.
+
+Daarnaast: de API-route cachet tot de volgende sync (de data verandert maar één keer per
+nacht), de panelen blijven gemount zoals `AppShell` nu al doet, zodat tabwisselen niets
+opnieuw laadt, en de tabel gebruikt `useDeferredValue` zodat de grafiek meteen reageert
+terwijl een lange tabel een frame later volgt.
+
+**Het doel in cijfers:** filteren, groeperen en van statistiek wisselen onder de 50 ms,
+zonder netwerk. Periode wisselen onder de 400 ms. Eerste keer openen van een tabblad
+onder de seconde.
+
+### Eén valkuil die in code is vastgelegd
+
+Afgeleide statistieken — CTR, kosten per klik, kosten per lead — mogen nooit worden
+opgeteld of gemiddeld. Het gemiddelde van tien CTR's is niet de CTR van die tien
+advertenties samen: een advertentie met tien vertoningen telt dan even zwaar als een met
+tienduizend. Ze worden daarom altijd ná het aggregeren berekend, uit de sommen van hun
+twee bronvelden. Dat staat als `afgeleid: { teller, noemer }` op elke statistiek in
+`lib/windsor/velden.ts`, met een test die bewaakt dat teller en noemer zelf optelbaar
+zijn.
+
+## 9. De indeling van het sidebar-kopje "Kanalen"
+
+| Pagina | Wat erop staat | Bron |
+|---|---|---|
+| **Social ads** | Meta en LinkedIn: campagnes, adsets, advertenties met hun creative | `bron in ('meta','linkedin')` |
+| **Google Ads** | Search, Pmax, Demand Gen en Display: campagnes, advertentiegroepen, advertenties | `bron = 'google'` |
+| **Organisch** | Posts van Facebook, Instagram en LinkedIn, met "waarvan betaald" | `windsor_posts` |
+| **Account** | Volgers, groei, bereik en interacties per account | `windsor_account_dag` |
+| **Koppeltabel** | Campagne → campagnemanager, merk, categorie, sheetcampagne | `windsor_campagne_eigenaar` |
+
+In de database blijven Social ads en Google Ads bewust één tabel. De scheiding is een
+weergavekeuze, geen datamodelkeuze: zou je ze splitsen, dan is een budgetvergelijking
+tussen kanalen niet meer te maken en moet elke query twee keer geschreven worden.

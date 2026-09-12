@@ -48,3 +48,15 @@ export function chatGereedheid(): ChatGereedheid {
   }
   return { gereed: ontbreekt.length === 0, ontbreekt };
 }
+
+/**
+ * De koppeling met Windsor.ai (advertentie-, post- en accountdata voor "Kanalen").
+ *
+ * Los van `isDataverbindingGeconfigureerd()`: het dashboard leest de Windsor-data uit
+ * dezelfde Postgres als de chat, maar de sleutel is alleen nodig voor de nachtelijke
+ * sync. Staan de tabellen al vol en is de sleutel weg, dan blijven de pagina's gewoon
+ * werken — ze lopen alleen achter.
+ */
+export function isWindsorGeconfigureerd(): boolean {
+  return Boolean(process.env.WINDSOR_API_KEY);
+}

@@ -79,6 +79,9 @@ const BRAND_LOGOS: Record<string, LogoComponent> = {
   skoda: SkodaLogo,
   seat: SeatLogo,
   porsche: PorscheLogo,
+  /* Geen campagnemerk maar de sleutel van het "Pink Porsche"-theme (LogoMark en het
+     themamenu zoeken het logo op de theme-id op) — dezelfde auto, andere lak. */
+  "pink-porsche": PorscheLogo,
   bentley: BentleyLogo,
 };
 

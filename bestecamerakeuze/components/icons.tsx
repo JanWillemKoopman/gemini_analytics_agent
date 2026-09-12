@@ -328,3 +328,21 @@ export function IconTarget({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconMail({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="3.5" y="5.5" width="17" height="13" rx="2" />
+      <path d="M4.5 7.5 12 13l7.5-5.5" />
+    </svg>
+  );
+}
+
+export function IconArrowRight({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M4.5 12h15" />
+      <path d="m14 6.5 5.5 5.5L14 17.5" />
+    </svg>
+  );
+}

@@ -254,6 +254,44 @@ lak.
   punt, Volkswagen dikke pilvormige staven. Nieuw theme = een blok in globals.css + een regel in
   `lib/themes.ts`; verder hoeft er niets te veranderen.
 
+### De Kanalen-pagina's
+
+De vijf tabbladen onder **Kanalen** (Social ads, Google Ads, Organisch, Account,
+Koppeltabel) delen één component (`components/kanalen/KanaalPagina.tsx`): filterbalk,
+grafiek, tabellen. Wat per pagina verschilt staat in de props. Een paar keuzes die daar
+niet uit af te lezen zijn:
+
+- **De campagnetabel op het tabblad Campagnes staat er visueel buiten.** Die pagina is
+  bevroren op verzoek; verbeteringen aan de Kanalen-pagina's mogen er niets aan
+  veranderen. `FilterSelect` wordt door allebei gebruikt en heeft daarom een opt-in prop
+  `zoekbaar` in plaats van een zoekveld dat overal vanzelf verschijnt — vier korte
+  lijstjes boven de campagnetabel hebben er niets aan, honderden campagnenamen wel.
+- **Wat een cijfer ís, bepaalt zijn vorm.** Een afgeleide (CTR, kosten per klik) en een
+  **stand** (`kubus.standKolommen`, in de praktijk het aantal volgers) tekenen als lijn
+  met een as op `['auto','auto']`; een optelbare hoeveelheid als staaf vanaf nul. Een
+  volgersstand als staaf vanaf nul verstopt precies de groei waar de pagina voor bestaat.
+- **De periode loopt tot en met gisteren** (`periodeGrenzen`) omdat de sync 's nachts
+  draait, en de korrel volgt de lengte van die periode (`bruikbareKorrels` en
+  `standaardKorrel` in `lib/kanalen/kubus.ts`) — nooit het aantal dagen waarop er
+  toevallig data is, want dan bepaalt je postfrequentie welke knoppen aanklikbaar zijn.
+  Een eerste of laatste periode die maar half in de range valt draagt `volledig: false`
+  en wordt in de grafiek lichter getekend met een zin eronder.
+- **Groeperen gaat op een id, niet op een naam.** `advertentie_id` en `post_id` zijn
+  dimensie; de leesbare naam komt via `labelVeld` uit `kubus.meta`. Op naam groeperen
+  liet twee advertenties die toevallig hetzelfde heten tot één regel samenvallen.
+- **Wat het platform niet levert, staat er niet.** Google schrijft `leads` hard op nul
+  (het zit in de conversie-acties) en levert geen bereik per advertentie; die kolommen en
+  hun afgeleiden staan daarom niet in `GOOGLE_ONBESCHIKBAAR`. Een lege cel leest als
+  "nul", niet als "meten we hier niet".
+- **Elke tabel heeft een plakkende totaalregel** die over de rijen telt en niet over de
+  regels erboven — bij een afgeleide is dat een ander getal. Is de detailquery afgekapt
+  (`kubus.afgekapt`), dan staat dat er expliciet bij, want dan telt de tabel lager uit
+  dan de KPI boven de grafiek.
+- **De filterbalk toont hoe vers de cijfers zijn** (laatste sync + tot welke dag er data
+  is) en zet de actieve filters als losse chips onder de balk. De "+" voor een bericht
+  staat ook op deze tabbladen (`TEAM_VIEWS` in `AppShell`): je legt een observatie vast
+  op het beeld waarop je hem doet, niet op een ander tabblad.
+
 ### Component- en codepatronen
 
 - Herbruikbare, kleine componenten per concern:  `Sidebar`, `NavigationItem`,

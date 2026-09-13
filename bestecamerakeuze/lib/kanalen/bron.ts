@@ -31,6 +31,9 @@ export const DAG_KORREL_MAX_DAGEN = 120;
 
 const STATEMENT_TIMEOUT_MS = 15_000;
 
+/** Hoeveel detailregels een pagina maximaal meekrijgt; zie `Kubus.afgekapt`. */
+export const DETAIL_LIMIET = 2000;
+
 export function isKanalenGeconfigureerd(): boolean {
   return Boolean(process.env.DATAQUERY_DATABASE_URL);
 }
@@ -173,49 +176,66 @@ export async function haalAdvertenties(
   const bronnen = bronFilter(bron);
 
   return metVerbinding(async (client) => {
+    // Merk en categorie komen uit de koppeltabel en hangen aan de campagne, dus ze
+    // splitsen de rijen niet verder op — maar ze maken wel het filter mogelijk dat de
+    // koppeltabel al belooft ("werkt daarna als filter op Social ads en Google Ads").
     const reeksRes = await client.query(
       `select ${datumSql}::text as datum,
               account, platform, campagne, campagne_doel, campagne_status, campagnemanager,
+              coalesce(merk, '—') as merk,
+              coalesce(categorie, '—') as categorie,
               ${METINGEN_SOM}
          from dataloket.v_advertenties
         where datum between $1 and $2 and bron = any($3)
-        group by 1, 2, 3, 4, 5, 6, 7
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9
         order by 1`,
       [van, tot, bronnen],
     );
 
+    // Groeperen op `advertentie_id` en niet op de naam: advertentienamen als
+    // "Carrousel 1" komen in meerdere campagnes voor, en op naam groeperen telde die tot
+    // één regel op — met de creative van willekeurig de eerste erbij. De leesbare naam
+    // komt daarom uit de meta.
     const detailRes = await client.query(
-      `select account, platform, campagne, campagne_doel, campagne_status, campagnemanager,
+      `select account, platform,
+              coalesce(nullif(plaatsing, ''), '—') as plaatsing,
+              campagne, campagne_doel, campagne_status, campagnemanager,
+              coalesce(merk, '—') as merk,
+              coalesce(categorie, '—') as categorie,
               coalesce(nullif(adgroep, ''), '—') as adgroep,
-              coalesce(nullif(advertentie, ''), '(zonder naam)') as advertentie,
+              coalesce(nullif(advertentie_id, ''), coalesce(nullif(advertentie, ''), '(zonder naam)')) as advertentie_id,
+              min(coalesce(nullif(advertentie, ''), '(zonder naam)')) as advertentie,
               min(advertentie_status) as advertentie_status,
               min(thumbnail_url) as thumbnail_url,
               min(preview_url) as preview_url,
               ${METINGEN_SOM}
          from dataloket.v_advertenties
         where datum between $1 and $2 and bron = any($3)
-        group by 1, 2, 3, 4, 5, 6, 7, 8
+        group by 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
         order by sum(uitgaven) desc nulls last
-        limit 2000`,
+        limit ${DETAIL_LIMIET}`,
       [van, tot, bronnen],
     );
+
+    const detail = bouwKubus(
+      detailRes.rows,
+      ["account", "platform", "plaatsing", "campagne", "campagne_doel", "campagne_status", "campagnemanager", "merk", "categorie", "adgroep", "advertentie_id"],
+      ADVERTENTIE_METINGEN,
+      korrel,
+      { van, tot },
+      { sleutel: "advertentie_id", velden: ["advertentie", "thumbnail_url", "preview_url", "advertentie_status"] },
+    );
+    detail.afgekapt = detailRes.rows.length >= DETAIL_LIMIET;
 
     return {
       reeks: bouwKubus(
         reeksRes.rows,
-        ["datum", "account", "platform", "campagne", "campagne_doel", "campagne_status", "campagnemanager"],
+        ["datum", "account", "platform", "campagne", "campagne_doel", "campagne_status", "campagnemanager", "merk", "categorie"],
         ADVERTENTIE_METINGEN,
         korrel,
         { van, tot },
       ),
-      detail: bouwKubus(
-        detailRes.rows,
-        ["account", "platform", "campagne", "campagne_doel", "campagne_status", "campagnemanager", "adgroep", "advertentie"],
-        ADVERTENTIE_METINGEN,
-        korrel,
-        { van, tot },
-        { sleutel: "advertentie", velden: ["thumbnail_url", "preview_url", "advertentie_status"] },
-      ),
+      detail,
     };
   });
 }
@@ -275,9 +295,22 @@ export async function haalPosts(van: string, tot: string): Promise<PostData> {
          from dataloket.v_posts
         where datum between $1 and $2
         order by vertoningen_organisch desc nulls last
-        limit 2000`,
+        limit ${DETAIL_LIMIET}`,
       [van, tot],
     );
+
+    // Op `post_id` en niet op de tekst: twee posts met dezelfde caption — een
+    // terugkerende actie, of dezelfde tekst onder een reel en een feedpost — vielen
+    // anders samen tot één regel, en dan klopt de telling eronder ook niet meer.
+    const detail = bouwKubus(
+      detailRes.rows,
+      ["datum", "bron", "account", "post_type", "inzet", "post_id"],
+      POST_METINGEN,
+      "dag",
+      { van, tot },
+      { sleutel: "post_id", velden: ["tekst", "permalink", "afbeelding_url"] },
+    );
+    detail.afgekapt = detailRes.rows.length >= DETAIL_LIMIET;
 
     return {
       reeks: bouwKubus(
@@ -287,14 +320,7 @@ export async function haalPosts(van: string, tot: string): Promise<PostData> {
         korrel,
         { van, tot },
       ),
-      detail: bouwKubus(
-        detailRes.rows,
-        ["datum", "bron", "account", "post_type", "inzet", "tekst"],
-        POST_METINGEN,
-        "dag",
-        { van, tot },
-        { sleutel: "tekst", velden: ["permalink", "afbeelding_url", "post_id"] },
-      ),
+      detail,
     };
   });
 }
@@ -393,7 +419,11 @@ export async function haalKoppelingen(): Promise<Koppeling[]> {
               k.sheet_campagne,
               k.notitie,
               c.uitgaven,
-              (k.campagne is not null) as gekoppeld
+              -- "Gekoppeld" is: er staat een campagnemanager. Dit stond eerst op
+              -- "er bestaat een rij", en dan gold een campagne waarvan alleen het merk
+              -- was ingevuld al als geregeld — terwijl de teller erboven "zonder
+              -- campagnemanager" telt.
+              (coalesce(nullif(btrim(k.eigenaar_naam), ''), null) is not null) as gekoppeld
          from (
            select campagne, min(bron) as bron, coalesce(sum(uitgaven), 0) as uitgaven
              from dataloket.v_advertenties

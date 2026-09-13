@@ -34,9 +34,11 @@ export default function OrganischPaneel({ ingelogd }: { ingelogd: boolean }) {
           titel: "Posts",
           toelichting: "elke post met zijn lifetime-cijfers, nieuwste bovenaan te sorteren",
           bron: "detail",
-          groepeerOp: "tekst",
+          groepeerOp: "post_id",
           groepLabel: "Post",
+          labelVeld: "tekst",
           toonBeeld: true,
+          toonDatum: true,
         },
         {
           titel: "Per account",

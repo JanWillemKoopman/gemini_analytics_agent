@@ -37,8 +37,23 @@ type Props = {
 /** Tabbladen uit de sidebargroep "Campagnes" — hier blijft het ronde "+"-knopje zichtbaar. */
 const CAMPAGNE_GROEP_VIEWS: DashboardView[] = ["campagnes", "tijdlijn", "campagnebeheer"];
 
-/** De twee tabbladen over wat het team zelf vastlegt; beide met de "+" voor een bericht. */
-const TEAM_VIEWS: DashboardView[] = ["scores", "kennisacties"];
+/**
+ * De tabbladen met de "+" voor een bericht: de twee teamtabbladen én de kanaalpagina's.
+ *
+ * De kanaalpagina's stonden er eerst niet bij, en dat was precies verkeerd om: het
+ * dashboard bestaat om beeld → besluit → terugblik te dragen, en het beeld waarop je iets
+ * ontdekt staat hier — een campagne waarvan de kosten per lead verdubbelen zie je op
+ * Social ads, niet op het scorebord. Wie daarvoor eerst naar een ander tabblad moet,
+ * legt het niet vast.
+ */
+const TEAM_VIEWS: DashboardView[] = [
+  "scores",
+  "kennisacties",
+  "social-ads",
+  "google-ads",
+  "organisch",
+  "account-ontwikkeling",
+];
 
 const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   scores: {
@@ -244,10 +259,10 @@ export default function AppShell({
           Instellingen — het hoort bij het beheren van campagnes, niet bij het hele dashboard. */}
       {CAMPAGNE_GROEP_VIEWS.includes(actief) && <NieuweCampagneKnop ingelogd={ingelogd} />}
 
-      {/* Dezelfde plek, maar dan voor een bericht: op Scores én op Kennis en acties, want
-          een observatie leg je net zo goed vast terwijl je naar de stand kijkt. De zijbalk
-          zelf hangt hier (en niet in één van de twee panelen) zodat beide tabbladen — en de
-          nudge in het scorebord — dezelfde zijbalk openen. */}
+      {/* Dezelfde plek, maar dan voor een bericht: op Scores, op Kennis en acties en op de
+          kanaalpagina's, want een observatie leg je vast op het moment dat je hem doet. De
+          zijbalk zelf hangt hier (en niet in één van de panelen) zodat alle tabbladen — en
+          de nudge in het scorebord — dezelfde zijbalk openen. */}
       {TEAM_VIEWS.includes(actief) && (
         <button
           type="button"

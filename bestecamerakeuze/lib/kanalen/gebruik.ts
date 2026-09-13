@@ -33,8 +33,16 @@ export const PERIODES: PeriodeKeuze[] = [
   { id: "12m", label: "12 maanden", dagen: 365 },
 ];
 
+/**
+ * De periode loopt tot en met **gisteren**, niet tot en met vandaag.
+ *
+ * De sync draait 's nachts, dus van vandaag staat er hooguit een fractie in de database
+ * — en die halve dag verscheen als een ingezakte laatste staaf in elke grafiek. Een
+ * kolom die alleen maar zegt "de nacht is nog niet geweest" hoort er niet te staan.
+ */
 export function periodeGrenzen(dagen: number): { van: string; tot: string } {
   const tot = new Date();
+  tot.setUTCDate(tot.getUTCDate() - 1);
   const van = new Date(tot);
   van.setUTCDate(van.getUTCDate() - (dagen - 1));
   return { van: van.toISOString().slice(0, 10), tot: tot.toISOString().slice(0, 10) };
@@ -73,7 +81,13 @@ export function useKanaalData(pagina: PaginaSleutel, dagen: number): KanaalData 
     setBezig(true);
     setFout(null);
 
-    fetch(`/api/kanalen?pagina=${pagina}&van=${van}&tot=${tot}`)
+    // `reload` bij een handmatige ververs: het antwoord draagt `max-age=300,
+    // stale-while-revalidate=3600`, dus zonder dit haalt de browser tot een uur lang zijn
+    // eigen kopie op en levert de knop precies niets. Dat viel vooral op na "Data
+    // ophalen" — dan keek je na een verse sync nog steeds naar de oude cijfers.
+    fetch(`/api/kanalen?pagina=${pagina}&van=${van}&tot=${tot}`, {
+      cache: teller > 0 ? "reload" : "default",
+    })
       .then(async (res) => {
         const data = (await res.json()) as KanaalAntwoord;
         if (afgebroken) return;

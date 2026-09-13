@@ -5,6 +5,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
   Line,
   LineChart,
@@ -21,6 +22,7 @@ import {
   groepeerPerPeriode,
   periodeLabel,
   periodeSleutel,
+  standaardKorrel,
   telOp,
   waardeVan,
   type Korrel,
@@ -37,7 +39,10 @@ import type { Statistiek } from "@/lib/windsor/velden";
  *    één grafiek. Twee maatstaven met een verschillende schaal naast elkaar zetten is de
  *    snelste manier om een verband te suggereren dat er niet is.
  *  - **Korrel**: dag, week, maand of kwartaal. Alleen de korrels die bij de gekozen
- *    periode iets opleveren zijn aanklikbaar (zie `bruikbareKorrels`).
+ *    periode iets opleveren zijn aanklikbaar (zie `bruikbareKorrels`). De korrel waarop
+ *    de grafiek opengaat volgt de lengte van de periode (`standaardKorrel`) en blijft
+ *    daarop staan zolang je zelf niets kiest — een maand opent dus per dag en niet, zoals
+ *    eerder, op vijf weekstaven.
  *  - **Uitsplitsing**: één lijn, of een lijn per platform/account. Bij meer dan zes
  *    categorieën gaan de rest op één hoop onder "Overig" — een zevende kleur bestaat
  *    niet in het palet, en een herhaalde kleur liegt over identiteit.
@@ -71,19 +76,26 @@ export default function TijdGrafiek({
 }: Props) {
   const kleuren = useGrafiekKleuren();
   const korrels = useMemo(() => bruikbareKorrels(kubus), [kubus]);
-  const [korrel, setKorrel] = useState<Korrel>(korrels[korrels.length - 1] ?? "dag");
+  // `null` betekent "volg de periode". Zodra je zelf een korrel aanklikt blijft die staan
+  // zolang hij kan; wordt hij door een periodewissel onmogelijk (dag verdwijnt boven de
+  // 120 dagen), dan valt de grafiek terug op wat bij die periode hoort in plaats van leeg
+  // te blijven.
+  const [korrelKeuze, setKorrelKeuze] = useState<Korrel | null>(null);
   const [statistiekId, setStatistiekId] = useState(standaardStatistiek);
   const [splitsing, setSplitsing] = useState<string>("");
 
-  // De gekozen korrel kan door een periodewissel onbruikbaar worden (dag verdwijnt boven
-  // de 120 dagen). Val dan terug op de ruimste die wél kan, in plaats van een lege
-  // grafiek te tonen.
-  const actieveKorrel = korrels.includes(korrel) ? korrel : (korrels[korrels.length - 1] ?? "dag");
+  const actieveKorrel =
+    korrelKeuze && korrels.includes(korrelKeuze) ? korrelKeuze : standaardKorrel(kubus, korrels);
   const statistiek =
     statistieken.find((s) => s.id === statistiekId) ?? statistieken[0];
 
+  // Een stand (het aantal volgers) is geen hoeveelheid die je per periode optelt maar een
+  // niveau dat meebeweegt. Als staaf vanaf nul zijn vijf weken groei niet van elkaar te
+  // onderscheiden — vandaar: altijd een lijn, en een as die zich naar de data voegt.
+  const isStand = Boolean(statistiek && kubus.standKolommen?.includes(statistiek.id));
+
   const { data, reeksen } = useMemo(() => {
-    if (!statistiek) return { data: [] as Record<string, number | string | null>[], reeksen: [] as string[] };
+    if (!statistiek) return { data: [] as Record<string, number | string | boolean | null>[], reeksen: [] as string[] };
 
     const perPeriode = groepeerPerPeriode(kubus, kubus.rijen, actieveKorrel);
 
@@ -92,6 +104,7 @@ export default function TijdGrafiek({
         data: perPeriode.map((g) => ({
           periode: g.label,
           waarde: waardeVan(statistiek, g.totalen),
+          volledig: g.volledig !== false,
         })),
         reeksen: [],
       };
@@ -137,7 +150,10 @@ export default function TijdGrafiek({
     }
 
     const rijen = perPeriode.map((g) => {
-      const punt: Record<string, number | string | null> = { periode: g.label };
+      const punt: Record<string, number | string | boolean | null> = {
+        periode: g.label,
+        volledig: g.volledig !== false,
+      };
       const perNaam = emmers.get(g.sleutel);
       for (const naam of namen) {
         const rauw = perNaam?.get(naam);
@@ -163,10 +179,19 @@ export default function TijdGrafiek({
   if (!statistiek) return null;
   const eenheid = eenheidVan(statistiek);
 
-  // Een afgeleide statistiek is een verhouding en hoort als lijn; een optelbare
-  // hoeveelheid per periode hoort als staaf. De vorm volgt dus wat het cijfer is, niet
-  // wat er toevallig mooi uitziet.
-  const alsLijn = Boolean(statistiek.afgeleid) || reeksen.length > 0;
+  // Een afgeleide statistiek is een verhouding en hoort als lijn, een stand net zo; een
+  // optelbare hoeveelheid per periode hoort als staaf. De vorm volgt dus wat het cijfer
+  // is, niet wat er toevallig mooi uitziet.
+  const alsLijn = Boolean(statistiek.afgeleid) || isStand || reeksen.length > 0;
+
+  // Een as vanaf nul hoort bij een hoeveelheid: dan zegt de hoogte van de staaf iets. Bij
+  // een stand van tienduizenden volgers drukt diezelfde nul de hele beweging plat.
+  const asBereik: [number | "auto", number | "auto"] = isStand ? ["auto", "auto"] : [0, "auto"];
+
+  // De eerste en de laatste periode vallen vaak maar deels binnen de gekozen datumrange.
+  // Dat is geen daling maar een halve week, en zonder dit zinnetje leest het als het
+  // eerste.
+  const deelperiodes = data.filter((d) => d.volledig === false).map((d) => String(d.periode));
 
   return (
     <section className="kaart-omlijst kaart-accent rounded-panel border border-line bg-card p-5 shadow-card">
@@ -210,7 +235,7 @@ export default function TijdGrafiek({
                   key={k}
                   type="button"
                   disabled={!kan}
-                  onClick={() => setKorrel(k)}
+                  onClick={() => setKorrelKeuze(k)}
                   title={kan ? undefined : "Niet beschikbaar bij deze periode"}
                   className={`rounded-control px-2.5 py-1 text-sm capitalize transition-colors duration-[var(--duur-snel)] ease-merk ${
                     k === actieveKorrel
@@ -246,6 +271,15 @@ export default function TijdGrafiek({
         )}
       </div>
 
+      {deelperiodes.length > 0 && (
+        <p className="mt-3 text-meta text-ink-faint">
+          {deelperiodes.length === 1 ? `${deelperiodes[0]} is een` : `${deelperiodes.join(" en ")} zijn`}{" "}
+          deelperiode{deelperiodes.length === 1 ? "" : "s"}: {deelperiodes.length === 1 ? "hij valt" : "ze vallen"}{" "}
+          maar gedeeltelijk binnen de gekozen datumrange en {deelperiodes.length === 1 ? "telt" : "tellen"} dus minder
+          dagen dan de rest.
+        </p>
+      )}
+
       <div className="mt-4 h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           {alsLijn ? (
@@ -263,6 +297,7 @@ export default function TijdGrafiek({
                 tickLine={false}
                 axisLine={false}
                 width={64}
+                domain={asBereik}
                 tickFormatter={(v: number) => formatteer(v, eenheid, true)}
               />
               <Tooltip
@@ -337,7 +372,15 @@ export default function TijdGrafiek({
                 name={statistiek.label}
                 fill={kleuren.categorieen[0]}
                 radius={[kleuren.staafradius, kleuren.staafradius, 0, 0]}
-              />
+              >
+                {data.map((punt, i) => (
+                  <Cell
+                    key={i}
+                    fill={kleuren.categorieen[0]}
+                    fillOpacity={punt.volledig === false ? 0.35 : 1}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           )}
         </ResponsiveContainer>

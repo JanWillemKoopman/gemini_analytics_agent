@@ -85,7 +85,11 @@ export default function Koppeltabel({ ingelogd }: { ingelogd: boolean }) {
   async function bewaar(campagne: string, patch: Partial<Koppeling>) {
     const huidig = rijen.find((r) => r.campagne === campagne);
     if (!huidig) return;
-    const nieuw = { ...huidig, ...patch, gekoppeld: true };
+    // Stond hier eerst hard op `true`, dus ook het invullen van alleen het merk — of juist
+    // het leegmaken van de naam — haalde het rode bolletje weg en verlaagde de teller
+    // "zonder campagnemanager". Gekoppeld is precies één ding: er staat een naam.
+    const samen = { ...huidig, ...patch };
+    const nieuw = { ...samen, gekoppeld: Boolean(samen.eigenaarNaam?.trim()) };
 
     // Meteen in beeld bijwerken; de serveraanroep bevestigt alleen. Zou de tabel pas na
     // het antwoord bijwerken, dan springt elk veld even terug naar de oude waarde.

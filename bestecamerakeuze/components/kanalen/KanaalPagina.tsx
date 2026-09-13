@@ -26,7 +26,17 @@ export interface TabelConfig {
   bron: "reeks" | "detail";
   groepeerOp: string;
   groepLabel: string;
+  /**
+   * Het metaveld met de leesbare naam, als `groepeerOp` een id is.
+   *
+   * Groeperen op naam laat twee advertenties die toevallig hetzelfde heten tot één regel
+   * samenvallen — en advertentienamen als "Carrousel 1" komen in meerdere campagnes voor.
+   * Groeperen gaat daarom op het id, en de naam komt uit de meta van de kubus.
+   */
+  labelVeld?: string;
   toonBeeld?: boolean;
+  /** Zet een sorteerbare datumkolom vóór de cijfers — alleen zinnig bij losse posts. */
+  toonDatum?: boolean;
 }
 
 type Props = {
@@ -88,6 +98,7 @@ export default function KanaalPagina({
         onUitleg={() => setUitlegAan((v) => !v)}
         bezig={data.bezig}
         onHerlaad={data.herlaad}
+        laatsteSync={data.laatsteSync}
       />
 
       {data.fout && (
@@ -124,8 +135,10 @@ export default function KanaalPagina({
               rijen={tabel.bron === "reeks" ? reeksRijen : detailRijen}
               groepeerOp={tabel.groepeerOp}
               groepLabel={tabel.groepLabel}
+              labelVeld={tabel.labelVeld}
               statistieken={statistieken}
               toonBeeld={tabel.toonBeeld}
+              toonDatum={tabel.toonDatum}
               uitlegAan={uitlegAan}
             />
           ))}

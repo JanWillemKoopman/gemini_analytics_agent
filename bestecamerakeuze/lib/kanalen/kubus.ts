@@ -57,6 +57,14 @@ export interface Kubus {
   /** De dimensie waarvan een stand geldt — meestal "account". */
   standPer?: string;
   /**
+   * Staat er `limit` op de query en is die gehaald?
+   *
+   * De detailtabellen halen maximaal een paar duizend regels op. Het cijfer bovenaan de
+   * pagina komt uit de volledige reeks, dus zodra er is afgekapt tellen de tabel en de
+   * KPI niet meer op tot hetzelfde bedrag. Dat mag, maar niet stilletjes.
+   */
+  afgekapt?: boolean;
+  /**
    * Losse tekst die bij een dimensiewaarde hoort maar niet filterbaar is: de thumbnail
    * van een advertentie, de permalink van een post. Bewust hierbuiten gehouden in plaats
    * van als extra dimensie: het zijn geen waarden om op te filteren of te groeperen, en
@@ -131,6 +139,51 @@ export function periodeLabel(sleutel: string, korrel: Korrel): string {
   }
   const [jaar, kwartaal] = sleutel.split("-K");
   return `Q${kwartaal} ${jaar}`;
+}
+
+/**
+ * Van welke dag tot welke dag loopt een periodesleutel?
+ *
+ * Nodig om te zien of een periode wel helemaal binnen de gekozen datumrange valt. De
+ * eerste en de laatste staaf in een grafiek zijn dat namelijk vaak niet: kies je dertig
+ * dagen en val je middenin een week binnen, dan bestaat de eerste weekstaaf uit twee
+ * dagen. Zonder markering leest dat als een ingezakte week in plaats van als een
+ * deelperiode — de klassieke manier waarop een grafiek liegt zonder een cijfer te
+ * veranderen.
+ */
+export function periodeBereik(sleutel: string, korrel: Korrel): { van: string; tot: string } {
+  if (korrel === "dag") return { van: sleutel, tot: sleutel };
+
+  if (korrel === "week") {
+    const [jaar, week] = sleutel.split("-W").map(Number);
+    // 4 januari valt per definitie in ISO-week 1; vanaf de maandag daarvan doortellen.
+    const vierJan = new Date(Date.UTC(jaar, 0, 4));
+    const maandagWeek1 = new Date(vierJan);
+    maandagWeek1.setUTCDate(vierJan.getUTCDate() - ((vierJan.getUTCDay() + 6) % 7));
+    const maandag = new Date(maandagWeek1);
+    maandag.setUTCDate(maandagWeek1.getUTCDate() + (week - 1) * 7);
+    const zondag = new Date(maandag);
+    zondag.setUTCDate(maandag.getUTCDate() + 6);
+    return { van: dagTekst(maandag), tot: dagTekst(zondag) };
+  }
+
+  if (korrel === "maand") {
+    const [jaar, maand] = sleutel.split("-").map(Number);
+    return {
+      van: dagTekst(new Date(Date.UTC(jaar, maand - 1, 1))),
+      tot: dagTekst(new Date(Date.UTC(jaar, maand, 0))),
+    };
+  }
+
+  const [jaar, kwartaal] = sleutel.split("-K").map(Number);
+  return {
+    van: dagTekst(new Date(Date.UTC(jaar, (kwartaal - 1) * 3, 1))),
+    tot: dagTekst(new Date(Date.UTC(jaar, kwartaal * 3, 0))),
+  };
+}
+
+function dagTekst(d: Date): string {
+  return d.toISOString().slice(0, 10);
 }
 
 const MAANDEN_KORT = [
@@ -296,6 +349,20 @@ export interface Groep {
   label: string;
   totalen: Record<string, number>;
   aantalRijen: number;
+  /**
+   * De hoogste datum die in deze groep voorkomt, als de kubus een datumdimensie heeft.
+   *
+   * Voor een post is dat zijn publicatiedatum: zonder dit kon de tabel wel beloven dat
+   * de nieuwste bovenaan te sorteren was, maar stond de datum nergens en viel er dus
+   * niets op te sorteren.
+   */
+  laatsteDatum?: string;
+  /**
+   * Alleen bij tijdgroepen: valt de hele periode binnen de gekozen datumrange? Een
+   * eerste of laatste week die maar half meetelt hoort niet als volwaardige staaf te
+   * worden gelezen — zie `periodeBereik`.
+   */
+  volledig?: boolean;
 }
 
 /**
@@ -323,8 +390,19 @@ export function groepeer(
   }
   void start;
 
+  const datumKolom = kubus.dimensies.indexOf("datum");
+  const datums = kubus.labels.datum ?? [];
+
   return [...perGroep.entries()].map(([index, groepRijen]) => {
     const naam = labels[index] ?? "—";
+    let laatsteDatum: string | undefined;
+    if (datumKolom !== -1) {
+      for (const rij of groepRijen) {
+        const datum = datums[rij[datumKolom]];
+        // Als tekst vergelijken mag: ISO-datums sorteren alfabetisch chronologisch.
+        if (datum && (!laatsteDatum || datum > laatsteDatum)) laatsteDatum = datum;
+      }
+    }
     return {
       sleutel: naam,
       label: naam,
@@ -332,6 +410,7 @@ export function groepeer(
       // een tweede keer hier te staan.
       totalen: telOp(kubus, groepRijen),
       aantalRijen: groepRijen.length,
+      laatsteDatum,
     };
   });
 }
@@ -391,6 +470,7 @@ export function groepeerPerPeriode(
 
   return [...alle].sort().map((sleutel) => {
     const groepRijen = perPeriode.get(sleutel) ?? [];
+    const bereik = periodeBereik(sleutel, effectief);
     return {
       sleutel,
       label: periodeLabel(sleutel, effectief),
@@ -398,6 +478,10 @@ export function groepeerPerPeriode(
       // niet de som van de dagen in die week.
       totalen: telOp(kubus, groepRijen),
       aantalRijen: groepRijen.length,
+      volledig:
+        !kubus.periode.van ||
+        !kubus.periode.tot ||
+        (bereik.van >= kubus.periode.van && bereik.tot <= kubus.periode.tot),
     };
   });
 }
@@ -410,9 +494,12 @@ export function groepeerPerPeriode(
  * in plaats van een lege grafiek te tonen.
  */
 export function bruikbareKorrels(kubus: Kubus): Korrel[] {
-  const datums = kubus.labels.datum ?? [];
-  if (datums.length === 0) return ["dag"];
-  const aantalDagen = datums.length;
+  // Bewust de lengte van de gekozen periode en niet het aantal dagen waarop er toevallig
+  // iets gebeurde. Dat laatste stond hier eerst, en dan bepaalde je postfrequentie welke
+  // knoppen aanklikbaar waren: op de organische pagina viel "per week" weg zodra er in
+  // een maand minder dan veertien dagen met een post zaten.
+  const aantalDagen = periodeLengte(kubus);
+  if (aantalDagen === 0) return ["dag"];
 
   const korrels: Korrel[] = [];
   // De server vat boven de 120 dagen al samen tot weken; dan is dag niet meer te geven.
@@ -421,4 +508,34 @@ export function bruikbareKorrels(kubus: Kubus): Korrel[] {
   if (aantalDagen >= 60) korrels.push("maand");
   if (aantalDagen >= 180) korrels.push("kwartaal");
   return korrels.length > 0 ? korrels : ["dag"];
+}
+
+/** Het aantal dagen in de gekozen periode; valt terug op de datumlabels als die ontbreekt. */
+export function periodeLengte(kubus: Kubus): number {
+  const { van, tot } = kubus.periode;
+  if (van && tot) {
+    const a = new Date(`${van}T00:00:00Z`).getTime();
+    const b = new Date(`${tot}T00:00:00Z`).getTime();
+    if (Number.isFinite(a) && Number.isFinite(b)) return Math.max(1, Math.round((b - a) / 86400000) + 1);
+  }
+  return (kubus.labels.datum ?? []).length;
+}
+
+/**
+ * De korrel waarop een periode standaard opengaat.
+ *
+ * De ruimste beschikbare korrel stond hier eerst, en dan opende "30 dagen" op vijf
+ * weekstaven: te grof om te zien wat er in die maand gebeurde. Een maand hoort per dag,
+ * een kwartaal per week, een jaar per maand.
+ */
+export function standaardKorrel(kubus: Kubus, beschikbaar: Korrel[]): Korrel {
+  const dagen = periodeLengte(kubus);
+  const wens: Korrel = dagen <= 31 ? "dag" : dagen <= 120 ? "week" : "maand";
+  if (beschikbaar.includes(wens)) return wens;
+  // Anders de fijnste korrel die nog wél kan, want te grof verbergt meer dan te fijn.
+  const volgorde: Korrel[] = ["dag", "week", "maand", "kwartaal"];
+  const vanaf = volgorde.indexOf(wens);
+  for (let i = vanaf; i < volgorde.length; i++) if (beschikbaar.includes(volgorde[i])) return volgorde[i];
+  for (let i = vanaf - 1; i >= 0; i--) if (beschikbaar.includes(volgorde[i])) return volgorde[i];
+  return beschikbaar[0] ?? "dag";
 }

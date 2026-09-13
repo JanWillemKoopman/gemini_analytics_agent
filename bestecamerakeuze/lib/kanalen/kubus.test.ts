@@ -7,8 +7,10 @@ import {
   groepeer,
   groepeerPerPeriode,
   isoWeek,
+  periodeBereik,
   periodeLabel,
   periodeSleutel,
+  standaardKorrel,
   telOp,
   waardeVan,
   type Kubus,
@@ -184,27 +186,78 @@ test("een korte periode biedt geen kwartaalkorrel aan", () => {
 });
 
 test("een lange periode biedt week, maand en kwartaal aan", () => {
-  const datums = Array.from({ length: 200 }, (_, i) => {
-    const d = new Date(Date.UTC(2026, 0, 1 + i));
-    return d.toISOString().slice(0, 10);
-  });
-  const lang: Kubus = { ...kubus, labels: { ...kubus.labels, datum: datums } };
+  const lang: Kubus = { ...kubus, periode: { van: "2026-01-01", tot: "2026-07-19" } };
   assert.deepEqual(bruikbareKorrels(lang), ["week", "maand", "kwartaal"]);
 });
 
 test("een weekkubus van de server biedt geen dagkorrel aan", () => {
   // Boven de 120 dagen vat de server al samen tot weken; dag teruggeven zou een
   // preciezere grafiek suggereren dan de data draagt.
-  const datums = Array.from({ length: 40 }, (_, i) => {
-    const d = new Date(Date.UTC(2026, 0, 1 + i * 7));
-    return d.toISOString().slice(0, 10);
-  });
   const perWeek: Kubus = {
     ...kubus,
     korrel: "week",
-    labels: { ...kubus.labels, datum: datums },
+    periode: { van: "2025-09-14", tot: "2026-09-13" },
   };
   assert.ok(!bruikbareKorrels(perWeek).includes("dag"));
+});
+
+test("de korrelkeuze volgt de periode en niet het aantal dagen met data", () => {
+  // Dit was een echte bug: op de organische pagina bepaalde je postfrequentie welke
+  // knoppen aanklikbaar waren. Dertig dagen met maar drie postdagen hoort gewoon week
+  // aan te bieden.
+  const datums = ["2026-08-16", "2026-08-25", "2026-09-09"];
+  const dunbezet: Kubus = {
+    ...kubus,
+    labels: { ...kubus.labels, datum: datums },
+    periode: { van: "2026-08-15", tot: "2026-09-13" },
+  };
+  assert.deepEqual(bruikbareKorrels(dunbezet), ["dag", "week"]);
+});
+
+test("een maand opent per dag en een jaar per maand", () => {
+  const maand: Kubus = { ...kubus, periode: { van: "2026-08-15", tot: "2026-09-13" } };
+  assert.equal(standaardKorrel(maand, bruikbareKorrels(maand)), "dag");
+
+  const jaar: Kubus = { ...kubus, korrel: "week", periode: { van: "2025-09-14", tot: "2026-09-13" } };
+  assert.equal(standaardKorrel(jaar, bruikbareKorrels(jaar)), "maand");
+});
+
+test("periodeBereik geeft de eerste en laatste dag van een periodesleutel", () => {
+  assert.deepEqual(periodeBereik("2026-09-08", "dag"), { van: "2026-09-08", tot: "2026-09-08" });
+  // Week 37 van 2026 loopt van maandag 7 tot en met zondag 13 september.
+  assert.deepEqual(periodeBereik("2026-W37", "week"), { van: "2026-09-07", tot: "2026-09-13" });
+  assert.deepEqual(periodeBereik("2026-02", "maand"), { van: "2026-02-01", tot: "2026-02-28" });
+  assert.deepEqual(periodeBereik("2026-K3", "kwartaal"), { van: "2026-07-01", tot: "2026-09-30" });
+});
+
+test("een randweek die maar deels in de periode valt is niet volledig", () => {
+  // Een periode die op woensdag begint levert een eerste weekstaaf van vijf dagen op.
+  // Zonder deze vlag leest die als een ingezakte week in plaats van als een deelperiode.
+  const halveRand: Kubus = {
+    dimensies: ["datum"],
+    labels: { datum: ["2026-09-09", "2026-09-14"] },
+    kolommen: ["uitgaven"],
+    rijen: [
+      [0, 100],
+      [1, 100],
+    ],
+    korrel: "dag",
+    periode: { van: "2026-09-09", tot: "2026-09-14" },
+  };
+  const weken = groepeerPerPeriode(halveRand, halveRand.rijen, "week");
+  assert.deepEqual(
+    weken.map((w) => [w.sleutel, w.volledig]),
+    [
+      ["2026-W37", false],
+      ["2026-W38", false],
+    ],
+  );
+});
+
+test("groepeer draagt de laatste datum van elke groep mee", () => {
+  const groepen = groepeer(kubus, kubus.rijen, "account");
+  const udenhout = groepen.find((g) => g.sleutel === "Udenhout");
+  assert.equal(udenhout?.laatsteDatum, "2026-09-08");
 });
 
 // ---------------------------------------------------------------------------

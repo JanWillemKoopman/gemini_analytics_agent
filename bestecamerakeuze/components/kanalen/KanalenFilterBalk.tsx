@@ -1,6 +1,7 @@
 "use client";
 
 import FilterSelect from "@/components/FilterSelect";
+import DataOphalen from "@/components/kanalen/DataOphalen";
 import { IconInfo, IconRefresh } from "@/components/icons";
 import { PERIODES, type PeriodeKeuze } from "@/lib/kanalen/gebruik";
 import { beschikbareWaarden, filter, type Kubus, type Selectie } from "@/lib/kanalen/kubus";
@@ -124,15 +125,20 @@ export default function KanalenFilterBalk({
               Zo lees je dit
             </button>
 
+            {/* Twee verschillende acties die makkelijk door elkaar lopen, dus met
+                verschillende iconen én een titel: dit pijltje leest de database opnieuw
+                (een seconde), "Data ophalen" haalt nieuwe cijfers bij Windsor (minuten). */}
             <button
               type="button"
               onClick={onHerlaad}
               disabled={bezig}
-              title="Opnieuw ophalen"
+              title="Opnieuw uit de database lezen"
               className="flex items-center gap-1.5 rounded-control px-2 py-1.5 text-sm font-medium text-ink-muted transition-colors duration-[var(--duur-snel)] hover:bg-surface hover:text-ink disabled:opacity-50"
             >
               <IconRefresh className={`h-4 w-4 ${bezig ? "animate-spin" : ""}`} />
             </button>
+
+            <DataOphalen onKlaar={onHerlaad} />
 
             {aantalActief > 0 && (
               <button

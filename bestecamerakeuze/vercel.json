@@ -10,11 +10,11 @@
     },
     {
       "path": "/api/windsor-sync?deel=organisch",
-      "schedule": "25 2 * * *"
+      "schedule": "10 3 * * *"
     },
     {
       "path": "/api/windsor-sync?deel=account",
-      "schedule": "40 2 * * *"
+      "schedule": "10 4 * * *"
     }
   ]
 }

@@ -275,11 +275,18 @@ curl -X POST https://<jouw-app>/api/sync -H "Authorization: Bearer $CRON_SECRET"
 
 ### De Windsor-sync (kanaaldata)
 
-Draait als drie aparte crons tussen 02:10 en 02:40 UTC. Waarom gesplitst: één run over
-alles heen past niet binnen de vijf minuten die een serverless functie krijgt — Facebook
-organic alleen al deed er in de meting 131 seconden over. De volgorde is niet
-willekeurig: `organisch` koppelt aan het eind de posts aan de advertenties die erop
-stonden, en leest daarvoor de advertentietabel.
+Draait als drie aparte crons, elk in een eigen uur: advertenties om 02:10 UTC,
+organisch om 03:10, account om 04:10. Waarom gesplitst: één run over alles heen past
+niet binnen de vijf minuten die een serverless functie krijgt — Facebook organic alleen
+al deed er in de meting 131 seconden over.
+
+Waarom een heel uur ertussen en niet een kwartier: op het Hobby-plan van Vercel is de
+cron-timing **per uur nauwkeurig, met een marge van 59 minuten**. Een cron op 02:10
+vuurt ergens tussen 02:00 en 02:59. Staan de drie delen binnen hetzelfde uur, dan is hun
+onderlinge volgorde dus niet gegarandeerd — en die volgorde doet ertoe: `organisch`
+koppelt aan het eind de posts aan de advertenties die erop stonden, en leest daarvoor de
+advertentietabel. Met een uur ertussen overlappen de vensters niet en ligt de volgorde
+vast. Op een Pro-plan is de timing per minuut en zou een kwartier volstaan.
 
 ```bash
 BASIS=https://<jouw-app>/api/windsor-sync

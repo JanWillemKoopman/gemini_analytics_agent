@@ -1,6 +1,11 @@
 import AppShell from "@/components/AppShell";
 import CampaignDashboard from "@/components/CampaignDashboard";
 import CampagneBeheer from "@/components/beheer/CampagneBeheer";
+import AccountPaneel from "@/components/kanalen/AccountPaneel";
+import GoogleAdsPaneel from "@/components/kanalen/GoogleAdsPaneel";
+import Koppeltabel from "@/components/kanalen/Koppeltabel";
+import OrganischPaneel from "@/components/kanalen/OrganischPaneel";
+import SocialAdsPaneel from "@/components/kanalen/SocialAdsPaneel";
 import ChatPaneel from "@/components/chat/ChatPaneel";
 import InstellingenPaneel from "@/components/instellingen/InstellingenPaneel";
 import KennisEnActies from "@/components/kennisacties/KennisEnActies";
@@ -62,6 +67,11 @@ export default async function DashboardPage() {
         }
         tijdlijn={<CampagneTijdlijn />}
         campagnebeheer={<CampagneBeheer ingelogd={ingelogd} />}
+        socialAds={<SocialAdsPaneel ingelogd={ingelogd} />}
+        googleAds={<GoogleAdsPaneel ingelogd={ingelogd} />}
+        organisch={<OrganischPaneel ingelogd={ingelogd} />}
+        accountOntwikkeling={<AccountPaneel ingelogd={ingelogd} />}
+        koppeltabel={<Koppeltabel ingelogd={ingelogd} />}
         prikbord={
           gereed.gereed ? (
             <PrikbordPaneel ingelogd={ingelogd} />

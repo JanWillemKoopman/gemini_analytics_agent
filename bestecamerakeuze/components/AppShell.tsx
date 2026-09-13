@@ -22,6 +22,11 @@ type Props = {
   campagnes: React.ReactNode;
   tijdlijn: React.ReactNode;
   campagnebeheer: React.ReactNode;
+  socialAds: React.ReactNode;
+  googleAds: React.ReactNode;
+  organisch: React.ReactNode;
+  accountOntwikkeling: React.ReactNode;
+  koppeltabel: React.ReactNode;
   prikbord: React.ReactNode;
   chat: React.ReactNode;
   kennis: React.ReactNode;
@@ -56,6 +61,26 @@ const TITLES: Record<DashboardView, { title: string; subtitle: string }> = {
   campagnebeheer: {
     title: "Campagnebeheer",
     subtitle: "Campagnes toevoegen en alle velden bewerken — direct in sync met de sheet.",
+  },
+  "social-ads": {
+    title: "Social ads",
+    subtitle: "Betaalde campagnes op Meta en LinkedIn, tot op de losse advertentie.",
+  },
+  "google-ads": {
+    title: "Google Ads",
+    subtitle: "Search, Performance Max, Demand Gen en Display naast elkaar.",
+  },
+  organisch: {
+    title: "Organisch",
+    subtitle: "De onbetaalde posts op Facebook, Instagram en LinkedIn.",
+  },
+  "account-ontwikkeling": {
+    title: "Account",
+    subtitle: "Hoe de social media-accounts zich ontwikkelen: volgers, bereik en interactie.",
+  },
+  koppeltabel: {
+    title: "Koppeltabel",
+    subtitle: "Welke collega beheert welke campagne — de koppeling die de platforms niet leveren.",
   },
   prikbord: {
     title: "Prikbord",
@@ -99,6 +124,11 @@ export default function AppShell({
   campagnes,
   tijdlijn,
   campagnebeheer,
+  socialAds,
+  googleAds,
+  organisch,
+  accountOntwikkeling,
+  koppeltabel,
   prikbord,
   chat,
   kennis,
@@ -106,6 +136,25 @@ export default function AppShell({
   instellingen,
 }: Props) {
   const [actief, setActief] = useState<DashboardView>("campagnes");
+
+  /**
+   * Welke tabbladen zijn ooit geopend?
+   *
+   * Alle panelen blijven gemount zodra ze één keer getoond zijn — dat is wat een half
+   * getypte vraag en een gescrollde tabel bewaart bij het wisselen van tab. Maar een
+   * paneel dat nog nooit open is geweest, hoort ook nog geen data op te halen: de vijf
+   * Kanalen-panelen doen elk een eigen serveraanroep, en die vijf tegelijk afvuren bij
+   * het laden van het dashboard zou iedereen laten betalen voor tabbladen die hij die
+   * dag niet opent. Vandaar: pas monteren bij het eerste bezoek, daarna blijven staan.
+   */
+  const [bezocht, setBezocht] = useState<Set<DashboardView>>(
+    () => new Set<DashboardView>(["campagnes"]),
+  );
+
+  function navigeer(view: DashboardView) {
+    setActief(view);
+    setBezocht((eerder) => (eerder.has(view) ? eerder : new Set(eerder).add(view)));
+  }
   const { title, subtitle } = TITLES[actief];
   const { zijbalkOpen, openZijbalk, melding, wisMelding } = useTeamData();
 
@@ -122,7 +171,7 @@ export default function AppShell({
       <div className="sticky top-0 z-40 h-screen w-[72px] shrink-0">
         <Sidebar
           actief={actief}
-          onNavigate={setActief}
+          onNavigate={navigeer}
           gebruikerEmail={gebruikerEmail}
           profielNaam={profielNaam}
           profielAvatarUrl={profielAvatarUrl}
@@ -154,6 +203,24 @@ export default function AppShell({
         </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "campagnebeheer"}>
           {campagnebeheer}
+        </div>
+        {/* De vijf Kanalen-panelen blijven net als de rest gemount, maar ze halen hun
+            data pas op zodra ze voor het eerst getoond worden — zie useKanaalData. Een
+            tabblad dat je nooit opent kost dus ook geen ophaalactie. */}
+        <div className="mt-6" role="tabpanel" hidden={actief !== "social-ads"}>
+          {bezocht.has("social-ads") ? socialAds : null}
+        </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "google-ads"}>
+          {bezocht.has("google-ads") ? googleAds : null}
+        </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "organisch"}>
+          {bezocht.has("organisch") ? organisch : null}
+        </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "account-ontwikkeling"}>
+          {bezocht.has("account-ontwikkeling") ? accountOntwikkeling : null}
+        </div>
+        <div className="mt-6" role="tabpanel" hidden={actief !== "koppeltabel"}>
+          {bezocht.has("koppeltabel") ? koppeltabel : null}
         </div>
         <div className="mt-6" role="tabpanel" hidden={actief !== "prikbord"}>
           {prikbord}

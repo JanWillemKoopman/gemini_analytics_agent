@@ -8,10 +8,15 @@ import {
   IconBrain,
   IconCalendar,
   IconChat,
+  IconLink,
   IconMegaphone,
   IconPin,
+  IconPosts,
+  IconSearch,
   IconSettings,
+  IconTarget,
   IconTrophy,
+  IconUsers,
 } from "@/components/icons";
 
 export type DashboardView =
@@ -20,6 +25,11 @@ export type DashboardView =
   | "campagnes"
   | "tijdlijn"
   | "campagnebeheer"
+  | "social-ads"
+  | "google-ads"
+  | "organisch"
+  | "account-ontwikkeling"
+  | "koppeltabel"
   | "prikbord"
   | "chat"
   | "kennis"
@@ -110,6 +120,45 @@ export default function Sidebar({
             label="Campagnebeheer"
             active={actief === "campagnebeheer"}
             onClick={() => onNavigate("campagnebeheer")}
+          />
+
+          {/* Kanalen staat ná Campagnes: de campagnetabel is waar het weekoverleg begint,
+              de kanaalcijfers zijn waar je doorklikt als je wilt weten waaróm een campagne
+              loopt zoals hij loopt. Social en Google staan apart omdat het twee andere
+              gesprekken zijn — bereik en beeld tegenover zoekintentie — en de koppeltabel
+              staat onderaan omdat je er alleen komt als er iets te koppelen valt. */}
+          <p className="label-theme mb-1 mt-4 hidden px-3 text-label text-sidebar-ink-muted group-hover:block">
+            Kanalen
+          </p>
+          <NavigationItem
+            icon={<IconTarget />}
+            label="Social ads"
+            active={actief === "social-ads"}
+            onClick={() => onNavigate("social-ads")}
+          />
+          <NavigationItem
+            icon={<IconSearch />}
+            label="Google Ads"
+            active={actief === "google-ads"}
+            onClick={() => onNavigate("google-ads")}
+          />
+          <NavigationItem
+            icon={<IconPosts />}
+            label="Organisch"
+            active={actief === "organisch"}
+            onClick={() => onNavigate("organisch")}
+          />
+          <NavigationItem
+            icon={<IconUsers />}
+            label="Account"
+            active={actief === "account-ontwikkeling"}
+            onClick={() => onNavigate("account-ontwikkeling")}
+          />
+          <NavigationItem
+            icon={<IconLink />}
+            label="Koppeltabel"
+            active={actief === "koppeltabel"}
+            onClick={() => onNavigate("koppeltabel")}
           />
 
           {toontChatbot && (

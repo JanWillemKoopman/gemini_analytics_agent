@@ -346,3 +346,37 @@ export function IconArrowRight({ className }: IconProps) {
     </svg>
   );
 }
+
+/** Volgers/publiek — de accountontwikkeling onder Kanalen. */
+export function IconUsers({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M15 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-4A3.5 3.5 0 0 0 4 17.5V19" />
+      <circle cx="9.5" cy="8" r="3" />
+      <path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4" />
+      <path d="M15.5 5.2a3 3 0 0 1 0 5.6" />
+    </svg>
+  );
+}
+
+/** Organische posts — losse berichten op een tijdlijn. */
+export function IconPosts({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <rect x="3.5" y="4" width="17" height="16" rx="2.5" />
+      <path d="M7.5 9h9" />
+      <path d="M7.5 12.5h9" />
+      <path d="M7.5 16h5" />
+    </svg>
+  );
+}
+
+/** De koppeltabel: twee dingen die aan elkaar geknoopt worden. */
+export function IconLink({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden="true">
+      <path d="M10 13.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.54 3.54 0 0 0-5-5L11 7.5" />
+      <path d="M14 10.5a3.5 3.5 0 0 0-5 0L6.5 13a3.54 3.54 0 0 0 5 5l1.5-1.5" />
+    </svg>
+  );
+}

@@ -50,8 +50,14 @@ export function formatteer(
     return eenheid === "euro" ? `€ ${kort}` : kort;
   }
 
+  // Bedragen afronden op hele euro's — behalve als het bedrag zelf klein is. Kosten per
+  // klik van vijf cent werd zo "€ 0", en dan lijkt adverteren gratis terwijl het cijfer
+  // juist het meest bekeken getal op de advertentiepagina is. Onder de tien euro dus twee
+  // decimalen; daarboven zijn centen alleen maar ruis in een kolom.
+  const decimalen = eenheid === "euro" ? (Math.abs(waarde) < 10 && waarde !== 0 ? 2 : 0) : 2;
   const getal = waarde.toLocaleString("nl-NL", {
-    maximumFractionDigits: eenheid === "euro" ? 0 : 2,
+    minimumFractionDigits: eenheid === "euro" && decimalen === 2 ? 2 : 0,
+    maximumFractionDigits: decimalen,
   });
   return eenheid === "euro" ? `€ ${getal}` : getal;
 }
